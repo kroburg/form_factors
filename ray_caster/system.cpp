@@ -1,6 +1,6 @@
 #include "system.h"
-#include "../cpuRayCaster/system.h"
-#include "../cudaRayCaster/system.h"
+#include "../cpuRayCaster/cpu_system.h"
+#include "../cudaRayCaster/cuda_system.h"
 
 namespace ray_caster
 {
@@ -24,7 +24,7 @@ namespace ray_caster
     switch (type)
     {
     case RAY_CASTER_SYSTEM_CPU:
-      system = cpu::system_create();
+      system = cpu_ray_caster::system_create();
       break;
 
     case RAY_CASTER_SYSTEM_CUDA:

@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "cpu_system.h"
 
 namespace cpu_ray_caster
 {

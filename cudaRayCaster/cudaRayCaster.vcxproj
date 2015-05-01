@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cuda_system.h" />
     <ClInclude Include="system.cuh" />
-    <ClInclude Include="system.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="system.cu" />

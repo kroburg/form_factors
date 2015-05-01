@@ -1,5 +1,5 @@
 #include "system.cuh"
-#include "system.h"
+#include "cuda_system.h"
 
 #include <helper_cuda.h>
 #include <helper_math.h>
