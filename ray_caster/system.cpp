@@ -1,6 +1,7 @@
 #include "system.h"
 #include "../cpuRayCaster/cpu_system.h"
 #include "../cudaRayCaster/cuda_system.h"
+#include <stdlib.h>
 
 namespace ray_caster
 {
@@ -66,5 +67,10 @@ namespace ray_caster
   int system_prepare(system_t* system)
   {
     return system->methods->prepare(system);
+  }
+
+  int system_cast(system_t* system, task_t* task)
+  {
+    return system->methods->cast(system, task);
   }
 }

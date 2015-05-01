@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "ray_caster/system.h"
+#include "cpuRayCaster/vec_math.h"
 
 using namespace ray_caster;
 using namespace testing;
@@ -72,7 +73,7 @@ public:
   system_t* System;
 };
 
-typedef ::testing::Types<EngineType<RAY_CASTER_SYSTEM_CPU>, EngineType<RAY_CASTER_SYSTEM_CUDA> > RayCasterTypes;
+typedef ::testing::Types<EngineType<RAY_CASTER_SYSTEM_CPU>/*, EngineType<RAY_CASTER_SYSTEM_CUDA>*/ > RayCasterTypes;
 TYPED_TEST_CASE(RayCaster, RayCasterTypes);
 
 TYPED_TEST(RayCaster, MemoryManagementIsCorrect)
@@ -110,4 +111,22 @@ TYPED_TEST(RayCaster, PreparePassForNotEmptyScene)
   scene_t* floorScene = MakeFloorScene();
   system_set_scene(System, floorScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(System));
+}
+
+TYPED_TEST(RayCaster, FindFloorFirstTriangleHit)
+{
+  scene_t* floorScene = MakeFloorScene();
+
+  system_set_scene(System, floorScene);
+  ASSERT_EQ(RAY_CASTER_OK, system_prepare(System));
+
+  vec3 center = triangle_center(floorScene->faces[0]);
+  vec3 origin = center + make_vec3(0.f, 0.f, 1.f);
+  ray_t ray = ray_to_triangle(origin, floorScene->faces[0]);
+  ray_task_t cast_task = { ray };
+  task_t task = { 1, &cast_task };
+  
+  ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
+  // @todo Provide gtest comparison overloads for vec3
+  ASSERT_TRUE(near_enough(cast_task.hit_point, center));
 }

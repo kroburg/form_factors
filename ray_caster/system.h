@@ -1,38 +1,27 @@
 #pragma once
 
-#include <stdlib.h>
+#include "math_types.h"
 
 namespace ray_caster
-{
-  struct vec3
-  {
-    float x;
-    float y;
-    float z;
-  };
-
-  struct face_t
-  {
-    vec3 points[3];
-  };
+{  
+  typedef triangle_t face_t;
 
   inline face_t make_face(vec3 a, vec3 b, vec3 c)
   {
     return { a, b, c };
   }
 
-  struct ray_t
+  struct ray_task_t
   {
-    vec3 origin;
-    vec3 direction;
+    ray_t ray;
+    face_t* hit_face; // 0 if no hit
+    vec3 hit_point;
   };
 
   struct task_t
   {
-    int n_rays;
-    ray_t* rays;
-    face_t* hit_face; // 0 if no hit
-    vec3 hit_point;
+    int n_tasks;
+    ray_task_t* tasks;
   };
 
   struct scene_t
@@ -51,7 +40,8 @@ namespace ray_caster
 
 #define RAY_CASTER_OK    0
 #define RAY_CASTER_ERROR 1
-#define RAY_CASTER_OUT_OF_RANGE 2
+#define RAY_CASTER_NOT_SUPPORTED 2
+#define RAY_CASTER_OUT_OF_RANGE 3
 
   struct system_methods_t
   {
@@ -59,12 +49,10 @@ namespace ray_caster
     int(*init)(system_t* system);
     int(*shutdown)(system_t* system);
 
-    // Accept scene ownership.
-    int (*set_scene)(system_t* system, scene_t* scene);
-
-    // Prepare system for ray casting.
-    int (*prepare)(system_t* system);
-  };  
+    int(*set_scene)(system_t* system, scene_t* scene);
+    int(*prepare)(system_t* system);
+    int(*cast)(system_t* system, task_t* task);
+  };
 
 #define RAY_CASTER_SYSTEM_CPU 1
 #define RAY_CASTER_SYSTEM_CUDA 2
@@ -80,4 +68,5 @@ namespace ray_caster
   int system_shutdown(system_t* system);
   int system_set_scene(system_t* system, scene_t* scene);
   int system_prepare(system_t* system);
+  int system_cast(system_t* system, task_t* task);
 }

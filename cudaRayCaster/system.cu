@@ -81,12 +81,18 @@ namespace cuda_ray_caster
     return RAY_CASTER_OK;
   }
 
+  int cast(cuda_system_t* system, ray_caster::task_t* task)
+  {
+    return -RAY_CASTER_NOT_SUPPORTED;
+  }
+
   const ray_caster::system_methods_t methods =
   {
     (int(*)(system_t* system))&init,
     (int(*)(system_t* system))&shutdown,
     (int(*)(system_t* system, ray_caster::scene_t* scene))&set_scene,
-    (int(*)(system_t* system))&prepare
+    (int(*)(system_t* system))&prepare,
+    (int(*)(ray_caster::system_t* system, ray_caster::task_t* task))&cast,
   };
 
   system_t* system_create()
