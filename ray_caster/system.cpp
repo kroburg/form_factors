@@ -1,5 +1,5 @@
 #include "system.h"
-#include "cpu.h"
+#include "../cpuRayCaster/system.h"
 #include "../cudaRayCaster/system.h"
 
 namespace ray_caster
