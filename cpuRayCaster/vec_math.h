@@ -24,6 +24,13 @@ namespace ray_caster
     return make_vec3(a.x - b.x, a.y - b.y, a.z - b.z);
   }
 
+  inline void operator-=(vec3&a, vec3 b)
+  {
+    a.x -= b.x;
+    a.y -= b.y;
+    a.z -= b.z;
+  }
+
   inline vec3 operator*(vec3 a, point_t b)
   {
     return make_vec3(a.x * b, a.y * b, a.z * b);
@@ -62,6 +69,6 @@ namespace ray_caster
   /// @brief Calculate triangle center.
   vec3 triangle_center(triangle_t triangle);
 
-  /// @brief Make ray looking from origin point to triangle center.
+  /// @brief Make ray looking from origin point to triangle center with length equal to half of distance.
   ray_t ray_to_triangle(vec3 origin, triangle_t t);
 }
