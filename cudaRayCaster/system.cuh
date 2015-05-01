@@ -13,11 +13,30 @@ namespace cuda_ray_caster
     vec3 bbox[2];
   };
 
-  struct scene_t
+  struct cast_result_t
   {
-    int n_faces;
-    face_t *faces;
+    int result_code;
+    const face_t* face;
+    vec3 point;
+    float distance; // not distance but square distance
+  };
+
+  // @todo looks useless right now
+  struct ray_t
+  {
+    vec3 origin;
+    vec3 direction;
   };
 
   __global__ void load_scene_faces(const ray_caster::face_t* source, face_t* target, int n_faces);
+
+  //@todo ugly copy-paste definitions. Should be dropped after algorithm optimizations.
+#define TRIANGLE_INTERSECTION_UNIQUE 0
+#define TRIANGLE_INTERSECTION_DISJOINT 1
+#define TRIANGLE_INTERSECTION_DEGENERATE 2
+#define TRIANGLE_INTERSECTION_SAME_PLAIN 3
+  __device__ int triangle_intersect(ray_t ray, const vec3* triangle, vec3* point);
+
+  // @todo Is it better to pass ray_t* instead of several vec3?
+  __global__ void cast_scene_faces(const face_t* faces, int n_faces, vec3 origin, vec3 direction, cast_result_t* results);
 }
