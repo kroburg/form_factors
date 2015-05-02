@@ -39,9 +39,9 @@ namespace cpu_ray_caster
     using namespace ray_caster;
     for (int t = 0; t != task->n_tasks; ++t)
     {
-      ray_t ray = task->tasks[t].ray;
+      ray_t ray = task->ray[t];
       point_t min_distance = std::numeric_limits<point_t>::max();
-      task->tasks[t].hit_face = 0;
+      task->hit_face[t] = 0;
       for (int f = 0; f != system->scene->n_faces; ++f)
       {
         triangle_t triangle = system->scene->faces[f];
@@ -54,8 +54,8 @@ namespace cpu_ray_caster
           if (new_distance < min_distance)
           {
             min_distance = new_distance;
-            task->tasks[t].hit_face = &system->scene->faces[f];
-            task->tasks[t].hit_point = point;
+            task->hit_face[t] = &system->scene->faces[f];
+            task->hit_point[t] = point;
           }
         }
       }

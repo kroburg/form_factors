@@ -79,16 +79,17 @@ scene_t* MakeConfettiScene(int n_faces, ShperePointsGenerator& generator)
 
 task_t* MakeCollapsingRays(int n_rays, ShperePointsGenerator& generator)
 {
-  ray_task_t* rays = (ray_task_t*)malloc(n_rays * sizeof(ray_task_t));
+  ray_t* rays = (ray_t*)malloc(n_rays * sizeof(ray_t));  
+  face_t** hit_face = (face_t**)malloc(n_rays * sizeof(face_t*));
+  vec3* hit_point = (vec3*)malloc(n_rays * sizeof(vec3));
   task_t* task = (task_t*)malloc(sizeof(task_t));
-  *task = { n_rays, rays };
+  *task = { n_rays, rays, hit_face, hit_point };
   for (int i = 0; i != n_rays; ++i)
   { 
     vec3 direction = generator.Point() * 11.f;
     vec3 origin = direction * 1.1f;
-
-    ray_task_t& ray_task = task->tasks[i];
-    ray_task.ray = { origin, direction };
+    
+    rays[i] = { origin, direction };
   }
 
   return task;
@@ -96,11 +97,11 @@ task_t* MakeCollapsingRays(int n_rays, ShperePointsGenerator& generator)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-  int n_faces = 100000;
-  int n_rays = 1000;
+  int n_faces = 1000;
+  int n_rays = 10000;
 
   ShperePointsGenerator generator;
-  system_t* system = system_create(RAY_CASTER_SYSTEM_CPU);
+  system_t* system = system_create(RAY_CASTER_SYSTEM_CUDA);
   printf("Generating confetti scene...\n");
   scene_t* scene = MakeConfettiScene(n_faces, generator);
   printf("Generating collapsing rays...\n");
@@ -123,7 +124,9 @@ int _tmain(int argc, _TCHAR* argv[])
   
   system_free(system);
   scene_free(scene);
-  free(task->tasks);
+  free(task->ray);
+  free(task->hit_face);
+  free(task->hit_point);
   free(task);
 
 	return 0;

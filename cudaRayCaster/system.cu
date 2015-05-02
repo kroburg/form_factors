@@ -4,6 +4,7 @@
 #include <helper_cuda.h>
 #include <helper_math.h>
 #include <thrust/extrema.h>
+#include <thrust/device_ptr.h>
 
 #include <assert.h>
 
@@ -93,6 +94,15 @@ namespace cuda_ray_caster
     return ray_caster::make_vec3(a.x, a.y, a.z);
   }
 
+  struct ray_cast_task_min_distance
+  {
+    __host__ __device__
+    bool operator()(const cast_result_t& lhs, const cast_result_t& rhs)
+    {
+      return lhs.distance < rhs.distance;
+    }
+  };
+
   int cast(cuda_system_t* system, ray_caster::task_t* task)
   {
     using namespace ray_caster;
@@ -104,7 +114,7 @@ namespace cuda_ray_caster
 
     for (int t = 0; t != task->n_tasks; ++t)
     {
-      ray_caster::ray_t ray = task->tasks[t].ray;
+      ray_caster::ray_t ray = task->ray[t];
 
       checkCudaErrors(cudaMemset(d_results, 0, results_mem_size));
 
@@ -114,25 +124,15 @@ namespace cuda_ray_caster
       checkCudaErrors(cudaPeekAtLastError());
       checkCudaErrors(cudaDeviceSynchronize());
 
-      checkCudaErrors(cudaMemcpy(h_results, d_results, results_mem_size, cudaMemcpyDeviceToHost));
-
-      // @todo calculate min on GPU
-      point_t min_distance = std::numeric_limits<point_t>::max();
-      task->tasks[t].hit_face = 0;
-      for (int f = 0; f != system->n_faces; ++f)
-      { 
-        int check_result = h_results[f].result_code;
-        if (check_result == TRIANGLE_INTERSECTION_UNIQUE)
-        { 
-          if (h_results[f].distance < min_distance)
-          {
-            min_distance = h_results[f].distance;
-            int face_id = h_results[f].face - system->faces;
-            task->tasks[t].hit_face = system->scene->faces + face_id;
-            task->tasks[t].hit_point = loc2ext(h_results[f].point);
-          }
-        }
-      }
+      typedef thrust::device_ptr<cast_result_t> cast_result_ptr;
+      cast_result_ptr thrust_results(d_results);
+      cast_result_ptr result_with_min_distance = thrust::min_element(thrust_results, thrust_results + system->n_faces, ray_cast_task_min_distance());
+      checkCudaErrors(cudaDeviceSynchronize());
+      int face_id = result_with_min_distance - thrust_results;
+      cast_result_t result;
+      checkCudaErrors(cudaMemcpy(&result, result_with_min_distance.get(), sizeof(cast_result_t), cudaMemcpyDeviceToHost));
+      task->hit_face[t] = system->scene->faces + face_id;
+      task->hit_point[t] = loc2ext(result.point);
     }
 
     checkCudaErrors(cudaFree(d_results));

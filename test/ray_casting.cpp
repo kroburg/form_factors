@@ -142,12 +142,13 @@ TYPED_TEST(RayCaster, JustWorks)
   vec3 center = triangle_center(floorScene->faces[0]);
   vec3 origin = center + make_vec3(0.f, 0.f, 1.f);
   ray_t ray = ray_to_triangle(origin, floorScene->faces[0]);
-  ray_task_t cast_task = { ray };
-  task_t task = { 1, &cast_task };
+  face_t* hit_face = 0;
+  vec3 hit_point;
+  task_t task = { 1, &ray, &hit_face, &hit_point };
   
   ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
   // @todo Provide gtest comparison overloads for vec3
-  ASSERT_TRUE(near_enough(cast_task.hit_point, center));
+  ASSERT_TRUE(near_enough(hit_point, center));
 }
 
 TYPED_TEST(RayCaster, HandleRayIntersectingTriangle)
@@ -161,12 +162,13 @@ TYPED_TEST(RayCaster, HandleRayIntersectingTriangle)
   vec3 origin = center + make_vec3(0.f, 0.f, .5f);
   vec3 direction = center - make_vec3(0.f, 0.f, .5f);
   ray_t ray = { origin, direction };
-  ray_task_t cast_task = { ray };
-  task_t task = { 1, &cast_task };
+  face_t* hit_face = 0;
+  vec3 hit_point;
+  task_t task = { 1, &ray, &hit_face, &hit_point };
 
   ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
   // @todo Provide gtest comparison overloads for vec3
-  ASSERT_TRUE(near_enough(cast_task.hit_point, center));
+  ASSERT_TRUE(near_enough(hit_point, center));
 }
 
 TYPED_TEST(RayCaster, FindNearestTriangle)
@@ -179,12 +181,13 @@ TYPED_TEST(RayCaster, FindNearestTriangle)
   vec3 center = triangle_center(stackScene->faces[0]);
   vec3 origin = center + make_vec3(0.f, 0.f, 1.f);
   ray_t ray = ray_to_triangle(origin, stackScene->faces[0]);
-  ray_task_t cast_task = { ray };
-  task_t task = { 1, &cast_task };
+  face_t* hit_face = 0;
+  vec3 hit_point;
+  task_t task = { 1, &ray, &hit_face, &hit_point };
 
   ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
   // @todo Provide gtest comparison overloads for vec3
-  ASSERT_TRUE(near_enough(cast_task.hit_point, center));
+  ASSERT_TRUE(near_enough(hit_point, center));
 }
 
 TYPED_TEST(RayCaster, SkipTriangleNearButInOppositeDirection)
@@ -198,12 +201,13 @@ TYPED_TEST(RayCaster, SkipTriangleNearButInOppositeDirection)
   // origin near to first stack triangle but ray is in opposite direction
   vec3 origin = center + make_vec3(0.f, 0.f, .9f);
   ray_t ray = ray_to_triangle(origin, stackScene->faces[1]);
-  ray_task_t cast_task = { ray };
-  task_t task = { 1, &cast_task };
+  face_t* hit_face = 0;
+  vec3 hit_point;
+  task_t task = { 1, &ray, &hit_face, &hit_point };
 
   ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
   // @todo Provide gtest comparison overloads for vec3
-  ASSERT_TRUE(near_enough(cast_task.hit_point, center));
+  ASSERT_TRUE(near_enough(hit_point, center));
 }
 
 TYPED_TEST(RayCaster, IntersectTriganglesNotPlanes)
@@ -217,12 +221,13 @@ TYPED_TEST(RayCaster, IntersectTriganglesNotPlanes)
   // Ray hit first triangle plane but bypass it by long side
   vec3 origin = center + make_vec3(2.f, 2.f, 2.f);
   ray_t ray = ray_to_triangle(origin, stackScene->faces[1]);
-  ray_task_t cast_task = { ray };
-  task_t task = { 1, &cast_task };
+  face_t* hit_face = 0;
+  vec3 hit_point;
+  task_t task = { 1, &ray, &hit_face, &hit_point };
 
   ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
   // @todo Provide gtest comparison overloads for vec3
-  ASSERT_TRUE(near_enough(cast_task.hit_point, center));
+  ASSERT_TRUE(near_enough(hit_point, center));
 }
 
 TYPED_TEST(RayCaster, ProcessAllRays)
@@ -232,21 +237,24 @@ TYPED_TEST(RayCaster, ProcessAllRays)
   system_set_scene(System, floorScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(System));
 
+  ray_t ray[2];
+  face_t* hit_face[2];
+  vec3 hit_point[2];
+
   vec3 center0 = triangle_center(floorScene->faces[0]);
   vec3 origin0 = center0 + make_vec3(0.f, 0.f, 1.f);
-  ray_t ray0 = ray_to_triangle(origin0, floorScene->faces[0]);
+  ray[0] = ray_to_triangle(origin0, floorScene->faces[0]);
 
   vec3 center1 = triangle_center(floorScene->faces[1]);
   vec3 origin1 = center1 + make_vec3(0.f, 0.f, -1.f);
-  ray_t ray1 = ray_to_triangle(origin1, floorScene->faces[1]);
+  ray[1] = ray_to_triangle(origin1, floorScene->faces[1]);
 
-  ray_task_t cast_task[2];
-  cast_task[0] = { ray0 };
-  cast_task[1] = { ray1 };
-  task_t task = { 2, cast_task };
+
+
+  task_t task = { 2, ray, hit_face, hit_point };
 
   ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
   
-  ASSERT_TRUE(near_enough(cast_task[0].hit_point, center0));
-  ASSERT_TRUE(near_enough(cast_task[1].hit_point, center1));
+  ASSERT_TRUE(near_enough(hit_point[0], center0));
+  ASSERT_TRUE(near_enough(hit_point[1], center1));
 }

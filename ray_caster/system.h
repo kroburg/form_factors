@@ -11,17 +11,12 @@ namespace ray_caster
     return { a, b, c };
   }
 
-  struct ray_task_t
-  {
-    ray_t ray;
-    face_t* hit_face; // 0 if no hit
-    vec3 hit_point;
-  };
-
   struct task_t
   {
     int n_tasks;
-    ray_task_t* tasks;
+    ray_t* ray;
+    face_t** hit_face;
+    vec3* hit_point;
   };
 
   struct scene_t
