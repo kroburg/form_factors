@@ -3,6 +3,7 @@
 
 #include <helper_cuda.h>
 #include <helper_math.h>
+#include <thrust/extrema.h>
 
 #include <assert.h>
 
@@ -55,9 +56,6 @@ namespace cuda_ray_caster
 
     if (system->n_faces == 0)
       return RAY_CASTER_OK;
-
-    if (system->n_faces > 2048)
-      return -RAY_CASTER_OUT_OF_RANGE;
 
     ray_caster::face_t* sourceFaces;
     checkCudaErrors(cudaMalloc((void**)&sourceFaces, scene->n_faces * sizeof(ray_caster::face_t)));
@@ -190,8 +188,15 @@ namespace cuda_ray_caster
       cast_result_t& result = results[i];
       result.face = &faces[i];
       result.result_code = triangle_intersect(ray, faces[i].points, &result.point);
-      vec3 distance = results[i].point - origin;
-      result.distance = dot(distance, distance);
+      if (result.result_code == TRIANGLE_INTERSECTION_UNIQUE)
+      {
+        vec3 distance = results[i].point - origin;
+        result.distance = dot(distance, distance);
+      }
+      else
+      {
+        result.distance = FLT_MAX;
+      }
     }
   }
 

@@ -41,7 +41,6 @@ namespace ray_caster
 #define RAY_CASTER_OK    0
 #define RAY_CASTER_ERROR 1
 #define RAY_CASTER_NOT_SUPPORTED 2
-#define RAY_CASTER_OUT_OF_RANGE 3
 
   struct system_methods_t
   {
