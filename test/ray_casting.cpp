@@ -224,3 +224,29 @@ TYPED_TEST(RayCaster, IntersectTriganglesNotPlanes)
   // @todo Provide gtest comparison overloads for vec3
   ASSERT_TRUE(near_enough(cast_task.hit_point, center));
 }
+
+TYPED_TEST(RayCaster, ProcessAllRays)
+{
+  scene_t* floorScene = MakeFloorScene();
+
+  system_set_scene(System, floorScene);
+  ASSERT_EQ(RAY_CASTER_OK, system_prepare(System));
+
+  vec3 center0 = triangle_center(floorScene->faces[0]);
+  vec3 origin0 = center0 + make_vec3(0.f, 0.f, 1.f);
+  ray_t ray0 = ray_to_triangle(origin0, floorScene->faces[0]);
+
+  vec3 center1 = triangle_center(floorScene->faces[1]);
+  vec3 origin1 = center1 + make_vec3(0.f, 0.f, -1.f);
+  ray_t ray1 = ray_to_triangle(origin1, floorScene->faces[1]);
+
+  ray_task_t cast_task[2];
+  cast_task[0] = { ray0 };
+  cast_task[1] = { ray1 };
+  task_t task = { 2, cast_task };
+
+  ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
+  
+  ASSERT_TRUE(near_enough(cast_task[0].hit_point, center0));
+  ASSERT_TRUE(near_enough(cast_task[1].hit_point, center1));
+}
