@@ -19,6 +19,13 @@ namespace ray_caster
     return make_vec3(a.x + b.x, a.y + b.y, a.z + b.z);
   }
 
+  inline void operator+=(vec3&a, vec3 b)
+  {
+    a.x += b.x;
+    a.y += b.y;
+    a.z += b.z;
+  }
+
   inline vec3 operator-(vec3 a, vec3 b)
   {
     return make_vec3(a.x - b.x, a.y - b.y, a.z - b.z);

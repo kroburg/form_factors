@@ -17,3 +17,5 @@
 /bin
 /template_vs2013.opensdf
 /cpuRayCaster/Debug
+/perfTest/Debug
+/perfTest/Release
