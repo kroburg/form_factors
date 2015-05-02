@@ -3,7 +3,10 @@
 
 #include <helper_cuda.h>
 #include <helper_math.h>
+#include <bulk/bulk.hpp>
+#include <thrust/execution_policy.h>
 #include <thrust/extrema.h>
+#include <thrust/device_vector.h>
 #include <thrust/device_ptr.h>
 
 #include <assert.h>
@@ -103,39 +106,83 @@ namespace cuda_ray_caster
     }
   };
 
+  struct client_cast_result_t
+  {
+    int face_index;
+    vec3 point;
+  };
+
+  struct bulk_find_min
+  {
+    __host__ __device__
+    void operator()(bulk::agent<> &self, cast_result_t* results, int n_faces, client_cast_result_t* find_results)
+    {
+      int i = self.index();
+      typedef thrust::device_ptr<cast_result_t> cast_result_ptr;
+      cast_result_ptr thrust_results(results + i * n_faces);
+      cast_result_ptr result_with_min_distance = thrust::min_element(thrust::device, thrust_results, thrust_results + n_faces, ray_cast_task_min_distance());
+      int face_index = result_with_min_distance - thrust_results;
+      if (result_with_min_distance.get()->distance != FLT_MAX)
+      {
+        find_results[i].face_index = face_index;
+        find_results[i].point = result_with_min_distance.get()->point;
+      }
+      else
+      {
+        find_results[i].face_index = -1;
+      }
+    }
+  };
+
   int cast(cuda_system_t* system, ray_caster::task_t* task)
   {
     using namespace ray_caster;
+    
+    const int max_concurrent_rays = 8192;
 
-    const int results_mem_size = system->n_faces * sizeof(cast_result_t);
+    const int results_mem_size = max_concurrent_rays * system->n_faces * sizeof(cast_result_t);
     cast_result_t* h_results = (cast_result_t*)malloc(results_mem_size);
     cast_result_t* d_results;
     checkCudaErrors(cudaMalloc((void**)&d_results, results_mem_size));
 
-    for (int t = 0; t != task->n_tasks; ++t)
+    thrust::device_vector<client_cast_result_t> d_find_results(max_concurrent_rays);
+    thrust::host_vector<client_cast_result_t> h_find_results;
+
+    ray_t* d_rays;
+    checkCudaErrors(cudaMalloc((void**)&d_rays, task->n_tasks * sizeof(ray_t)));
+    checkCudaErrors(cudaMemcpy(d_rays, task->ray, task->n_tasks * sizeof(ray_t), cudaMemcpyHostToDevice));
+
+    for (int t = 0; t < task->n_tasks;)
     {
-      ray_caster::ray_t ray = task->ray[t];
-
-      checkCudaErrors(cudaMemset(d_results, 0, results_mem_size));
-
-      int n_tpb = system->n_tpb;
+      int n_tpb = system->n_tpb < system->n_faces ? system->n_tpb : system->n_faces;
       int n_blocks = (system->n_faces + n_tpb - 1) / n_tpb;
-      cast_scene_faces << <n_blocks, n_tpb >> >(system->faces, system->n_faces, ext2loc(ray.origin), ext2loc(ray.direction), d_results);
+      int n_rays = t + max_concurrent_rays < task->n_tasks ? max_concurrent_rays : task->n_tasks - t;
+      dim3 grid(n_blocks, n_rays);
+      cast_scene_faces << <grid, n_tpb >> >(system->faces, system->n_faces, d_rays + t, d_results);
       checkCudaErrors(cudaPeekAtLastError());
       checkCudaErrors(cudaDeviceSynchronize());
 
-      typedef thrust::device_ptr<cast_result_t> cast_result_ptr;
-      cast_result_ptr thrust_results(d_results);
-      cast_result_ptr result_with_min_distance = thrust::min_element(thrust_results, thrust_results + system->n_faces, ray_cast_task_min_distance());
-      checkCudaErrors(cudaDeviceSynchronize());
-      int face_id = result_with_min_distance - thrust_results;
-      cast_result_t result;
-      checkCudaErrors(cudaMemcpy(&result, result_with_min_distance.get(), sizeof(cast_result_t), cudaMemcpyDeviceToHost));
-      task->hit_face[t] = system->scene->faces + face_id;
-      task->hit_point[t] = loc2ext(result.point);
+      bulk::async(bulk::par(n_rays), bulk_find_min(), bulk::root.this_exec, d_results, system->n_faces, thrust::raw_pointer_cast(d_find_results.data()));
+      h_find_results = d_find_results;
+
+      for (int j = 0; j != n_rays; ++j)
+      {
+        if (h_find_results[j].face_index != -1)
+        {
+          task->hit_face[t + j] = system->scene->faces + h_find_results[j].face_index;
+          task->hit_point[t + j] = loc2ext(h_find_results[j].point);
+        }
+        else
+        {
+          task->hit_face[t + j] = 0;
+        }
+      }
+
+      t += n_rays;
     }
 
     checkCudaErrors(cudaFree(d_results));
+    checkCudaErrors(cudaFree(d_rays));
     free(h_results);
       
     return RAY_CASTER_OK;
@@ -178,19 +225,19 @@ namespace cuda_ray_caster
     }
   }
 
-  __global__ void cast_scene_faces(const face_t* faces, int n_faces, vec3 origin, vec3 direction, cast_result_t* results)
+  __global__ void cast_scene_faces(const face_t* faces, int n_faces, const ray_t* rays, cast_result_t* results)
   {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
+    int j = n_faces * blockIdx.y + i;
 
     if (i < n_faces)
     {
-      ray_t ray = { origin, direction };
-      cast_result_t& result = results[i];
-      result.face = &faces[i];
-      result.result_code = triangle_intersect(ray, faces[i].points, &result.point);
-      if (result.result_code == TRIANGLE_INTERSECTION_UNIQUE)
+      ray_t ray = rays[blockIdx.y];
+      cast_result_t& result = results[j];
+      int result_code = triangle_intersect(ray, faces[i].points, &result.point);
+      if (result_code == TRIANGLE_INTERSECTION_UNIQUE)
       {
-        vec3 distance = results[i].point - origin;
+        vec3 distance = results[i].point - ray.origin;
         result.distance = dot(distance, distance);
       }
       else

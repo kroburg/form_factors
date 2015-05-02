@@ -132,6 +132,33 @@ TYPED_TEST(RayCaster, PreparePassForNotEmptyScene)
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(System));
 }
 
+TYPED_TEST(RayCaster, ProcessAllRays)
+{
+  scene_t* floorScene = MakeFloorScene();
+
+  system_set_scene(System, floorScene);
+  ASSERT_EQ(RAY_CASTER_OK, system_prepare(System));
+
+  ray_t ray[2];
+  face_t* hit_face[2];
+  vec3 hit_point[2];
+
+  vec3 center0 = triangle_center(floorScene->faces[0]);
+  vec3 origin0 = center0 + make_vec3(0.f, 0.f, 1.f);
+  ray[0] = ray_to_triangle(origin0, floorScene->faces[0]);
+
+  vec3 center1 = triangle_center(floorScene->faces[1]);
+  vec3 origin1 = center1 + make_vec3(0.f, 0.f, -1.f);
+  ray[1] = ray_to_triangle(origin1, floorScene->faces[1]);
+
+  task_t task = { 2, ray, hit_face, hit_point };
+
+  ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
+
+  ASSERT_TRUE(near_enough(hit_point[0], center0));
+  ASSERT_TRUE(near_enough(hit_point[1], center1));
+}
+
 TYPED_TEST(RayCaster, JustWorks)
 {
   scene_t* floorScene = MakeFloorScene();
@@ -230,31 +257,35 @@ TYPED_TEST(RayCaster, IntersectTriganglesNotPlanes)
   ASSERT_TRUE(near_enough(hit_point, center));
 }
 
-TYPED_TEST(RayCaster, ProcessAllRays)
+TYPED_TEST(RayCaster, ProcessLargeScene)
 {
-  scene_t* floorScene = MakeFloorScene();
+  scene_t largeScene;
+  largeScene.n_faces = 1000;
+  largeScene.faces = (face_t*)malloc(sizeof(face_t)* largeScene.n_faces);
 
-  system_set_scene(System, floorScene);
+  face_t reference = make_floor_face1();
+  for (int i = -largeScene.n_faces / 2; i != largeScene.n_faces / 2; ++i)
+  {
+    face_t face = reference;
+    vec3 shift = { 0.f, 0.f, .1f * (float)i };
+    face.points[0] += shift;
+    face.points[1] += shift;
+    face.points[2] += shift;
+    largeScene.faces[i + largeScene.n_faces / 2] = face;
+  }
+
+  system_set_scene(System, &largeScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(System));
 
-  ray_t ray[2];
-  face_t* hit_face[2];
-  vec3 hit_point[2];
-
-  vec3 center0 = triangle_center(floorScene->faces[0]);
-  vec3 origin0 = center0 + make_vec3(0.f, 0.f, 1.f);
-  ray[0] = ray_to_triangle(origin0, floorScene->faces[0]);
-
-  vec3 center1 = triangle_center(floorScene->faces[1]);
-  vec3 origin1 = center1 + make_vec3(0.f, 0.f, -1.f);
-  ray[1] = ray_to_triangle(origin1, floorScene->faces[1]);
-
-
-
-  task_t task = { 2, ray, hit_face, hit_point };
+  vec3 center = triangle_center(largeScene.faces[0]);
+  // Ray hit first triangle plane but bypass it by long side
+  vec3 origin = center + make_vec3(2.f, 2.f, -2.f);
+  ray_t ray = ray_to_triangle(origin, largeScene.faces[0]);
+  face_t* hit_face = 0;
+  vec3 hit_point;
+  task_t task = { 1, &ray, &hit_face, &hit_point };
 
   ASSERT_EQ(RAY_CASTER_OK, system_cast(System, &task));
-  
-  ASSERT_TRUE(near_enough(hit_point[0], center0));
-  ASSERT_TRUE(near_enough(hit_point[1], center1));
+  // @todo Provide gtest comparison overloads for vec3
+  ASSERT_TRUE(near_enough(hit_point, center));
 }

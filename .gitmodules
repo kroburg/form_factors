@@ -1,0 +1,3 @@
+[submodule "ext/bulk"]
+	path = ext/bulk
+	url = https://github.com/jaredhoberock/bulk.git
