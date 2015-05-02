@@ -132,7 +132,7 @@ TYPED_TEST(RayCaster, PreparePassForNotEmptyScene)
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(System));
 }
 
-TYPED_TEST(RayCaster, FindFloorFirstTriangleHit)
+TYPED_TEST(RayCaster, JustWorks)
 {
   scene_t* floorScene = MakeFloorScene();
 
@@ -150,7 +150,7 @@ TYPED_TEST(RayCaster, FindFloorFirstTriangleHit)
   ASSERT_TRUE(near_enough(cast_task.hit_point, center));
 }
 
-TYPED_TEST(RayCaster, FindHitOfIntersectingRay)
+TYPED_TEST(RayCaster, HandleRayIntersectingTriangle)
 {
   scene_t* stackScene = MakeStackScene();
 
@@ -169,7 +169,7 @@ TYPED_TEST(RayCaster, FindHitOfIntersectingRay)
   ASSERT_TRUE(near_enough(cast_task.hit_point, center));
 }
 
-TYPED_TEST(RayCaster, HitFirstOfTrianglesStack)
+TYPED_TEST(RayCaster, FindNearestTriangle)
 {
   scene_t* stackScene = MakeStackScene();
 
@@ -187,7 +187,7 @@ TYPED_TEST(RayCaster, HitFirstOfTrianglesStack)
   ASSERT_TRUE(near_enough(cast_task.hit_point, center));
 }
 
-TYPED_TEST(RayCaster, HitSecondOfTrianglesStack)
+TYPED_TEST(RayCaster, SkipTriangleNearButInOppositeDirection)
 {
   scene_t* stackScene = MakeStackScene();
 
@@ -206,7 +206,7 @@ TYPED_TEST(RayCaster, HitSecondOfTrianglesStack)
   ASSERT_TRUE(near_enough(cast_task.hit_point, center));
 }
 
-TYPED_TEST(RayCaster, HitPassByTrianglesStack)
+TYPED_TEST(RayCaster, IntersectTriganglesNotPlanes)
 {
   scene_t* stackScene = MakeStackScene();
 
@@ -214,7 +214,7 @@ TYPED_TEST(RayCaster, HitPassByTrianglesStack)
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(System));
 
   vec3 center = triangle_center(stackScene->faces[1]);
-  // pass first triangle by long side
+  // Ray hit first triangle plane but bypass it by long side
   vec3 origin = center + make_vec3(2.f, 2.f, 2.f);
   ray_t ray = ray_to_triangle(origin, stackScene->faces[1]);
   ray_task_t cast_task = { ray };
