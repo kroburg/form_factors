@@ -18,15 +18,20 @@ namespace cuda_ray_caster
   {
     vec3 origin;
     vec3 direction;
+    vec3 inv_dir;
   };
 
   __global__ void load_scene_faces(const ray_caster::face_t* source, face_t* target, int n_faces);
+  __global__ void load_rays(const ray_caster::ray_t* source, ray_t* target, int n_rays);
+
+  __device__ bool face_bbox_intersect(ray_t ray, const face_t* face);
 
   //@todo ugly copy-paste definitions. Should be dropped after algorithm optimizations.
 #define TRIANGLE_INTERSECTION_UNIQUE 0
 #define TRIANGLE_INTERSECTION_DISJOINT 1
 #define TRIANGLE_INTERSECTION_DEGENERATE 2
 #define TRIANGLE_INTERSECTION_SAME_PLAIN 3
+
   __device__ int triangle_intersect(ray_t ray, const vec3* triangle, vec3* point);
 
   // @param rays Rays count is block.y dimension

@@ -140,7 +140,15 @@ namespace cuda_ray_caster
 
     ray_t* d_rays;
     checkCudaErrors(cudaMalloc((void**)&d_rays, task->n_tasks * sizeof(ray_t)));
-    checkCudaErrors(cudaMemcpy(d_rays, task->ray, task->n_tasks * sizeof(ray_t), cudaMemcpyHostToDevice));
+    {
+      thrust::device_vector<ray_caster::ray_t> client_rays(task->n_tasks);
+      checkCudaErrors(cudaMemcpy(thrust::raw_pointer_cast(client_rays.data()), task->ray, task->n_tasks * sizeof(ray_caster::ray_t), cudaMemcpyHostToDevice));
+      int n_tpb = system->n_tpb;
+      int n_blocks = (task->n_tasks + n_tpb - 1) / n_tpb;
+      load_rays << <n_blocks, n_tpb >> >(thrust::raw_pointer_cast(client_rays.data()), d_rays, task->n_tasks);
+      checkCudaErrors(cudaPeekAtLastError());
+      checkCudaErrors(cudaDeviceSynchronize());
+    }
 
     for (int t = 0; t < task->n_tasks;)
     {
@@ -198,7 +206,7 @@ namespace cuda_ray_caster
   __device__ void init_face_bbox(face_t* f)
   {
     f->bbox[0] = fminf(fminf(f->points[0], f->points[1]), f->points[2]);
-    f->bbox[0] = fmaxf(fmaxf(f->points[0], f->points[1]), f->points[2]);
+    f->bbox[1] = fmaxf(fmaxf(f->points[0], f->points[1]), f->points[2]);
   }
 
   __global__ void load_scene_faces(const ray_caster::face_t* source, face_t* target, int n_faces)
@@ -214,6 +222,17 @@ namespace cuda_ray_caster
     }
   }
 
+  __global__ void load_rays(const ray_caster::ray_t* source, ray_t* target, int n_rays)
+  {
+    int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if (i < n_rays)
+    {
+      memcpy(&target[i], &source[i], 2 * sizeof(vec3));
+      target[i].inv_dir = make_float3(1.) / (target[i].direction - target[i].origin);
+    }
+  }
+
   __global__ void cast_scene_faces(const face_t* faces, int n_faces, const ray_t* rays, float* distances, vec3* points)
   {
     int face_idx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -223,6 +242,12 @@ namespace cuda_ray_caster
     if (face_idx < n_faces)
     {
       ray_t ray = rays[ray_idx];
+      if (!face_bbox_intersect(ray, &faces[face_idx]))
+      {
+        distances[result_idx] = FLT_MAX;
+        return;
+      }
+
       int result_code = triangle_intersect(ray, faces[face_idx].points, &points[result_idx]);
       if (result_code == TRIANGLE_INTERSECTION_UNIQUE)
       {
@@ -234,6 +259,33 @@ namespace cuda_ray_caster
         distances[result_idx] = FLT_MAX;
       }
     }
+  }
+
+  __device__ bool face_bbox_intersect(ray_t ray, const face_t* face)
+  {
+    vec3 boxMin = face->bbox[0];
+    vec3 boxMax = face->bbox[1];
+
+    float lo = ray.inv_dir.x*(boxMin.x - ray.origin.x);
+    float hi = ray.inv_dir.x*(boxMax.x - ray.origin.x);
+
+    float tmin, tmax;
+    tmin = fminf(lo, hi);
+    tmax = fmaxf(lo, hi);
+
+    float lo1 = ray.inv_dir.y*(boxMin.y - ray.origin.y);
+    float hi1 = ray.inv_dir.y*(boxMax.y - ray.origin.y);
+
+    tmin = fmaxf(tmin, fminf(lo1, hi1));
+    tmax = fminf(tmax, fmaxf(lo1, hi1));
+
+    float lo2 = ray.inv_dir.z*(boxMin.z - ray.origin.z);
+    float hi2 = ray.inv_dir.z*(boxMax.z - ray.origin.z);
+
+    tmin = fmaxf(tmin, fminf(lo2, hi2));
+    tmax = fminf(tmax, fmaxf(lo2, hi2));
+
+    return (tmin <= tmax) && (tmax > 0.f);
   }
 
   __device__ int triangle_intersect(ray_t ray, const vec3* triangle, vec3* point)
