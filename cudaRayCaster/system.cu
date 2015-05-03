@@ -152,7 +152,7 @@ namespace cuda_ray_caster
       checkCudaErrors(cudaPeekAtLastError());
       checkCudaErrors(cudaDeviceSynchronize());
 
-      bulk::async(bulk::par(n_rays), bulk_find_min(), bulk::root.this_exec, thrust::raw_pointer_cast(distances.data()), thrust::raw_pointer_cast(points.data()), n_faces, thrust::raw_pointer_cast(d_find_results.data()));
+      bulk::async(bulk::par(n_rays), bulk_find_min(), bulk::root.this_exec, thrust::raw_pointer_cast(distances.data()), thrust::raw_pointer_cast(points.data()), n_faces, thrust::raw_pointer_cast(d_find_results.data())).wait();
       h_find_results = d_find_results;
 
       for (int j = 0; j != n_rays; ++j)
