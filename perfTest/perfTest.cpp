@@ -164,7 +164,7 @@ int CalculateMismatch(task_t* cpu, task_t* gpu)
 int _tmain(int argc, _TCHAR* argv[])
 {
   int n_faces = 1000;
-  int n_rays = 10000;
+  int n_rays = 1000000;
   bool no_cpu = true;
 
   ShperePointsGenerator generator;

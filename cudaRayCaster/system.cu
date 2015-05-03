@@ -97,15 +97,6 @@ namespace cuda_ray_caster
     return ray_caster::make_vec3(a.x, a.y, a.z);
   }
 
-  struct ray_cast_task_min_distance
-  {
-    __host__ __device__
-    bool operator()(const cast_result_t& lhs, const cast_result_t& rhs)
-    {
-      return lhs.distance < rhs.distance;
-    }
-  };
-
   struct client_cast_result_t
   {
     int face_index;
@@ -115,17 +106,18 @@ namespace cuda_ray_caster
   struct bulk_find_min
   {
     __host__ __device__
-    void operator()(bulk::agent<> &self, cast_result_t* results, int n_faces, client_cast_result_t* find_results)
+    void operator()(bulk::agent<> &self, float* distances, const vec3* points, int n_faces, client_cast_result_t* find_results)
     {
       int i = self.index();
-      typedef thrust::device_ptr<cast_result_t> cast_result_ptr;
-      cast_result_ptr thrust_results(results + i * n_faces);
-      cast_result_ptr result_with_min_distance = thrust::min_element(thrust::device, thrust_results, thrust_results + n_faces, ray_cast_task_min_distance());
-      int face_index = result_with_min_distance - thrust_results;
-      if (result_with_min_distance.get()->distance != FLT_MAX)
+      typedef thrust::device_ptr<float> distance_ptr;
+      distance_ptr thrust_results(distances + i * n_faces);
+      distance_ptr result_with_min_distance = thrust::min_element(thrust::device, thrust_results, thrust_results + n_faces);
+      
+      if (*result_with_min_distance != FLT_MAX)
       {
+        int face_index = result_with_min_distance - thrust_results;
         find_results[i].face_index = face_index;
-        find_results[i].point = result_with_min_distance.get()->point;
+        find_results[i].point = points[i * n_faces + face_index];
       }
       else
       {
@@ -138,13 +130,11 @@ namespace cuda_ray_caster
   {
     using namespace ray_caster;
     
+    const int n_faces = system->n_faces;
     const int max_concurrent_rays = 8192;
-
-    const int results_mem_size = max_concurrent_rays * system->n_faces * sizeof(cast_result_t);
-    cast_result_t* h_results = (cast_result_t*)malloc(results_mem_size);
-    cast_result_t* d_results;
-    checkCudaErrors(cudaMalloc((void**)&d_results, results_mem_size));
-
+    
+    thrust::device_vector<float> distances(n_faces * max_concurrent_rays);
+    thrust::device_vector<vec3> points(n_faces * max_concurrent_rays);
     thrust::device_vector<client_cast_result_t> d_find_results(max_concurrent_rays);
     thrust::host_vector<client_cast_result_t> h_find_results;
 
@@ -158,11 +148,11 @@ namespace cuda_ray_caster
       int n_blocks = (system->n_faces + n_tpb - 1) / n_tpb;
       int n_rays = t + max_concurrent_rays < task->n_tasks ? max_concurrent_rays : task->n_tasks - t;
       dim3 grid(n_blocks, n_rays);
-      cast_scene_faces << <grid, n_tpb >> >(system->faces, system->n_faces, d_rays + t, d_results);
+      cast_scene_faces << <grid, n_tpb >> >(system->faces, system->n_faces, d_rays + t, thrust::raw_pointer_cast(distances.data()), thrust::raw_pointer_cast(points.data()));
       checkCudaErrors(cudaPeekAtLastError());
       checkCudaErrors(cudaDeviceSynchronize());
 
-      bulk::async(bulk::par(n_rays), bulk_find_min(), bulk::root.this_exec, d_results, system->n_faces, thrust::raw_pointer_cast(d_find_results.data()));
+      bulk::async(bulk::par(n_rays), bulk_find_min(), bulk::root.this_exec, thrust::raw_pointer_cast(distances.data()), thrust::raw_pointer_cast(points.data()), n_faces, thrust::raw_pointer_cast(d_find_results.data()));
       h_find_results = d_find_results;
 
       for (int j = 0; j != n_rays; ++j)
@@ -181,9 +171,8 @@ namespace cuda_ray_caster
       t += n_rays;
     }
 
-    checkCudaErrors(cudaFree(d_results));
+
     checkCudaErrors(cudaFree(d_rays));
-    free(h_results);
       
     return RAY_CASTER_OK;
   }
@@ -225,24 +214,24 @@ namespace cuda_ray_caster
     }
   }
 
-  __global__ void cast_scene_faces(const face_t* faces, int n_faces, const ray_t* rays, cast_result_t* results)
+  __global__ void cast_scene_faces(const face_t* faces, int n_faces, const ray_t* rays, float* distances, vec3* points)
   {
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
-    int j = n_faces * blockIdx.y + i;
+    int face_idx = blockDim.x * blockIdx.x + threadIdx.x;
+    int ray_idx = blockIdx.y;
+    int result_idx = n_faces * blockIdx.y + face_idx;
 
-    if (i < n_faces)
+    if (face_idx < n_faces)
     {
-      ray_t ray = rays[blockIdx.y];
-      cast_result_t& result = results[j];
-      int result_code = triangle_intersect(ray, faces[i].points, &result.point);
+      ray_t ray = rays[ray_idx];
+      int result_code = triangle_intersect(ray, faces[face_idx].points, &points[result_idx]);
       if (result_code == TRIANGLE_INTERSECTION_UNIQUE)
       {
-        vec3 distance = results[i].point - ray.origin;
-        result.distance = dot(distance, distance);
+        vec3 distance = points[result_idx] - ray.origin;
+        distances[result_idx] = dot(distance, distance);
       }
       else
       {
-        result.distance = FLT_MAX;
+        distances[result_idx] = FLT_MAX;
       }
     }
   }

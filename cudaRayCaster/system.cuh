@@ -13,12 +13,6 @@ namespace cuda_ray_caster
     vec3 bbox[2];
   };
 
-  struct cast_result_t
-  {
-    float distance; // not distance but square distance
-    vec3 point;
-  };
-
   // @todo looks useless right now
   struct ray_t
   {
@@ -35,6 +29,6 @@ namespace cuda_ray_caster
 #define TRIANGLE_INTERSECTION_SAME_PLAIN 3
   __device__ int triangle_intersect(ray_t ray, const vec3* triangle, vec3* point);
 
-  // @todo Is it better to pass ray_t* instead of several vec3?
-  __global__ void cast_scene_faces(const face_t* faces, int n_faces, const ray_t* rays, cast_result_t* results);
+  // @param rays Rays count is block.y dimension
+  __global__ void cast_scene_faces(const face_t* faces, int n_faces, const ray_t* rays, float* distances, vec3* points);
 }
