@@ -164,7 +164,8 @@ int CalculateMismatch(task_t* cpu, task_t* gpu)
 int _tmain(int argc, _TCHAR* argv[])
 {
   int n_faces = 1000;
-  int n_rays = 1000000;
+  int n_rays = 10000;
+  bool no_cpu = true;
 
   ShperePointsGenerator generator;
   system_t* cuda_system = system_create(RAY_CASTER_SYSTEM_CUDA);
@@ -200,17 +201,20 @@ int _tmain(int argc, _TCHAR* argv[])
   double gpuTime = 1.0e-3 * sdkGetTimerValue(&hTimer);
   printf("Done in %fs.\n", gpuTime);
 
-  printf("Casting scene on CPU...\n");
-  sdkResetTimer(&hTimer);
-  sdkStartTimer(&hTimer);
-  system_cast(cpu_system, cpuTask);
-  sdkStopTimer(&hTimer);
-  double cpuTime = 1.0e-3 * sdkGetTimerValue(&hTimer);
-  printf("Done in %fs.\n", cpuTime);
+  if (!no_cpu)
+  {
+    printf("Casting scene on CPU...\n");
+    sdkResetTimer(&hTimer);
+    sdkStartTimer(&hTimer);
+    system_cast(cpu_system, cpuTask);
+    sdkStopTimer(&hTimer);
+    double cpuTime = 1.0e-3 * sdkGetTimerValue(&hTimer);
+    printf("Done in %fs.\n", cpuTime);
 
-  ErrorStats error = CalculateError(cpuTask, gpuTask);
-  printf("Error is %f average, %f max, %f total.\n", error.AverageDistance, error.MaxDistance, error.TotalDistance);
-  printf("Face hit mismatch count is %d.\n", error.Mismatch);
+    ErrorStats error = CalculateError(cpuTask, gpuTask);
+    printf("Error is %f average, %f max, %f total.\n", error.AverageDistance, error.MaxDistance, error.TotalDistance);
+    printf("Face hit mismatch count is %d.\n", error.Mismatch);
+  }
   
   system_free(cuda_system);
   system_free(cpu_system);
