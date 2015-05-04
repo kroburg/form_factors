@@ -45,6 +45,9 @@
     <ProjectReference Include="..\ext\gtest\msvc\gtest-md.vcxproj">
       <Project>{c8f6c172-56f2-4e76-b5fa-c3b423b31be8}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\math\math.vcxproj">
+      <Project>{4de00af7-2632-4a7b-981a-9411663d4048}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\ray_caster\ray_caster.vcxproj">
       <Project>{0730886b-2df9-40dc-914c-07e6a22aa7b4}</Project>
     </ProjectReference>

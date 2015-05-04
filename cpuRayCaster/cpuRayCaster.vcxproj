@@ -72,11 +72,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cpu_system.cpp" />
-    <ClCompile Include="vec_math.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cpu_system.h" />
-    <ClInclude Include="vec_math.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

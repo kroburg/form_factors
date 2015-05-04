@@ -1,5 +1,6 @@
 #include "cpu_system.h"
-#include "vec_math.h"
+#include "../math/operations.h"
+#include "../math/triangle.h"
 #include <limits>
 #include <stdlib.h>
 
@@ -39,18 +40,18 @@ namespace cpu_ray_caster
     using namespace ray_caster;
     for (int t = 0; t != task->n_tasks; ++t)
     {
-      ray_t ray = task->ray[t];
-      point_t min_distance = std::numeric_limits<point_t>::max();
+      math::ray_t ray = task->ray[t];
+      math::point_t min_distance = std::numeric_limits<math::point_t>::max();
       task->hit_face[t] = 0;
       for (int f = 0; f != system->scene->n_faces; ++f)
       {
-        triangle_t triangle = system->scene->faces[f];
-        vec3 point;
+        math::triangle_t triangle = system->scene->faces[f];
+        math::vec3 point;
         int check_result = triangle_intersect(ray, triangle, &point);
         if (check_result == TRIANGLE_INTERSECTION_UNIQUE)
         {
-          vec3 space_distance = point - ray.origin;
-          point_t new_distance = dot(space_distance, space_distance);
+          math::vec3 space_distance = point - ray.origin;
+          math::point_t new_distance = dot(space_distance, space_distance);
           if (new_distance < min_distance)
           {
             min_distance = new_distance;

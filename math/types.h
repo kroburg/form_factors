@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ray_caster
+namespace math
 {
   typedef float point_t;
   struct vec3

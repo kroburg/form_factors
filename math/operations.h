@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../ray_caster/math_types.h"
+#include "types.h"
 
-namespace ray_caster
+namespace math
 {
   inline float dot(vec3 a, vec3 b)
   {

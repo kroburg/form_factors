@@ -1,9 +1,10 @@
-#include "vec_math.h"
+#include "triangle.h"
+#include "operations.h"
 #include <cmath>
 
 #define EPSILON   0.00000001
 
-namespace ray_caster
+namespace math
 {
   int triangle_intersect(ray_t ray, triangle_t triangle, vec3* point)
   {

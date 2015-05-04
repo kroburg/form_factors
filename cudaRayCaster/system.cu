@@ -87,14 +87,14 @@ namespace cuda_ray_caster
     return RAY_CASTER_OK;
   }
 
-  vec3 ext2loc(ray_caster::vec3 a)
+  vec3 ext2loc(math::vec3 a)
   {
     return make_float3(a.x, a.y, a.z);
   }
 
-  ray_caster::vec3 loc2ext(vec3 a)
+  math::vec3 loc2ext(vec3 a)
   {
-    return ray_caster::make_vec3(a.x, a.y, a.z);
+    return math::make_vec3(a.x, a.y, a.z);
   }
 
   struct client_cast_result_t
@@ -141,8 +141,8 @@ namespace cuda_ray_caster
     ray_t* d_rays;
     checkCudaErrors(cudaMalloc((void**)&d_rays, task->n_tasks * sizeof(ray_t)));
     {
-      thrust::device_vector<ray_caster::ray_t> client_rays(task->n_tasks);
-      checkCudaErrors(cudaMemcpy(thrust::raw_pointer_cast(client_rays.data()), task->ray, task->n_tasks * sizeof(ray_caster::ray_t), cudaMemcpyHostToDevice));
+      thrust::device_vector<math::ray_t> client_rays(task->n_tasks);
+      checkCudaErrors(cudaMemcpy(thrust::raw_pointer_cast(client_rays.data()), task->ray, task->n_tasks * sizeof(math::ray_t), cudaMemcpyHostToDevice));
       int n_tpb = system->n_tpb;
       int n_blocks = (task->n_tasks + n_tpb - 1) / n_tpb;
       load_rays << <n_blocks, n_tpb >> >(thrust::raw_pointer_cast(client_rays.data()), d_rays, task->n_tasks);
@@ -222,7 +222,7 @@ namespace cuda_ray_caster
     }
   }
 
-  __global__ void load_rays(const ray_caster::ray_t* source, ray_t* target, int n_rays)
+  __global__ void load_rays(const math::ray_t* source, ray_t* target, int n_rays)
   {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
 

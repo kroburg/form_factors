@@ -5,7 +5,7 @@
 #include <cmath>
 
 #include "../ray_caster/system.h"
-#include "../cpuRayCaster/vec_math.h"
+#include "../math/operations.h"
 
 #include <helper_timer.h>
 
@@ -27,7 +27,7 @@ public:
   {
   }
 
-  ray_caster::vec3 Point()
+  math::vec3 Point()
   {
     // http://mathworld.wolfram.com/SpherePointPicking.html
 
@@ -40,10 +40,10 @@ public:
     float y = c * sin(theta);
     float z = u;
 
-    return make_vec3(x, y, z);
+    return math::make_vec3(x, y, z);
   }
 
-  ray_caster::vec3 Position()
+  math::vec3 Position()
   {
     return Point() * RDistribution(RGenerator);
   }
@@ -68,7 +68,7 @@ scene_t* MakeConfettiScene(int n_faces, ShperePointsGenerator& generator)
     f.points[0] = generator.Point();
     f.points[1] = generator.Point();
     f.points[2] = generator.Point();
-    vec3 positon = generator.Position();
+    math::vec3 positon = generator.Position();
     f.points[0] += positon;
     f.points[1] += positon;
     f.points[2] += positon;
@@ -79,15 +79,15 @@ scene_t* MakeConfettiScene(int n_faces, ShperePointsGenerator& generator)
 
 task_t* MakeCollapsingRays(int n_rays, ShperePointsGenerator& generator)
 {
-  ray_t* rays = (ray_t*)malloc(n_rays * sizeof(ray_t));  
+  math::ray_t* rays = (math::ray_t*)malloc(n_rays * sizeof(math::ray_t));
   face_t** hit_face = (face_t**)malloc(n_rays * sizeof(face_t*));
-  vec3* hit_point = (vec3*)malloc(n_rays * sizeof(vec3));
+  math::vec3* hit_point = (math::vec3*)malloc(n_rays * sizeof(math::vec3));
   task_t* task = (task_t*)malloc(sizeof(task_t));
   *task = { n_rays, rays, hit_face, hit_point };
   for (int i = 0; i != n_rays; ++i)
   { 
-    vec3 direction = generator.Point() * 110.f;
-    vec3 origin = direction * 1.1f;
+    math::vec3 direction = generator.Point() * 110.f;
+    math::vec3 origin = direction * 1.1f;
     
     rays[i] = { origin, direction };
   }
@@ -101,7 +101,7 @@ task_t* task_clone(task_t* task)
   result->n_tasks = task->n_tasks;
   result->ray = task->ray;
   result->hit_face = (face_t**)malloc(task->n_tasks * sizeof(face_t*));
-  result->hit_point = (vec3*)malloc(task->n_tasks * sizeof(vec3));
+  result->hit_point = (math::vec3*)malloc(task->n_tasks * sizeof(math::vec3));
   return result;
 }
 
@@ -134,7 +134,7 @@ ErrorStats CalculateError(task_t* cpu, task_t* gpu)
 
     if (cpu->hit_face[i] != 0)
     {
-      vec3 diff = cpu->hit_point[i] - gpu->hit_point[i];
+      math::vec3 diff = cpu->hit_point[i] - gpu->hit_point[i];
       float distance = sqrtf(dot(diff, diff));
       result.TotalDistance += distance;
       if (distance > result.MaxDistance)
@@ -164,7 +164,7 @@ int CalculateMismatch(task_t* cpu, task_t* gpu)
 int _tmain(int argc, _TCHAR* argv[])
 {
   int n_faces = 1000;
-  int n_rays = 1000000;
+  int n_rays = 10000000;
   bool no_cpu = true;
 
   ShperePointsGenerator generator;

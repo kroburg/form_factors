@@ -1,12 +1,12 @@
 #pragma once
 
-#include "math_types.h"
+#include "../math/types.h"
 
 namespace ray_caster
-{  
-  typedef triangle_t face_t;
+{
+  typedef math::triangle_t face_t;  
 
-  inline face_t make_face(vec3 a, vec3 b, vec3 c)
+  inline face_t make_face(math::vec3 a, math::vec3 b, math::vec3 c)
   {
     return { a, b, c };
   }
@@ -14,9 +14,9 @@ namespace ray_caster
   struct task_t
   {
     int n_tasks;
-    ray_t* ray;
+    math::ray_t* ray;
     face_t** hit_face;
-    vec3* hit_point;
+    math::vec3* hit_point;
   };
 
   struct scene_t

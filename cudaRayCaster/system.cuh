@@ -22,7 +22,7 @@ namespace cuda_ray_caster
   };
 
   __global__ void load_scene_faces(const ray_caster::face_t* source, face_t* target, int n_faces);
-  __global__ void load_rays(const ray_caster::ray_t* source, ray_t* target, int n_rays);
+  __global__ void load_rays(const math::ray_t* source, ray_t* target, int n_rays);
 
   __device__ bool face_bbox_intersect(ray_t ray, const face_t* face);
 

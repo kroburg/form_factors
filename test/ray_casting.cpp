@@ -1,9 +1,11 @@
 #include "gtest/gtest.h"
 
 #include "ray_caster/system.h"
-#include "cpuRayCaster/vec_math.h"
+#include "math/operations.h"
+#include "math/triangle.h"
 
 using namespace ray_caster;
+using namespace math;
 using namespace testing;
 
 template <int EngineTypeID>
