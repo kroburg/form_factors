@@ -262,25 +262,25 @@ namespace cuda_ray_caster
   }
 
   __device__ bool face_bbox_intersect(ray_t ray, const face_t* face)
-  {
-    vec3 boxMin = face->bbox[0];
-    vec3 boxMax = face->bbox[1];
+  { 
+    const vec3 boxMin = face->bbox[0] - ray.origin;
+    const vec3 boxMax = face->bbox[1] - ray.origin;
 
-    float lo = ray.inv_dir.x*(boxMin.x - ray.origin.x);
-    float hi = ray.inv_dir.x*(boxMax.x - ray.origin.x);
+    float lo = ray.inv_dir.x*boxMin.x;
+    float hi = ray.inv_dir.x*boxMax.x;
 
     float tmin, tmax;
     tmin = fminf(lo, hi);
     tmax = fmaxf(lo, hi);
 
-    float lo1 = ray.inv_dir.y*(boxMin.y - ray.origin.y);
-    float hi1 = ray.inv_dir.y*(boxMax.y - ray.origin.y);
+    float lo1 = ray.inv_dir.y*boxMin.y;
+    float hi1 = ray.inv_dir.y*boxMax.y;
 
     tmin = fmaxf(tmin, fminf(lo1, hi1));
     tmax = fminf(tmax, fmaxf(lo1, hi1));
 
-    float lo2 = ray.inv_dir.z*(boxMin.z - ray.origin.z);
-    float hi2 = ray.inv_dir.z*(boxMax.z - ray.origin.z);
+    float lo2 = ray.inv_dir.z*boxMin.z;
+    float hi2 = ray.inv_dir.z*boxMax.z;
 
     tmin = fmaxf(tmin, fminf(lo2, hi2));
     tmax = fminf(tmax, fmaxf(lo2, hi2));
