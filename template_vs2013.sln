@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "perfTest", "perfTest\perfTe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "math", "math\math.vcxproj", "{4DE00AF7-2632-4A7B-981A-9411663D4048}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "form_factors", "form_factors\form_factors.vcxproj", "{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -133,6 +135,18 @@ Global
 		{4DE00AF7-2632-4A7B-981A-9411663D4048}.Release|Win32.ActiveCfg = Release|Win32
 		{4DE00AF7-2632-4A7B-981A-9411663D4048}.Release|Win32.Build.0 = Release|Win32
 		{4DE00AF7-2632-4A7B-981A-9411663D4048}.Release|x64.ActiveCfg = Release|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Debug|ARM.ActiveCfg = Debug|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Debug|Win32.Build.0 = Debug|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Debug|x64.ActiveCfg = Debug|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Release|ARM.ActiveCfg = Release|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Release|Win32.ActiveCfg = Release|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Release|Win32.Build.0 = Release|Win32
+		{A7FDCDB0-B23D-4BBA-BBCA-2F714A89205A}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

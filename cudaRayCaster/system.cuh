@@ -34,6 +34,5 @@ namespace cuda_ray_caster
 
   __device__ int triangle_intersect(ray_t ray, const vec3* triangle, vec3* point);
 
-  // @param rays Rays count is block.y dimension
-  __global__ void cast_scene_faces(const face_t* faces, int n_faces, const ray_t* rays, float* distances, vec3* points);
+  __global__ void cast_scene_faces_with_reduction(const face_t* faces, int n_faces, const ray_t* rays, int* indecies, vec3* points);
 }

@@ -163,7 +163,7 @@ int CalculateMismatch(task_t* cpu, task_t* gpu)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-  int n_faces = 1000;
+  int n_faces = 5000000;
   int n_rays = 10000000;
   bool no_cpu = true;
 
@@ -214,6 +214,7 @@ int _tmain(int argc, _TCHAR* argv[])
     ErrorStats error = CalculateError(cpuTask, gpuTask);
     printf("Error is %f average, %f max, %f total.\n", error.AverageDistance, error.MaxDistance, error.TotalDistance);
     printf("Face hit mismatch count is %d.\n", error.Mismatch);
+    printf("GPU/CPU performance ratio is %f.\n", cpuTime / gpuTime);
   }
   
   system_free(cuda_system);
