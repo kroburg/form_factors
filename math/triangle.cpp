@@ -80,6 +80,14 @@ namespace math
     return (t.points[0] + t.points[1] + t.points[2]) / 3.f;
   }
 
+  float triangle_area(triangle_t triangle)
+  {
+    vec3 v = triangle.points[1] - triangle.points[0];
+    vec3 w = triangle.points[1] - triangle.points[0];
+    vec3 n = cross(v, w);
+    return sqrtf(dot(n, n));
+  }
+
   ray_t ray_to_triangle(vec3 origin, triangle_t t)
   {
     vec3 center = triangle_center(t);
