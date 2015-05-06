@@ -1,7 +1,1 @@
-Sample: Template
-Minimum spec: SM 2.0
-
-A trivial template project that can be used as a starting point to create new CUDA projects.
-
-Key concepts:
-Device Memory Allocation
+form_factors is a set of libraries used to calculate radiosity form factors of scene using CPU and GPU.
