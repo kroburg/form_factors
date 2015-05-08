@@ -13,6 +13,9 @@
   <ItemGroup>
     <ClInclude Include="cpu_system.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cpu_system.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B45F4831-B73F-4F2D-B86A-00BD6835D5C8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
