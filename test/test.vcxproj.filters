@@ -21,5 +21,8 @@
     <ClCompile Include="ray_casting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="form_factors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -21,6 +21,7 @@
 namespace ray_caster
 {
   typedef math::triangle_t face_t;  
+  typedef math::ray_t ray_t;
 
   inline face_t make_face(math::vec3 a, math::vec3 b, math::vec3 c)
   {
@@ -43,6 +44,9 @@ namespace ray_caster
 
   scene_t* scene_create();
   void scene_free(scene_t* s);
+
+  task_t* task_create(int n_rays);
+  void task_free(task_t* task);
 
   struct system_t
   {

@@ -21,7 +21,8 @@
 #include "math/triangle.h"
 
 using namespace ray_caster;
-using namespace math;
+using math::vec3;
+using math::make_vec3;
 using namespace testing;
 
 template <int EngineTypeID>

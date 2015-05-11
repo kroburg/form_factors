@@ -41,4 +41,14 @@ namespace math
     vec3 origin;
     vec3 direction;
   };
+
+  struct mat33
+  {
+    point_t p[3][3];
+  };
+
+  inline mat33 make_mat33(point_t a00, point_t a01, point_t a02, point_t a10, point_t a11, point_t a12, point_t a20, point_t a21, point_t a22)
+  {
+    return{ { { a00, a01, a02 }, { a10, a11, a12 }, { a20, a21, a22 } } };
+  }
 }

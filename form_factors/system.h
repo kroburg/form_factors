@@ -17,15 +17,21 @@
 #pragma once
 
 #include "../math/types.h"
+#include "../ray_caster/system.h"
 
 namespace form_factors
 {
   typedef math::triangle_t face_t;
 
+  inline face_t make_face(math::vec3 a, math::vec3 b, math::vec3 c)
+  {
+    return{ a, b, c };
+  }
+
   struct mesh_t
   {
-    int n_faces;
     int first_idx;
+    int n_faces;
   };
 
   struct scene_t
@@ -51,12 +57,12 @@ namespace form_factors
   };
 
 #define FORM_FACTORS_OK    0
-#define FORM_FACTORS_ERROR 1
+#define FORM_FACTORS_ERROR 100
 
   struct system_methods_t
   {
     // @todo Add double init/shutdown check in base ray caster system.
-    int(*init)(system_t* system);
+    int(*init)(system_t* system, ray_caster::system_t* ray_caster);
     int(*shutdown)(system_t* system);
 
     int(*set_scene)(system_t* system, scene_t* scene);
@@ -67,12 +73,12 @@ namespace form_factors
 #define FORM_FACTORS_CPU 1
 
   /// @note init() system on creation.
-  system_t* system_create(int type);
+  system_t* system_create(int type, ray_caster::system_t* ray_caster);
 
   /// @note shutdown() system on destruction.
   void system_free(system_t* system);
 
-  int system_init(system_t* system);
+  int system_init(system_t* system, ray_caster::system_t* ray_caster);
   int system_shutdown(system_t* system);
   int system_set_scene(system_t* system, scene_t* scene);
   int system_prepare(system_t* system);

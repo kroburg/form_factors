@@ -37,7 +37,7 @@ namespace form_factors
     free(scene);
   }
 
-  system_t* system_create(int type)
+  system_t* system_create(int type, ray_caster::system_t* ray_caster)
   {
     system_t* system = 0;
     switch (type)
@@ -50,14 +50,9 @@ namespace form_factors
       return 0;
     }
 
-    system_init(system);
+    system_init(system, ray_caster);
 
     return system;
-  }
-
-  system_t* system_create_default()
-  {
-    return system_create(FORM_FACTORS_CPU);
   }
 
   void system_free(system_t* system)
@@ -66,9 +61,9 @@ namespace form_factors
     free(system);
   }
 
-  int system_init(system_t* system)
+  int system_init(system_t* system, ray_caster::system_t* ray_caster)
   {
-    return system->methods->init(system);
+    return system->methods->init(system, ray_caster);
   }
 
   int system_shutdown(system_t* system)

@@ -36,6 +36,24 @@ namespace ray_caster
     free(scene);
   }
 
+  task_t* task_create(int n_rays)
+  {
+    task_t* task = (task_t*) malloc(sizeof(task_t));
+    task->n_tasks = n_rays;
+    task->ray = (math::ray_t*)     malloc(n_rays * sizeof(math::ray_t));
+    task->hit_face = (face_t**)    malloc(n_rays * sizeof(ray_caster::face_t*));
+    task->hit_point = (math::vec3*)malloc(n_rays * sizeof(math::vec3));
+    return task;
+  }
+
+  void task_free(task_t* task)
+  {
+    free(task->ray);
+    free(task->hit_face);
+    free(task->hit_point);
+    free(task);
+  }
+
   system_t* system_create(int type)
   {
     system_t* system = 0;

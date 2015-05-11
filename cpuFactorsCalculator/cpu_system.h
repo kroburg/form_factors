@@ -17,8 +17,14 @@
 #pragma once
 
 #include "../form_factors/system.h"
+#include "../math/types.h"
 
 namespace cpu_form_factors
 {
+  struct face_t : math::triangle_t
+  {
+    float weight;
+  };
+
   form_factors::system_t* system_create();
 }

@@ -17,6 +17,10 @@
 #pragma once
 
 #include "types.h"
+#include "operations.h"
+#include <cmath>
+
+#define _FLT_EPSILON   0.00000001
 
 namespace math
 {
@@ -28,6 +32,11 @@ namespace math
   inline vec3 cross(vec3 a, vec3 b)
   {
     return make_vec3(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+  }
+
+  inline point_t norm(vec3 a)
+  {
+    return sqrtf(dot(a, a));
   }
 
   inline vec3 operator+(vec3 a, vec3 b)
@@ -67,6 +76,22 @@ namespace math
   inline vec3 operator/(vec3 a, point_t b)
   {
     return make_vec3(a.x / b, a.y / b, a.z / b);
+  }
+
+  inline void operator/=(vec3& a, point_t b)
+  {
+    b = point_t(1) / b;
+    a.x *= b;
+    a.y *= b;
+    a.z *= b;
+  }
+
+  inline vec3 normalize(vec3 a)
+  {
+    point_t n = norm(a);
+    if (n > _FLT_EPSILON)
+      a /= sqrtf(n);
+    return a;
   }
 
   inline bool near_enough(vec3 a, vec3 b)

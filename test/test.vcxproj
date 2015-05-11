@@ -27,10 +27,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="form_factors.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ray_casting.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\cpuFactorsCalculator\cpuFactorsCalculator.vcxproj">
+      <Project>{b45f4831-b73f-4f2d-b86a-00bd6835d5c8}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\cpuRayCaster\cpuRayCaster.vcxproj">
       <Project>{6db47603-9ce5-4255-99e5-29ac7a1e655c}</Project>
     </ProjectReference>
@@ -44,6 +48,9 @@
     </ProjectReference>
     <ProjectReference Include="..\ext\gtest\msvc\gtest-md.vcxproj">
       <Project>{c8f6c172-56f2-4e76-b5fa-c3b423b31be8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\form_factors\form_factors.vcxproj">
+      <Project>{a7fdcdb0-b23d-4bba-bbca-2f714a89205a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\math\math.vcxproj">
       <Project>{4de00af7-2632-4a7b-981a-9411663d4048}</Project>

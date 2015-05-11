@@ -18,7 +18,7 @@
 #include "operations.h"
 #include <cmath>
 
-#define EPSILON   0.00000001
+
 
 namespace math
 {
@@ -32,14 +32,14 @@ namespace math
     u = triangle.points[1] - triangle.points[0];
     v = triangle.points[2] - triangle.points[0];
     n = cross(u, v);              // cross product
-    if (dot(n, n) < EPSILON)      // triangle is degenerate
+    if (dot(n, n) < _FLT_EPSILON)      // triangle is degenerate
       return -TRIANGLE_INTERSECTION_DEGENERATE; // do not deal with this case
 
     dir = ray.direction - ray.origin; // ray direction vec3
     w0 = ray.origin - triangle.points[0];
     a = -dot(n, w0);
     b = dot(n, dir);
-    if (fabs(b) < EPSILON) { // ray is  parallel to triangle plane
+    if (fabs(b) < _FLT_EPSILON) { // ray is  parallel to triangle plane
       if (a == 0)            // ray lies in triangle plane
         return -TRIANGLE_INTERSECTION_SAME_PLAIN;
       else return -TRIANGLE_INTERSECTION_DISJOINT; // ray disjoint from plane
@@ -83,7 +83,7 @@ namespace math
   float triangle_area(triangle_t triangle)
   {
     vec3 v = triangle.points[1] - triangle.points[0];
-    vec3 w = triangle.points[1] - triangle.points[0];
+    vec3 w = triangle.points[2] - triangle.points[0];
     vec3 n = cross(v, w);
     return sqrtf(dot(n, n));
   }

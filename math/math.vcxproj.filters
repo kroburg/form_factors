@@ -8,5 +8,6 @@
     <ClInclude Include="operations.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="triangle.h" />
+    <ClInclude Include="mat.h" />
   </ItemGroup>
 </Project>
