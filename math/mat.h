@@ -15,7 +15,8 @@ namespace math
       );
   }
 
-  inline mat33 operator * (mat33 a, mat33 b){
+  inline mat33 operator * (mat33 a, mat33 b)
+  {
     return make_mat33(
       a.p[0][0] * b.p[0][0] + a.p[0][1] * b.p[1][0] + a.p[0][2] * b.p[2][0],
       a.p[1][0] * b.p[0][0] + a.p[1][1] * b.p[1][0] + a.p[1][2] * b.p[2][0],
@@ -53,7 +54,8 @@ namespace math
       );
   }
 
-  inline mat33 operator * (mat33 a, point_t b) {
+  inline mat33 operator * (mat33 a, point_t b)
+  {
     return make_mat33(
       a.p[0][0] * b, a.p[1][0] * b, a.p[2][0] * b,
       a.p[0][1] * b, a.p[1][1] * b, a.p[2][1] * b,
