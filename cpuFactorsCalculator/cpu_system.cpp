@@ -174,7 +174,7 @@ namespace cpu_form_factors
 
     math::vec3 v0 = face.points[1] - face.points[0];
     math::vec3 v1 = face.points[2] - face.points[0];
-    return a * v0 + b * v1;
+    return face.points[0] + a * v0 + b * v1;
   }
 
   math::mat33 pick_face_rotation(const face_t& face)
