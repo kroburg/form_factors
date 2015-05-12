@@ -116,6 +116,6 @@ TYPED_TEST(FormFactors, ParallelPlanesCorrect)
   float theoretical = theor_parallel_planes(1, 1, 1);
 
   ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
-  EXPECT_EQ(theoretical, factors[1]);
-  EXPECT_EQ(theoretical, factors[2]);
+  EXPECT_NEAR(theoretical, factors[1], 0.01);
+  EXPECT_NEAR(theoretical, factors[2], 0.01);
 }
