@@ -20,6 +20,7 @@
 #include <cmath>
 
 #include "../ray_caster/system.h"
+#include "../form_factors/system.h"
 #include "../math/operations.h"
 
 #include <helper_timer.h>
@@ -176,8 +177,9 @@ int CalculateMismatch(task_t* cpu, task_t* gpu)
 int _tmain(int argc, _TCHAR* argv[])
 {
   int n_faces = 1000;
-  int n_rays = 1000000;
+  int n_rays = 10000 * n_faces;
   bool no_cpu = true;
+  bool no_form_factors = false;
 
   ShperePointsGenerator generator;
   system_t* cuda_system = system_create(RAY_CASTER_SYSTEM_CUDA);
@@ -227,6 +229,40 @@ int _tmain(int argc, _TCHAR* argv[])
     printf("Error is %f average, %f max, %f total.\n", error.AverageDistance, error.MaxDistance, error.TotalDistance);
     printf("Face hit mismatch count is %d.\n", error.Mismatch);
     printf("GPU/CPU performance ratio is %f.\n", cpuTime / gpuTime);
+  }
+
+  if (!no_form_factors)
+  {
+    form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, cuda_system);
+    form_factors::scene_t calculator_scene;
+    calculator_scene.n_faces = scene->n_faces;
+    calculator_scene.faces = scene->faces;
+
+    int n_meshes = scene->n_faces;
+    calculator_scene.n_meshes = n_meshes;
+    calculator_scene.meshes = (form_factors::mesh_t*) malloc(n_meshes * sizeof(form_factors::mesh_t));
+    for (int i = 0; i != n_meshes; ++i)
+    {
+      form_factors::mesh_t& mesh = calculator_scene.meshes[i];
+      mesh.first_idx = i;
+      mesh.n_faces = 1;
+    }
+
+    printf("Calculating form factors on CPU...\n");
+    sdkResetTimer(&hTimer);
+    sdkStartTimer(&hTimer);
+
+    form_factors::system_set_scene(calculator, &calculator_scene);
+    form_factors::system_prepare(calculator);
+    form_factors::task_t* task = form_factors::task_create(&calculator_scene, n_rays);
+    form_factors::system_calculate(calculator, task);
+
+    sdkStopTimer(&hTimer);
+    double cpuTime = 1.0e-3 * sdkGetTimerValue(&hTimer);
+    printf("Done in %fs.\n", cpuTime);
+
+    task_free(task);
+    free(calculator_scene.meshes);
   }
   
   system_free(cuda_system);
