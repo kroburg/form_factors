@@ -25,8 +25,6 @@
 #include <limits>
 #include <stdlib.h>
 
-#define M_2PI           6.28318530717958647692528676655900576
-
 namespace cpu_form_factors
 {
   struct cpu_system_t : form_factors::system_t
@@ -280,7 +278,7 @@ namespace cpu_form_factors
 
     ray_caster::task_free(ray_caster_task);
     
-    return -FORM_FACTORS_ERROR;
+    return FORM_FACTORS_OK;
   }
 
   const form_factors::system_methods_t methods =
