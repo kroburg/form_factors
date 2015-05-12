@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="mat.cpp" />
     <ClCompile Include="operations.cpp" />
     <ClCompile Include="triangle.cpp" />
   </ItemGroup>

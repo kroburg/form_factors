@@ -20,6 +20,7 @@
 #include "form_factors/system.h"
 #include "math/operations.h"
 #include "math/triangle.h"
+#include "math/mat.h"
 
 using math::vec3;
 using math::make_vec3;
@@ -68,7 +69,9 @@ public:
     return make_face(a + offset, b + offset, c + offset);
   }
 
-  scene_t* MakeParallelPlanesScene()
+  
+
+  scene_t* MakeParallelPlanesScene(math::mat33 rotation)
   {
     int n_faces = 4;
     int n_meshes = 2;
@@ -78,6 +81,13 @@ public:
     faces[1] = make_floor_face2(math::make_vec3(0, 0, 0));
     faces[2] = make_floor_face1(math::make_vec3(0, 0, c));
     faces[3] = make_floor_face2(math::make_vec3(0, 0, c));
+
+    for (int i = 0; i != n_faces; ++i)
+    {
+      faces[i].points[0] = rotation * faces[i].points[0];
+      faces[i].points[1] = rotation * faces[i].points[1];
+      faces[i].points[2] = rotation * faces[i].points[2];
+    }
 
     mesh_t* meshes = (mesh_t*)malloc(n_meshes * sizeof(mesh_t));
     meshes[0] = { 0, 2 };
@@ -105,7 +115,25 @@ math::point_t theor_parallel_planes(math::point_t a, math::point_t b, math::poin
 
 TYPED_TEST(FormFactors, ParallelPlanesCorrect)
 {
-  scene_t* stackScene = MakeParallelPlanesScene();
+  scene_t* stackScene = MakeParallelPlanesScene(math::IDENTITY_33);
+
+  system_set_scene(Calculator, stackScene);
+  ASSERT_EQ(FORM_FACTORS_OK, system_prepare(Calculator));
+
+  float factors[2 * 2];
+  task_t task = { 40000, factors };
+
+  float theoretical = theor_parallel_planes(1, 1, 1);
+
+  ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
+  EXPECT_NEAR(theoretical, factors[1], 0.01);
+  EXPECT_NEAR(theoretical, factors[2], 0.01);
+}
+
+TYPED_TEST(FormFactors, RotatedParallelPlanesCorrect)
+{
+  math::mat33 rotation = math::axis_rotation(float(M_PI) / 4, float(M_PI) / 4, float(M_PI) / 4);
+  scene_t* stackScene = MakeParallelPlanesScene(rotation);
 
   system_set_scene(Calculator, stackScene);
   ASSERT_EQ(FORM_FACTORS_OK, system_prepare(Calculator));
