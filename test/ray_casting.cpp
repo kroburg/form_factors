@@ -111,7 +111,7 @@ public:
   system_t* System;
 };
 
-typedef ::testing::Types<EngineType<RAY_CASTER_SYSTEM_CPU>, EngineType<RAY_CASTER_SYSTEM_CUDA> > RayCasterTypes;
+typedef ::testing::Types<EngineType<RAY_CASTER_SYSTEM_CPU>/*, EngineType<RAY_CASTER_SYSTEM_CUDA>*/ > RayCasterTypes;
 TYPED_TEST_CASE(RayCaster, RayCasterTypes);
 
 TYPED_TEST(RayCaster, MemoryManagementIsCorrect)

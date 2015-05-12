@@ -62,8 +62,8 @@ public:
   face_t make_floor_face2(math::vec3 offset)
   {
     vec3 a = { 1.f, 0.f, 0.f };
-    vec3 b = { 0.f, 1.f, 0.f };
-    vec3 c = { 1.f, 1.f, 0.f };
+    vec3 b = { 1.f, 1.f, 0.f };
+    vec3 c = { 0.f, 1.f, 0.f };
 
     return make_face(a + offset, b + offset, c + offset);
   }
@@ -116,5 +116,6 @@ TYPED_TEST(FormFactors, ParallelPlanesCorrect)
   float theoretical = theor_parallel_planes(1, 1, 1);
 
   ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
-  ASSERT_EQ(theoretical, factors[1]);
+  EXPECT_EQ(theoretical, factors[1]);
+  EXPECT_EQ(theoretical, factors[2]);
 }
