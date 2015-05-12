@@ -61,6 +61,20 @@ namespace form_factors
     free(system);
   }
 
+  task_t* task_create(scene_t* scene, int n_rays)
+  {
+    task_t* task = (task_t*)malloc(sizeof(task_t));
+    task->n_rays = n_rays;
+    task->form_factors = (float*)malloc(scene->n_meshes * scene->n_meshes * sizeof(float));
+    return task;
+  }
+
+  void task_free(task_t* task)
+  {
+    free(task->form_factors);
+    free(task);
+  }
+
   int system_init(system_t* system, ray_caster::system_t* ray_caster)
   {
     return system->methods->init(system, ray_caster);

@@ -51,6 +51,9 @@ namespace form_factors
     float* form_factors;
   };
 
+  task_t* task_create(scene_t* scene, int n_rays);
+  void task_free(task_t* task);
+
   struct system_t
   {
     const struct system_methods_t* methods;
