@@ -100,7 +100,7 @@ TYPED_TEST_CASE(FormFactors, FormFactorsTypes);
 math::point_t theor_parallel_planes(math::point_t a, math::point_t b, math::point_t c) {
   auto x = a / c, y = b / c, xq = x * x, yq = y * y;
   auto result = 2 / math::point_t(M_PI) / x / y * (logf(sqrtf((1 + xq) * (1 + yq) / (1 + xq + yq))) + x * sqrtf(1 + yq) * atanf(x / sqrtf(1 + yq)) + y * sqrtf(1 + xq) * atanf(y / sqrtf(1 + xq)) - x * atanf(x) - y * atanf(y));
-  return result;
+  return result / 2;
 }
 
 TYPED_TEST(FormFactors, ParallelPlanesCorrect)

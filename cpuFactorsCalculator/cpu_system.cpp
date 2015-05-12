@@ -177,12 +177,11 @@ namespace cpu_form_factors
     return face.points[0] + a * v0 + b * v1;
   }
 
-  math::mat33 pick_face_rotation(const face_t& face)
+  math::mat33 pick_face_rotation(const face_t& face, math::vec3 z)
   {
     math::vec3 v0 = face.points[1] - face.points[0];
     math::vec3 v1 = face.points[2] - face.points[0];
     math::vec3 norm = cross(v0, v1);
-    math::vec3 z = math::make_vec3(0, 0, 1);
     return math::rotate_towards(z, norm);
   }
 
@@ -212,17 +211,20 @@ namespace cpu_form_factors
       {
         const face_t& face = system->faces[mesh.first_idx + f];
         const int face_rays = (int)(n_rays * face.weight);
-        math::mat33 rotation = pick_face_rotation(face);
+        math::mat33 rotation = pick_face_rotation(face, math::make_vec3(0, 0, 1));
 
         for (int j = 0; j != face_rays && n_ray < n_rays; ++j, ++n_ray)
         {
           ray_caster::ray_t& ray = task->ray[n_ray];
           math::vec3 origin = pick_face_point(system, face);
-          math::vec3 relative_dist = rotation * pick_malley_point(system);
+          
+          math::vec3 malley = pick_malley_point(system);
+          if (j > face_rays / 2)
+            malley.z = -malley.z;
+          math::vec3 relative_dist = rotation * malley;
           ray = { origin + relative_dist * 0.0001f, origin + relative_dist };
         }
       }
-
     }
 
     return task;
