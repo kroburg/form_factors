@@ -26,9 +26,6 @@
 
 using namespace ray_caster;
 
-#define M_PI            3.14159265358979323846264338327950288
-#define M_2PI           6.28318530717958647692528676655900576
-
 class ShperePointsGenerator
 {
 public:
