@@ -14,24 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "gtest/gtest.h"
+#pragma once
 
-#include "import_export/obj_import.h"
+#include "../form_factors/system.h"
 
-using namespace testing;
-
-class ObjImport: public Test
+namespace csv_export
 {
-public:
-  ObjImport()
-  {
-  }
-};
+#define CSV_EXPORT_OK 0
+#define CSV_EXPORT_FILE_ERROR 31
 
-TEST_F(ObjImport, ParallelPlanesModel)
-{
-  form_factors::scene_t* scene = 0;
-  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::import_obj("../models/parallel_planes.obj", &scene));
-  ASSERT_EQ(4, scene->n_faces);
-  ASSERT_EQ(2, scene->n_meshes);
+  int export_csv(const char* filename, form_factors::scene_t* scene, form_factors::task_t* task);
 }

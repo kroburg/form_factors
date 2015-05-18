@@ -18,10 +18,11 @@
 
 #include "../form_factors/system.h"
 
-namespace import
+namespace obj_import
 {
-#define IMPORT_OK 0
-#define IMPORT_FILE_ERROR 1
+#define OBJ_IMPORT_OK 0
+#define OBJ_IMPORT_FILE_ERROR 21
+#define OBJ_IMPORT_FORMAT_ERROR 22
 
   int import_obj(const char* filename, form_factors::scene_t** scene);
 }

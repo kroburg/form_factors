@@ -20,11 +20,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <algorithm>
 
-#define _CRT_SECURE_NO_WARNINGS 1
+#ifdef _WIN32
+#pragma warning(disable:4996)
+#endif
 
-namespace import
+namespace obj_import
 {
   struct idx_face_t
   {
@@ -36,12 +37,12 @@ namespace import
     std::ifstream file(filename);
     if (!file.is_open())
     {
-      return -IMPORT_FILE_ERROR;
+      return -OBJ_IMPORT_FILE_ERROR;
     }
 
     math::vec3 minBox = math::make_vec3(1e10, 1e10, 1e10);
     math::vec3 maxBox = math::make_vec3(-1e10, -1e10, -1e10);
-    
+
     std::vector<math::vec3> vertices;
     std::vector<idx_face_t> faces;
     std::vector<form_factors::mesh_t> meshes;
@@ -59,16 +60,22 @@ namespace import
       case 'v':
       {
                 math::vec3 vertex;
-                sscanf(str.c_str() + 1, "%f %f %f", &(vertex.x), &(vertex.y), &(vertex.z));
-                vertices.push_back(vertex);
-                minBox = min(minBox, vertex);
-                maxBox = max(maxBox, vertex);
+                int count = sscanf(str.c_str() + 1, "%f %f %f", &(vertex.x), &(vertex.y), &(vertex.z));
+                if (count == 3)
+                {
+                  vertices.push_back(vertex);
+                  minBox = min(minBox, vertex);
+                  maxBox = max(maxBox, vertex);
+                }
+                else
+                {
+                  return -OBJ_IMPORT_FORMAT_ERROR;
+                }
       }
         break;
 
       case 'f':
       {
-                idx_face_t face;
                 int i0, i1, i2;
                 i0 = i1 = i2 = 0;
                 int count = sscanf(str.c_str() + 1, "%d %d %d", &i0, &i1, &i2);
@@ -76,6 +83,10 @@ namespace import
                 {
                   idx_face_t face = { i0, i1, i2 };
                   faces.push_back(face);
+                }
+                else
+                {
+                  return -OBJ_IMPORT_FORMAT_ERROR;
                 }
       }
         break;
@@ -88,6 +99,10 @@ namespace import
                 {
                   form_factors::mesh_t mesh = { start_idx, n_faces };
                   meshes.push_back(mesh);
+                }
+                else
+                {
+                  return -OBJ_IMPORT_FORMAT_ERROR;
                 }
       }
 
@@ -133,6 +148,6 @@ namespace import
       memcpy(result->meshes, meshes.data(), sizeof(form_factors::mesh_t) * result->n_meshes);
     }
 
-    return IMPORT_OK;
+    return OBJ_IMPORT_OK;
   }
 }

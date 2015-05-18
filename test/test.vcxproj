@@ -27,6 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="export.cpp" />
     <ClCompile Include="form_factors.cpp" />
     <ClCompile Include="import.cpp" />
     <ClCompile Include="main.cpp" />

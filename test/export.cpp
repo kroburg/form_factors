@@ -16,22 +16,34 @@
 
 #include "gtest/gtest.h"
 
-#include "import_export/obj_import.h"
+#include "import_export/csv_export.h"
+#include <fstream>
 
 using namespace testing;
 
-class ObjImport: public Test
+#ifdef _WIN32
+#pragma warning(disable:4996)
+#endif
+
+class CsvExport : public Test
 {
 public:
-  ObjImport()
+  CsvExport()
   {
   }
 };
 
-TEST_F(ObjImport, ParallelPlanesModel)
+TEST_F(CsvExport, ParallelPlanesModel)
 {
-  form_factors::scene_t* scene = 0;
-  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::import_obj("../models/parallel_planes.obj", &scene));
-  ASSERT_EQ(4, scene->n_faces);
-  ASSERT_EQ(2, scene->n_meshes);
+  float factors[4] = { 0, 1, 0, 1 };
+  form_factors::task_t task = { 1, factors };
+  form_factors::scene_t scene = { 1, 0, 2, 0 };
+  ASSERT_EQ(CSV_EXPORT_OK, csv_export::export_csv("test.csv", &scene, &task));
+  FILE* f = fopen("test.csv", "r");
+  ASSERT_TRUE(f != 0);
+  float f0, f1, f2, f3;
+  ASSERT_EQ(2, fscanf(f, "%f;%f", &f0, &f1));
+  ASSERT_EQ(2, fscanf(f, "%f;%f", &f2, &f3));
+  fclose(f);
+  remove("test.csv");
 }

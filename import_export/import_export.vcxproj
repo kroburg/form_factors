@@ -11,9 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="csv_export.cpp" />
     <ClCompile Include="obj_import.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="csv_export.h" />
     <ClInclude Include="obj_import.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
