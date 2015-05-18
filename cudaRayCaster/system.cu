@@ -45,8 +45,8 @@ namespace cuda_ray_caster
     system->dev_id = findCudaDevice(1, (const char **)argv);
     cudaDeviceProp deviceProp;
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, system->dev_id));
-    //system->n_tpb = deviceProp.maxThreadsPerBlock;
-    system->n_tpb = 128;
+    system->n_tpb = deviceProp.maxThreadsPerBlock;
+    //system->n_tpb = 128;
 
     return RAY_CASTER_OK;
   }
