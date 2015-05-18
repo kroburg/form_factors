@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "form_factors", "form_factor
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "import_export", "import_export\import_export.vcxproj", "{01B5D59C-AD62-424B-8B03-727FB9118B82}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "controller", "controller\controller.vcxproj", "{3CB1B48E-8376-418F-A148-6454D0C67023}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -161,6 +163,18 @@ Global
 		{01B5D59C-AD62-424B-8B03-727FB9118B82}.Release|Win32.ActiveCfg = Release|Win32
 		{01B5D59C-AD62-424B-8B03-727FB9118B82}.Release|Win32.Build.0 = Release|Win32
 		{01B5D59C-AD62-424B-8B03-727FB9118B82}.Release|x64.ActiveCfg = Release|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Debug|ARM.ActiveCfg = Debug|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Debug|Win32.Build.0 = Debug|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Debug|x64.ActiveCfg = Debug|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Release|ARM.ActiveCfg = Release|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Release|Win32.ActiveCfg = Release|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Release|Win32.Build.0 = Release|Win32
+		{3CB1B48E-8376-418F-A148-6454D0C67023}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
