@@ -69,7 +69,23 @@ public:
     return make_face(a + offset, b + offset, c + offset);
   }
 
-  
+  face_t make_wall_face1(math::vec3 offset)
+  {
+    vec3 a = { 0.f, 0.f, 0.f };
+    vec3 b = { 0.f, 1.f, 0.f };
+    vec3 c = { 0.f, 0.f, 1.f };
+
+    return make_face(a + offset, b + offset, c + offset);
+  }
+
+  face_t make_wall_face2(math::vec3 offset)
+  {
+    vec3 a = { 0.f, 1.f, 0.f };
+    vec3 b = { 0.f, 0.f, 1.f };
+    vec3 c = { 0.f, 1.f, 1.f };
+
+    return make_face(a + offset, b + offset, c + offset);
+  }
 
   scene_t* MakeParallelPlanesScene(math::mat33 rotation)
   {
@@ -81,6 +97,34 @@ public:
     faces[1] = make_floor_face2(math::make_vec3(0, 0, 0));
     faces[2] = make_floor_face1(math::make_vec3(0, 0, c));
     faces[3] = make_floor_face2(math::make_vec3(0, 0, c));
+
+    for (int i = 0; i != n_faces; ++i)
+    {
+      faces[i].points[0] = rotation * faces[i].points[0];
+      faces[i].points[1] = rotation * faces[i].points[1];
+      faces[i].points[2] = rotation * faces[i].points[2];
+    }
+
+    mesh_t* meshes = (mesh_t*)malloc(n_meshes * sizeof(mesh_t));
+    meshes[0] = { 0, 2 };
+    meshes[1] = { 2, 2 };
+
+    scene_t* s = scene_create();
+    Scene = s;
+    *s = { n_faces, faces, n_meshes, meshes };
+    return s;
+  }
+
+  scene_t* MakePerpendicularPlanesScene(math::mat33 rotation)
+  {
+    int n_faces = 4;
+    int n_meshes = 2;
+    float c = 1;
+    face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
+    faces[0] = make_floor_face1(math::make_vec3(0, 0, 0));
+    faces[1] = make_floor_face2(math::make_vec3(0, 0, 0));
+    faces[2] = make_wall_face1(math::make_vec3(0, 0, 0));
+    faces[3] = make_wall_face2(math::make_vec3(0, 0, 0));
 
     for (int i = 0; i != n_faces; ++i)
     {
@@ -111,6 +155,16 @@ math::point_t theor_parallel_planes(math::point_t a, math::point_t b, math::poin
   auto x = a / c, y = b / c, xq = x * x, yq = y * y;
   auto result = 2 / math::point_t(M_PI) / x / y * (logf(sqrtf((1 + xq) * (1 + yq) / (1 + xq + yq))) + x * sqrtf(1 + yq) * atanf(x / sqrtf(1 + yq)) + y * sqrtf(1 + xq) * atanf(y / sqrtf(1 + xq)) - x * atanf(x) - y * atanf(y));
   return result / 2;
+}
+
+math::point_t theor_perpendicular_planes(double H, double W, double L) {
+  double h = H / L;
+  double w = W / L;
+  auto a = (1 + h * h) * (1 + w * w) / (1 + h * h + w * w);
+  auto b = w * w * (1 + h * h + w * w) / (1 + w * w) / (h * h + w * w);
+  auto c = h * h * (1 + h * h + w * w) / (1 + h * h) / (h * h + w * w);
+  auto result = 0.5 / M_PI / w * (h * atan(1 / h) + w * atan(1 / w) - sqrt(h * h + w * w) * atan(1 / sqrt(h * h + w * w)) + 0.25 * log(a * pow(b, w * w) * pow(c, h * h)));
+  return math::point_t(result);
 }
 
 TYPED_TEST(FormFactors, ParallelPlanesCorrect)
@@ -145,5 +199,38 @@ TYPED_TEST(FormFactors, RotatedParallelPlanesCorrect)
 
   ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
   EXPECT_NEAR(theoretical, factors[1], 0.01);
+  EXPECT_NEAR(theoretical, factors[2], 0.01);
+}
+
+TYPED_TEST(FormFactors, PerpendicularPlanesCorrect)
+{
+  scene_t* stackScene = MakePerpendicularPlanesScene(math::IDENTITY_33);
+
+  system_set_scene(Calculator, stackScene);
+  ASSERT_EQ(FORM_FACTORS_OK, system_prepare(Calculator));
+
+  float factors[2 * 2];
+  task_t task = { 40000, factors };
+
+  float theoretical = theor_perpendicular_planes(1, 1, 1);
+
+  ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
+  EXPECT_NEAR(theoretical, factors[2], 0.01);
+}
+
+TYPED_TEST(FormFactors, RotatedPerpendicularPlanesCorrect)
+{
+  math::mat33 rotation = math::axis_rotation(float(M_PI) / 4, float(M_PI) / 4, float(M_PI) / 4);
+  scene_t* stackScene = MakePerpendicularPlanesScene(rotation);
+
+  system_set_scene(Calculator, stackScene);
+  ASSERT_EQ(FORM_FACTORS_OK, system_prepare(Calculator));
+
+  float factors[2 * 2];
+  task_t task = { 40000, factors };
+
+  float theoretical = theor_perpendicular_planes(1, 1, 1);
+
+  ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
   EXPECT_NEAR(theoretical, factors[2], 0.01);
 }
