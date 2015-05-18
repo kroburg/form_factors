@@ -24,5 +24,8 @@
     <ClCompile Include="form_factors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="import.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

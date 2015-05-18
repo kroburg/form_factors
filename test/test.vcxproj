@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="form_factors.cpp" />
+    <ClCompile Include="import.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ray_casting.cpp" />
   </ItemGroup>
@@ -51,6 +52,9 @@
     </ProjectReference>
     <ProjectReference Include="..\form_factors\form_factors.vcxproj">
       <Project>{a7fdcdb0-b23d-4bba-bbca-2f714a89205a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\import_export\import_export.vcxproj">
+      <Project>{01b5d59c-ad62-424b-8b03-727fb9118b82}</Project>
     </ProjectReference>
     <ProjectReference Include="..\math\math.vcxproj">
       <Project>{4de00af7-2632-4a7b-981a-9411663d4048}</Project>

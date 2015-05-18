@@ -19,6 +19,7 @@
 #include "types.h"
 #include "operations.h"
 #include <cmath>
+#include <algorithm>
 
 #define _FLT_EPSILON   0.00000001
 
@@ -84,6 +85,16 @@ namespace math
     a.x *= b;
     a.y *= b;
     a.z *= b;
+  }
+
+  inline vec3 min(vec3 a, vec3 b)
+  {
+    return make_vec3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
+  }
+
+  inline vec3 max(vec3 a, vec3 b)
+  {
+    return make_vec3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
   }
 
   inline vec3 normalize(vec3 a)
