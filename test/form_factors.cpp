@@ -87,11 +87,10 @@ public:
     return make_face(a + offset, b + offset, c + offset);
   }
 
-  scene_t* MakeParallelPlanesScene(math::mat33 rotation)
+  scene_t* MakeParallelPlanesScene(float c, math::mat33 rotation)
   {
     int n_faces = 4;
     int n_meshes = 2;
-    float c = 1;
     face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
     faces[0] = make_floor_face1(math::make_vec3(0, 0, 0));
     faces[1] = make_floor_face2(math::make_vec3(0, 0, 0));
@@ -169,37 +168,45 @@ math::point_t theor_perpendicular_planes(double H, double W, double L) {
 
 TYPED_TEST(FormFactors, ParallelPlanesCorrect)
 {
-  scene_t* stackScene = MakeParallelPlanesScene(math::IDENTITY_33);
+  float distances[] = { .5f, 1, 2, 3, 10 };
+  for (int i = 0; i != sizeof(distances) / sizeof(float); ++i)
+  {
+    scene_t* stackScene = MakeParallelPlanesScene(distances[i], math::IDENTITY_33);
 
-  system_set_scene(Calculator, stackScene);
-  ASSERT_EQ(FORM_FACTORS_OK, system_prepare(Calculator));
+    system_set_scene(Calculator, stackScene);
+    ASSERT_EQ(FORM_FACTORS_OK, system_prepare(Calculator));
 
-  float factors[2 * 2];
-  task_t task = { 40000, factors };
+    float factors[2 * 2];
+    task_t task = { 40000, factors };
 
-  float theoretical = theor_parallel_planes(1, 1, 1);
+    float theoretical = theor_parallel_planes(1, 1, distances[i]);
 
-  ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
-  EXPECT_NEAR(theoretical, factors[1], 0.01);
-  EXPECT_NEAR(theoretical, factors[2], 0.01);
+    ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
+    EXPECT_NEAR(theoretical, factors[1], 0.01);
+    EXPECT_NEAR(theoretical, factors[2], 0.01);
+  }
 }
 
 TYPED_TEST(FormFactors, RotatedParallelPlanesCorrect)
 {
-  math::mat33 rotation = math::axis_rotation(float(M_PI) / 4, float(M_PI) / 4, float(M_PI) / 4);
-  scene_t* stackScene = MakeParallelPlanesScene(rotation);
+  float distances[] = { .5f, 1, 2, 3, 10 };
+  for (int i = 0; i != sizeof(distances) / sizeof(float); ++i)
+  {
+    math::mat33 rotation = math::axis_rotation(float(M_PI) / 4, float(M_PI) / 4, float(M_PI) / 4);
+    scene_t* stackScene = MakeParallelPlanesScene(distances[i], rotation);
 
-  system_set_scene(Calculator, stackScene);
-  ASSERT_EQ(FORM_FACTORS_OK, system_prepare(Calculator));
+    system_set_scene(Calculator, stackScene);
+    ASSERT_EQ(FORM_FACTORS_OK, system_prepare(Calculator));
 
-  float factors[2 * 2];
-  task_t task = { 40000, factors };
+    float factors[2 * 2];
+    task_t task = { 40000, factors };
 
-  float theoretical = theor_parallel_planes(1, 1, 1);
+    float theoretical = theor_parallel_planes(1, 1, distances[i]);
 
-  ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
-  EXPECT_NEAR(theoretical, factors[1], 0.01);
-  EXPECT_NEAR(theoretical, factors[2], 0.01);
+    ASSERT_EQ(FORM_FACTORS_OK, system_calculate(Calculator, &task));
+    EXPECT_NEAR(theoretical, factors[1], 0.01);
+    EXPECT_NEAR(theoretical, factors[2], 0.01);
+  }
 }
 
 TYPED_TEST(FormFactors, PerpendicularPlanesCorrect)
