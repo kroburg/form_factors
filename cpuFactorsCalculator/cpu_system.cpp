@@ -156,7 +156,7 @@ namespace cpu_form_factors
     int result = 0;
     for (int i = 0; i != system->n_faces; ++i)
     {
-      int faceRaysCount = (int)(rays_requested * system->faces[i].weight);
+      int faceRaysCount = std::max<int>(1, (int)(rays_requested * system->faces[i].weight));
       result += faceRaysCount;
     }
     return result;
@@ -210,7 +210,7 @@ namespace cpu_form_factors
       for (int f = 0; f != mesh_n_faces; ++f)
       {
         const face_t& face = system->faces[mesh.first_idx + f];
-        const int face_rays = (int)(n_rays * face.weight);
+        const int face_rays = std::max<int>(1, (int)(n_rays * face.weight));
         math::mat33 rotation = pick_face_rotation(face, math::make_vec3(0, 0, 1));
 
         for (int j = 0; j != face_rays && n_ray < n_rays; ++j, ++n_ray)
@@ -260,7 +260,7 @@ namespace cpu_form_factors
       for (int f = 0; f != mesh_n_faces; ++f)
       {
         const face_t& face = system->faces[mesh.first_idx + f];
-        const int face_rays = (int)(n_rays * face.weight);
+        const int face_rays = std::max<int>(1, (int)(n_rays * face.weight));
         for (int j = 0; j != face_rays && n_ray < n_rays; ++j, ++n_ray)
         {
           ++mesh_outgoing_rays;
