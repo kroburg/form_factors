@@ -24,9 +24,9 @@ namespace math
 
   math::mat33 axis_rotation(float x, float y, float z)
   {
-    math::mat33 rx = math::make_mat33(1, 0, 0, 0, cos(x), -sin(x), 0, sin(x), cos(x));
-    math::mat33 ry = math::make_mat33(cos(y), 0, sin(y), 0, 1, 0, -sin(y), 0, cos(y));
-    math::mat33 rz = math::make_mat33(cos(z), -sin(z), 0, sin(z), cos(z), 0, 0, 0, 1);
+    math::mat33 rx = math::make_mat33(1, 0, 0, 0, cosf(x), -sinf(x), 0, sinf(x), cosf(x));
+    math::mat33 ry = math::make_mat33(cosf(y), 0, sinf(y), 0, 1, 0, -sinf(y), 0, cosf(y));
+    math::mat33 rz = math::make_mat33(cosf(z), -sinf(z), 0, sinf(z), cosf(z), 0, 0, 0, 1);
     return rx * ry * rz;
   }
 }

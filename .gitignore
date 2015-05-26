@@ -13,3 +13,6 @@ cmake_install.cmake
 /ext/gtest/msvc/gtest-md
 /bin
 /template_vs2013.opensdf
+lib/
+.idea
+Makefile

@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -14,31 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * This module file contains triangle and ray intersection checks
+ */
+
 #pragma once
 
 #include "types.h"
 
 namespace math
 {
-#define TRIANGLE_INTERSECTION_UNIQUE 0
-#define TRIANGLE_INTERSECTION_DISJOINT 1
-#define TRIANGLE_INTERSECTION_DEGENERATE 2
-#define TRIANGLE_INTERSECTION_SAME_PLAIN 3
+  #define TRIANGLE_INTERSECTION_UNIQUE 0
+  #define TRIANGLE_INTERSECTION_DISJOINT 1
+  #define TRIANGLE_INTERSECTION_DEGENERATE 2
+  #define TRIANGLE_INTERSECTION_SAME_PLAIN 3
 
-  /// @brief Find the 3D intersection of a ray with a triangle.
+  /// @brief Find the 3D intersection of a ray with a triangle if any.
   /// @return  -1 = triangle is degenerate (a segment or point)
-  ///           0 =  disjoint (no intersect)
-  ///           1 =  intersect in unique point
-  ///           2 =  are in the same plane
+  ///           0 = disjoint (no intersect)
+  ///           1 = intersect in unique point
+  ///           2 = ray and triangle are in the same plane
   /// @note Copy-paste from "http://geomalgorithms.com/a06-_intersect-2.html#intersect3D_RayTriangle()"
   int triangle_intersect(ray_t ray, triangle_t triangle, vec3* point);
 
-  /// @brief Calculate triangle center.
+  /// @brief Calculates triangle center.
   vec3 triangle_center(triangle_t triangle);
 
   /// @brief Find triangle area.
   float triangle_area(triangle_t triangle);
 
-  /// @brief Make ray looking from origin point to triangle center with length equal to half of distance.
+  /// @brief Creates ray looking from origin point to triangle center with length equal to half of distance.
   ray_t ray_to_triangle(vec3 origin, triangle_t t);
 }
