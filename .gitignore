@@ -1,5 +1,8 @@
 *Debug*
 *Release*
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
 *.pdb
 *.suo
 *.sdf

@@ -16,8 +16,10 @@
 
 #pragma once
 
+#ifdef _WIN32
 #define M_PI   3.14159265358979323846264338327950288
 #define M_2PI  6.28318530717958647692528676655900576
+#endif // _WIN32
 
 namespace math
 {
@@ -31,7 +33,8 @@ namespace math
 
   inline vec3 make_vec3(point_t x, point_t y, point_t z)
   {
-    return {x, y, z};
+    vec3 result = {x, y, z};
+    return result;
   }
 
   struct triangle_t
@@ -52,6 +55,7 @@ namespace math
 
   inline mat33 make_mat33(point_t a00, point_t a01, point_t a02, point_t a10, point_t a11, point_t a12, point_t a20, point_t a21, point_t a22)
   {
-    return{ { { a00, a01, a02 }, { a10, a11, a12 }, { a20, a21, a22 } } };
+    mat33 result = { { { a00, a01, a02 }, { a10, a11, a12 }, { a20, a21, a22 } } };
+    return result;
   }
 }

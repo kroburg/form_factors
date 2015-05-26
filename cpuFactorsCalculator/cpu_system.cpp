@@ -24,6 +24,7 @@
 #include <cmath>
 #include <limits>
 #include <stdlib.h>
+#include <cstring>
 
 namespace cpu_form_factors
 {

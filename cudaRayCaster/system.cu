@@ -17,6 +17,7 @@
 #include "system.cuh"
 #include "cuda_system.h"
 
+#include <values.h>
 #include <helper_cuda.h>
 #include <helper_math.h>
 #include <thrust/device_vector.h>
@@ -123,7 +124,7 @@ namespace cuda_ray_caster
 
     const int n_rays = task->n_tasks;
 
-    const int max_concurrent_rays = (int)pow(2, ceil(log2(16384 * 1024 / (system->n_faces + 1023))));
+    const int max_concurrent_rays = (int)pow(2, ceil(log2(16384.f * 1024 / (system->n_faces + 1023))));
 
     thrust::device_vector<vec3> points(max_concurrent_rays);
     thrust::device_vector<int> indices(max_concurrent_rays);

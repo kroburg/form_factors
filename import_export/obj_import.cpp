@@ -16,6 +16,7 @@
 
 #include "obj_import.h"
 #include "../math/operations.h"
+#include <cstring>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -29,7 +30,7 @@ namespace obj_import
 {
   struct idx_face_t
   {
-    unsigned int indices[3];
+    int indices[3];
   };
 
   int import_obj(const char* filename, form_factors::scene_t** scene)
