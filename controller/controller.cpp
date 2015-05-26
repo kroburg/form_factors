@@ -27,7 +27,7 @@
 
 void PrintUsage()
 {
-  std::cout << "Usage: controller <input obj> <output csv> <rays_per_face [1000]> <ray_caster type:(cpu/cuda)[cpu]" << std::endl;
+  std::cout << "Usage: controller <input obj> <output csv> <rays_count [1000000]> <ray_caster type:(cpu/cuda)[cpu]" << std::endl;
 }
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -40,7 +40,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
   const char* input = 0;
   const char* output = 0;
-  int n_rays_per_face = 1000;
+  int n_rays = 1000 * 1000;
   int type = RAY_CASTER_SYSTEM_CPU;
 
   for (int i = 1; i < argc; ++i)
@@ -56,7 +56,7 @@ int _tmain(int argc, _TCHAR* argv[])
       break;
 
     case 3:
-      n_rays_per_face = atoi(argv[i]);
+      n_rays = atoi(argv[i]);
       break;
 
     case 4:
@@ -91,7 +91,7 @@ int _tmain(int argc, _TCHAR* argv[])
     return r;
   }
 
-  form_factors::task_t* task = form_factors::task_create(scene, scene->n_faces * n_rays_per_face);
+  form_factors::task_t* task = form_factors::task_create(scene, n_rays);
   if (!task)
   {
     std::cerr << "Failed to create calculator task" << std::endl;
