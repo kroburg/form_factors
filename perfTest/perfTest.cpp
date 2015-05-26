@@ -15,9 +15,12 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
-#include <tchar.h>
 #include <random>
 #include <cmath>
+
+#ifdef _WIN32
+#include <tchar.h>
+#endif
 
 #include "../ray_caster/system.h"
 #include "../form_factors/system.h"
@@ -34,7 +37,7 @@ public:
     : ThetaGenerator(0)
     , UGenerator(1)
     , RGenerator(2)
-    , ThetaDistribution(0, float(M_2PI))
+    , ThetaDistribution(0, float(M_PI * 2.))
     , UDistribution(-1, 1)
     , RDistribution(-100, 100)
   {
@@ -174,7 +177,7 @@ int CalculateMismatch(task_t* cpu, task_t* gpu)
   return result;
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
   int n_faces = 1000;
   int n_rays = 10000 * n_faces;
@@ -280,3 +283,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	return 0;
 }
 
+
+#ifdef _WIN32
+int _tmain(int argc, _TCHAR* argv[])
+{
+  return main(argc, argv);
+}
+#endif
