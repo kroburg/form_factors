@@ -86,6 +86,7 @@ namespace cuda_ray_caster
     // @todo Decide on "perfect occupancy". WTF?
     int n_tpb = system->n_tpb;
     int n_blocks = (system->n_faces + n_tpb - 1) / n_tpb;
+    std::cout << n_tpb << " " << n_blocks << std::endl;
     load_scene_faces << <n_blocks, n_tpb >> >(sourceFaces, system->faces, system->n_faces);
     checkCudaErrors(cudaPeekAtLastError());
     checkCudaErrors(cudaDeviceSynchronize());

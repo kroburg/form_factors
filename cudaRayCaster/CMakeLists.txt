@@ -9,7 +9,7 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ../lib)
 
 find_package(CUDA QUIET REQUIRED)
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-O3 -gencode arch=compute_20,code=sm_20)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-O3 -gencode arch=compute_30,code=sm_30)
 
 include_directories("../../../NVIDIA_CUDA-7.0_Samples/common/inc")
 
