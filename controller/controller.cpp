@@ -20,6 +20,7 @@
 #include "../import_export/csv_export.h"
 #include <helper_timer.h>
 #include <iostream>
+#include <cstring>
 
 #ifdef _WIN32
 #include <tchar.h>
@@ -30,7 +31,7 @@ void PrintUsage()
   std::cout << "Usage: controller <input obj> <output csv> <rays_per_face [1000]> <ray_caster type:(cpu/cuda)[cpu]" << std::endl;
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
   if (argc < 3)
   {
@@ -138,3 +139,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	return 0;
 }
 
+#ifdef _WIN32
+int _tmain(int argc, _TCHAR* argv[])
+{
+  return main(argc, argv);
+}
+#endif
