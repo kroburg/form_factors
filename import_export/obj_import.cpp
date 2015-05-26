@@ -82,7 +82,7 @@ namespace obj_import
                 int count = sscanf(str.c_str() + 1, "%d %d %d", &i0, &i1, &i2);
                 if (count == 3)
                 {
-                  idx_face_t face = { i0 - 1, i1 - 1, i2 - 1};
+                  idx_face_t face = { i0, i1, i2 };
                   faces.push_back(face);
                 }
                 else
