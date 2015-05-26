@@ -22,6 +22,9 @@
 #include <thrust/device_vector.h>
 #include <thrust/device_ptr.h>
 
+#ifndef _WIN32
+#include <values.h>
+#endif
 #include <assert.h>
 
 using ray_caster::system_t;
@@ -45,8 +48,8 @@ namespace cuda_ray_caster
     system->dev_id = findCudaDevice(1, (const char **)argv);
     cudaDeviceProp deviceProp;
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, system->dev_id));
-    system->n_tpb = deviceProp.maxThreadsPerBlock;
-    //system->n_tpb = 128;
+    //system->n_tpb = deviceProp.maxThreadsPerBlock;
+    system->n_tpb = 128;
 
     return RAY_CASTER_OK;
   }
@@ -123,7 +126,7 @@ namespace cuda_ray_caster
 
     const int n_rays = task->n_tasks;
 
-    const int max_concurrent_rays = (int)pow(2, ceil(log2(16384 * 1024 / (system->n_faces + 1023))));
+    const int max_concurrent_rays = (int)pow(2, ceil(log2(16384.f * 1024 / (system->n_faces + 1023))));
 
     thrust::device_vector<vec3> points(max_concurrent_rays);
     thrust::device_vector<int> indices(max_concurrent_rays);
