@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.0.2)
+project (LALA)
+
+add_subdirectory("math")
+add_subdirectory("ray_caster")
+add_subdirectory("cpuRayCaster")
+add_subdirectory("cudaRayCaster")
+add_subdirectory("form_factors")
+add_subdirectory("cpuFactorsCalculator")
+add_subdirectory("test")
+add_subdirectory("controller")
+add_subdirectory("perfTest")
