@@ -26,12 +26,7 @@
 
 namespace math
 {
-  /**
-   * @brief 3x3 matrix to vector multiplication
-   * \param[in] mat 3x3 matrix
-   * \param[in] vec 3d vector
-   * \warning No null check
-   */
+  /// @brief 3x3 matrix to vector multiplication
   inline vec3 operator * (mat33 mat, vec3 vec)
   {
     return make_vec3(
@@ -41,12 +36,7 @@ namespace math
       );
   }
 
-  /**
-   * @brief 3x3 matrix to matrix multiplication
-   * \param[in] a 1st 3x3 matrix
-   * \param[in] b 2nd 3x3 matrix
-   * \warning No null check
-   */
+  /// @brief 3x3 matrix to matrix multiplication
   inline mat33 operator * (mat33 a, mat33 b)
   {
     return make_mat33(
@@ -67,10 +57,9 @@ namespace math
    *
    * Contains less operations than common matrices multiplication
    * Can be used in vector-towards vector rotation
-   * \see rotate_towards(vec3 subject, vec3 to)
-   * \param[in] a 1st 3x3 SSC matrix
-   * \param[in] b 2nd 3x3 SSC matrix
-   * \warning No null check
+   * @see rotate_towards(vec3 subject, vec3 to)
+   * @param[in] a 1st 3x3 SSC matrix
+   * @param[in] b 2nd 3x3 SSC matrix
    */
   inline mat33 ssc_mul(mat33 a, mat33 b)
   {
@@ -87,12 +76,7 @@ namespace math
       );
   }
 
-  /**
-   * @brief 3x3 matrices sum
-   * \param[in] a 1st 3x3 matrix
-   * \param[in] b 2nd 3x3 matrix
-   * \warning No null check
-   */
+  /// @brief 3x3 matrices sum
   inline mat33 operator + (mat33 a, mat33 b)
   {
     return make_mat33(
@@ -102,12 +86,7 @@ namespace math
       );
   }
 
-  /**
-   * @brief Matrix to scalar multiplication
-   * \param[in] a 1st matrix
-   * \param[in] b 2nd matrix
-   * \warning No null check
-   */
+  /// @brief Matrix to scalar multiplication
   inline mat33 operator * (mat33 a, point_t b)
   {
     return make_mat33(
@@ -117,28 +96,26 @@ namespace math
       );
   }
 
-  /**
-   * @brief Identity diagonal 3x3 matrix
-   */
+  /// @brief Identity diagonal 3x3 matrix
   static const mat33 IDENTITY_33 = make_mat33(1, 0, 0, 0, 1, 0, 0, 0, 1);
 
   /**
    * @brief Produces 3x3 matrix of rotation source 3d vector to target 3d vector
    *
    * Function checks for parallel vectors but both of them should be normalized
-   * \param[in] subject source 3d vector
-   * \param[in] to target 3d vector
-   * \return 3x3 rotation matrix
-   * \warning Parameters should be normalized
+   * @param[in] subject source 3d vector
+   * @param[in] to target 3d vector
+   * @return 3x3 rotation matrix
+   * @warning Parameters should be normalized
    */
   mat33 rotate_towards(vec3 subject, vec3 to);
 
   /**
    * @brief Produces 3x3 matrix of rotation around axes
-   * \param[in] x X-axis rotation angle
-   * \param[in] y Y-axis rotation angle
-   * \param[in] z Z-axis rotation angle
-   * \return 3x3 rotation matrix
+   * @param[in] x X-axis rotation angle
+   * @param[in] y Y-axis rotation angle
+   * @param[in] z Z-axis rotation angle
+   * @return 3x3 rotation matrix
    */
   mat33 axis_rotation(float x, float y, float z);
 }

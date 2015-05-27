@@ -26,7 +26,7 @@
 #include <algorithm>
 
 /**
- * Less possible value for floating point variable
+ * Precision limit for floating point variable
  */
 #define _FLT_EPSILON   0.00000001
 

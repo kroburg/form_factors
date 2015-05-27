@@ -18,8 +18,6 @@
 #include "operations.h"
 #include <cmath>
 
-
-
 namespace math
 {
   int triangle_intersect(ray_t ray, triangle_t triangle, vec3* point)
