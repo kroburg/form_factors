@@ -15,7 +15,7 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module contains math operations between matrices and vectors
+ * This module contains math operations between matrices and vectors.
  */
 
 #pragma once
@@ -26,7 +26,7 @@
 
 namespace math
 {
-  /// @brief 3x3 matrix to vector multiplication
+  /// @brief 3x3 matrix to vector multiplication.
   inline vec3 operator * (mat33 mat, vec3 vec)
   {
     return make_vec3(
@@ -36,7 +36,7 @@ namespace math
       );
   }
 
-  /// @brief 3x3 matrix to matrix multiplication
+  /// @brief 3x3 matrix to matrix multiplication.
   inline mat33 operator * (mat33 a, mat33 b)
   {
     return make_mat33(
@@ -53,10 +53,10 @@ namespace math
   }
 
   /**
-   * @brief SSC (skew-symmetric) 3x3 matrix to matrix multiplication
+   * @brief SSC (skew-symmetric) 3x3 matrix to matrix multiplication.
    *
-   * Contains less operations than common matrices multiplication
-   * Can be used in vector-towards vector rotation
+   * Contains less operations than common matrices multiplication.
+   * Can be used in vector-towards vector rotation.
    * @see rotate_towards(vec3 subject, vec3 to)
    * @param[in] a 1st 3x3 SSC matrix
    * @param[in] b 2nd 3x3 SSC matrix
@@ -76,7 +76,7 @@ namespace math
       );
   }
 
-  /// @brief 3x3 matrices sum
+  /// @brief 3x3 matrices sum.
   inline mat33 operator + (mat33 a, mat33 b)
   {
     return make_mat33(
@@ -86,7 +86,7 @@ namespace math
       );
   }
 
-  /// @brief Matrix to scalar multiplication
+  /// @brief Matrix to scalar multiplication.
   inline mat33 operator * (mat33 a, point_t b)
   {
     return make_mat33(
@@ -96,13 +96,13 @@ namespace math
       );
   }
 
-  /// @brief Identity diagonal 3x3 matrix
+  /// @brief Identity diagonal 3x3 matrix.
   static const mat33 IDENTITY_33 = make_mat33(1, 0, 0, 0, 1, 0, 0, 0, 1);
 
   /**
-   * @brief Produces 3x3 matrix of rotation source 3d vector to target 3d vector
+   * @brief Produces 3x3 matrix of rotation source 3d vector to target 3d vector.
    *
-   * Function checks for parallel vectors but both of them should be normalized
+   * Function checks for parallel vectors but both of them should be normalized.
    * @param[in] subject source 3d vector
    * @param[in] to target 3d vector
    * @return 3x3 rotation matrix
@@ -111,7 +111,7 @@ namespace math
   mat33 rotate_towards(vec3 subject, vec3 to);
 
   /**
-   * @brief Produces 3x3 matrix of rotation around axes
+   * @brief Produces 3x3 matrix of rotation around axes.
    * @param[in] x X-axis rotation angle
    * @param[in] y Y-axis rotation angle
    * @param[in] z Z-axis rotation angle

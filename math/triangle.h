@@ -15,7 +15,7 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module file contains triangle and ray intersection checks
+ * This module file contains triangle and ray intersection checks.
  */
 
 #pragma once

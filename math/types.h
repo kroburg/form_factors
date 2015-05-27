@@ -15,7 +15,7 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module contains some basic types - vectors, points and constructing operations
+ * This module contains some basic types - vectors, points and constructing operations.
  */
 
 #pragma once
@@ -29,17 +29,17 @@
 
 namespace math
 {
-  /// @brief Scalar type definition (single or double precision)
+  /// @brief Scalar type definition (single or double precision).
   typedef float point_t;
 
-  /// @brief 3d vector type
+  /// @brief 3d vector type.
   struct vec3
   {
     point_t x;
     point_t y;
     point_t z;
   };
-
+.
   /// @brief 3d vector constructor from 3 scalar points
   inline vec3 make_vec3(point_t x, point_t y, point_t z)
   {
@@ -47,20 +47,20 @@ namespace math
     return result;
   }
 
-  /// @brief Triangle type
+  /// @brief Triangle type.
   struct triangle_t
   {
     vec3 points[3];
   };
 
-  /// @brief Ray type
+  /// @brief Ray type.
   struct ray_t
   {
-    vec3 origin; ///< Origin point of ray
-    vec3 direction; ///< Ray direction
+    vec3 origin;
+    vec3 direction;
   };
 
-  /// @brief 3x3 matrix type
+  /// @brief 3x3 matrix type.
   struct mat33
   {
     point_t p[3][3]; ///< 3 rows of 3 columns each

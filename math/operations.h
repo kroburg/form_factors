@@ -15,7 +15,7 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module contains math operations on vectors
+ * This module contains math operations on vectors.
  */
 
 #pragma once
@@ -26,37 +26,37 @@
 #include <algorithm>
 
 /**
- * Precision limit for floating point variable
+ * Precision of floating point variable.
  */
 #define _FLT_EPSILON   0.00000001
 
 namespace math
 {
-  /// @brief Dot product of two 3d vectors
+  /// @brief Dot product of two 3d vectors.
   inline float dot(vec3 a, vec3 b)
   {
     return a.x * b.x + a.y * b.y + a.z * b.z;
   }
 
-  /// @brief Cross product of two 3d vectors
+  /// @brief Cross product of two 3d vectors.
   inline vec3 cross(vec3 a, vec3 b)
   {
     return make_vec3(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
   }
 
-  /// @brief 3d vector norm
+  /// @brief 3d vector norm.
   inline point_t norm(vec3 a)
   {
     return sqrtf(dot(a, a));
   }
 
-  /// @brief Sum of two 3d vectors
+  /// @brief Sum of two 3d vectors.
   inline vec3 operator+(vec3 a, vec3 b)
   {
     return make_vec3(a.x + b.x, a.y + b.y, a.z + b.z);
   }
 
-  /// @brief Sum-and-assign operation of two 3d vectors
+  /// @brief Sum-and-assign operation of two 3d vectors.
   inline void operator+=(vec3&a, vec3 b)
   {
     a.x += b.x;
@@ -64,13 +64,13 @@ namespace math
     a.z += b.z;
   }
 
-  /// @brief Minus operation of two 3d vectors
+  /// @brief Minus operation of two 3d vectors.
   inline vec3 operator-(vec3 a, vec3 b)
   {
     return make_vec3(a.x - b.x, a.y - b.y, a.z - b.z);
   }
 
-  /// @brief Minus-and-assign operation of two 3d vectors
+  /// @brief Minus-and-assign operation of two 3d vectors.
   inline void operator-=(vec3&a, vec3 b)
   {
     a.x -= b.x;
@@ -78,25 +78,25 @@ namespace math
     a.z -= b.z;
   }
 
-  /// @brief 3d vector to scalar multiplication
+  /// @brief 3d vector to scalar multiplication.
   inline vec3 operator*(vec3 a, point_t b)
   {
     return make_vec3(a.x * b, a.y * b, a.z * b);
   }
 
-  /// @brief 3d vector to scalar multiplication
+  /// @brief 3d vector to scalar multiplication.
   inline vec3 operator*(point_t b, vec3 a)
   {
     return a * b;
   }
 
-  /// @brief 3d vector to scalar division
+  /// @brief 3d vector to scalar division.
   inline vec3 operator/(vec3 a, point_t b)
   {
     return make_vec3(a.x / b, a.y / b, a.z / b);
   }
 
-  /// @brief Division-and-assign operation of 3d vector and scalar
+  /// @brief Division-and-assign operation of 3d vector and scalar.
   inline void operator/=(vec3& a, point_t b)
   {
     b = point_t(1) / b;
@@ -105,19 +105,19 @@ namespace math
     a.z *= b;
   }
 
-  /// @brief 3d vector containing minimum coordinates of two 3d vectors
+  /// @brief 3d vector containing minimum coordinates of two 3d vectors.
   inline vec3 min(vec3 a, vec3 b)
   {
     return make_vec3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
   }
 
-  /// @brief 3d vector containing maximum coordinates of two 3d vectors
+  /// @brief 3d vector containing maximum coordinates of two 3d vectors.
   inline vec3 max(vec3 a, vec3 b)
   {
     return make_vec3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
   }
 
-  /// @brief Normalizes 3d vector
+  /// @brief Normalizes 3d vector.
   inline vec3 normalize(vec3 a)
   {
     point_t n = norm(a);
@@ -127,7 +127,7 @@ namespace math
     return a;
   }
 
-  /// @brief Checks for vector equality
+  /// @brief Checks for vector equality.
   inline bool near_enough(vec3 a, vec3 b)
   {
     vec3 dist = a - b;
