@@ -16,7 +16,6 @@ set(SOURCE_FILES
     operations.h    
     triangle.h
     mat.cpp
-    operations.cpp
     triangle.cpp
     )
 
