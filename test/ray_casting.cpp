@@ -37,79 +37,75 @@ class RayCaster : public Test
 public:
   RayCaster()
   {
-    Scene = 0;
     System = system_create(EngineType::ID);
   }
 
   ~RayCaster()
   {
     system_free(this->System);
-    scene_free(Scene);
   }
-
-  scene_t* MakeEmptyScene()
-  {
-    return scene_create();
-  }
-
-  face_t make_floor_face1()
-  {
-    vec3 a = { 0.f, 0.f, 0.f };
-    vec3 b = { 1.f, 0.f, 0.f };
-    vec3 c = { 0.f, 1.f, 0.f };
-
-    return make_face(a, b, c);
-  }
-
-  face_t make_floor_face2()
-  { 
-    vec3 a = { 1.f, 0.f, 0.f };
-    vec3 b = { 0.f, 1.f, 0.f };
-    vec3 c = { 1.f, 1.f, 0.f };
-
-    return make_face(a, b, c);
-  }
-
-  face_t make_stack_face()
-  {
-    vec3 a = { 0.f, 0.f, -1.f };
-    vec3 b = { 1.f, 0.f, -1.f };
-    vec3 c = { 0.f, 1.f, -1.f };
-
-    return make_face(a, b, c);
-  }
-
-  scene_t* MakeSceneFromFaces(int n_faces, face_t* faces)
-  {
-    scene_t* s = scene_create();
-    *s = { /*.n_faces =*/ n_faces, /*.faces =*/ faces };
-    Scene = s;
-    return s;
-  }
-
-  scene_t* MakeFloorScene()
-  {
-    int n_faces = 2;
-    face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
-    faces[0] = make_floor_face1();
-    faces[1] = make_floor_face2();
-
-    return MakeSceneFromFaces(n_faces, faces);
-  }
-
-  scene_t* MakeStackScene()
-  {
-    int n_faces = 2;
-    face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
-    faces[0] = make_floor_face1();
-    faces[1] = make_stack_face();
-
-    return MakeSceneFromFaces(n_faces, faces);
-  }
-
-  scene_t* Scene;
+ 
   system_t* System;
 };
+
+scene_t* MakeEmptyScene()
+{
+  return scene_create();
+}
+
+face_t make_floor_face1()
+{
+  vec3 a = { 0.f, 0.f, 0.f };
+  vec3 b = { 1.f, 0.f, 0.f };
+  vec3 c = { 0.f, 1.f, 0.f };
+
+  return make_face(a, b, c);
+}
+
+face_t make_floor_face2()
+{
+  vec3 a = { 1.f, 0.f, 0.f };
+  vec3 b = { 0.f, 1.f, 0.f };
+  vec3 c = { 1.f, 1.f, 0.f };
+
+  return make_face(a, b, c);
+}
+
+face_t make_stack_face()
+{
+  vec3 a = { 0.f, 0.f, -1.f };
+  vec3 b = { 1.f, 0.f, -1.f };
+  vec3 c = { 0.f, 1.f, -1.f };
+
+  return make_face(a, b, c);
+}
+
+scene_t* MakeSceneFromFaces(int n_faces, face_t* faces)
+{
+  scene_t* s = scene_create();
+  *s = { /*.n_faces =*/ n_faces, /*.faces =*/ faces };
+  return s;
+}
+
+scene_t* MakeFloorScene()
+{
+  int n_faces = 2;
+  face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
+  faces[0] = make_floor_face1();
+  faces[1] = make_floor_face2();
+
+  return MakeSceneFromFaces(n_faces, faces);
+}
+
+scene_t* MakeStackScene()
+{
+  int n_faces = 2;
+  face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
+  faces[0] = make_floor_face1();
+  faces[1] = make_stack_face();
+
+  return MakeSceneFromFaces(n_faces, faces);
+}
 
 typedef ::testing::Types<EngineType<RAY_CASTER_SYSTEM_CPU>, EngineType<RAY_CASTER_SYSTEM_CUDA> > RayCasterTypes;
 TYPED_TEST_CASE(RayCaster, RayCasterTypes);
@@ -122,14 +118,16 @@ TYPED_TEST(RayCaster, MemoryManagementIsCorrect)
 
 TYPED_TEST(RayCaster, AcceptEmptyScene)
 {
-  scene_t* emptyScence = this->MakeEmptyScene();
+  scene_t* emptyScence = MakeEmptyScene();
   ASSERT_EQ(RAY_CASTER_OK, system_set_scene(this->System, emptyScence));
+  scene_free(emptyScence);
 }
 
 TYPED_TEST(RayCaster, AcceptFloorScene)
 {
-  scene_t* floorScene = this->MakeFloorScene();
+  scene_t* floorScene = MakeFloorScene();
   ASSERT_EQ(RAY_CASTER_OK, system_set_scene(this->System, floorScene));
+  scene_free(floorScene);
 }
 
 TYPED_TEST(RayCaster, PrepareFailsForNoScene)
@@ -139,21 +137,23 @@ TYPED_TEST(RayCaster, PrepareFailsForNoScene)
 
 TYPED_TEST(RayCaster, PrepareFailsForEmptyScene)
 {
-  scene_t* emptyScence = this->MakeEmptyScene();
+  scene_t* emptyScence = MakeEmptyScene();
   system_set_scene(this->System, emptyScence);
   ASSERT_EQ(-RAY_CASTER_ERROR, system_prepare(this->System));
+  scene_free(emptyScence);
 }
 
 TYPED_TEST(RayCaster, PreparePassForNotEmptyScene)
 {
-  scene_t* floorScene = this->MakeFloorScene();
+  scene_t* floorScene = MakeFloorScene();
   system_set_scene(this->System, floorScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
+  scene_free(floorScene);
 }
 
 TYPED_TEST(RayCaster, ProcessAllRays)
 {
-  scene_t* floorScene = this->MakeFloorScene();
+  scene_t* floorScene = MakeFloorScene();
 
   system_set_scene(this->System, floorScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -176,11 +176,13 @@ TYPED_TEST(RayCaster, ProcessAllRays)
 
   ASSERT_TRUE(near_enough(hit_point[0], center0));
   ASSERT_TRUE(near_enough(hit_point[1], center1));
+
+  scene_free(floorScene);
 }
 
 TYPED_TEST(RayCaster, JustWorks)
 {
-  scene_t* floorScene = this->MakeFloorScene();
+  scene_t* floorScene = MakeFloorScene();
 
   system_set_scene(this->System, floorScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -195,11 +197,13 @@ TYPED_TEST(RayCaster, JustWorks)
   ASSERT_EQ(RAY_CASTER_OK, system_cast(this->System, &task));
   // @todo Provide gtest comparison overloads for vec3
   ASSERT_TRUE(near_enough(hit_point, center));
+
+  scene_free(floorScene);
 }
 
 TYPED_TEST(RayCaster, HandleRayIntersectingTriangle)
 {
-  scene_t* stackScene = this->MakeStackScene();
+  scene_t* stackScene = MakeStackScene();
 
   system_set_scene(this->System, stackScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -215,11 +219,13 @@ TYPED_TEST(RayCaster, HandleRayIntersectingTriangle)
   ASSERT_EQ(RAY_CASTER_OK, system_cast(this->System, &task));
   // @todo Provide gtest comparison overloads for vec3
   ASSERT_TRUE(near_enough(hit_point, center));
+
+  scene_free(stackScene);
 }
 
 TYPED_TEST(RayCaster, FindNearestTriangle)
 {
-  scene_t* stackScene = this->MakeStackScene();
+  scene_t* stackScene = MakeStackScene();
 
   system_set_scene(this->System, stackScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -234,11 +240,13 @@ TYPED_TEST(RayCaster, FindNearestTriangle)
   ASSERT_EQ(RAY_CASTER_OK, system_cast(this->System, &task));
   // @todo Provide gtest comparison overloads for vec3
   ASSERT_TRUE(near_enough(hit_point, center));
+
+  scene_free(stackScene);
 }
 
 TYPED_TEST(RayCaster, SkipTriangleNearButInOppositeDirection)
 {
-  scene_t* stackScene = this->MakeStackScene();
+  scene_t* stackScene = MakeStackScene();
 
   system_set_scene(this->System, stackScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -254,11 +262,13 @@ TYPED_TEST(RayCaster, SkipTriangleNearButInOppositeDirection)
   ASSERT_EQ(RAY_CASTER_OK, system_cast(this->System, &task));
   // @todo Provide gtest comparison overloads for vec3
   ASSERT_TRUE(near_enough(hit_point, center));
+
+  scene_free(stackScene);
 }
 
 TYPED_TEST(RayCaster, IntersectTriganglesNotPlanes)
 {
-  scene_t* stackScene = this->MakeStackScene();
+  scene_t* stackScene = MakeStackScene();
 
   system_set_scene(this->System, stackScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -274,6 +284,8 @@ TYPED_TEST(RayCaster, IntersectTriganglesNotPlanes)
   ASSERT_EQ(RAY_CASTER_OK, system_cast(this->System, &task));
   // @todo Provide gtest comparison overloads for vec3
   ASSERT_TRUE(near_enough(hit_point, center));
+
+  scene_free(stackScene);
 }
 
 TYPED_TEST(RayCaster, ProcessLargeScene)
@@ -282,7 +294,7 @@ TYPED_TEST(RayCaster, ProcessLargeScene)
   largeScene.n_faces = 1000;
   largeScene.faces = (face_t*)malloc(sizeof(face_t)* largeScene.n_faces);
 
-  face_t reference = this->make_floor_face1();
+  face_t reference = make_floor_face1();
   for (int i = -largeScene.n_faces / 2; i != largeScene.n_faces / 2; ++i)
   {
     face_t face = reference;
