@@ -128,7 +128,7 @@ TYPED_TEST(RayCaster, AcceptEmptyScene)
 
 TYPED_TEST(RayCaster, AcceptFloorScene)
 {
-  scene_t* floorScene = MakeFloorScene();
+  scene_t* floorScene = this->MakeFloorScene();
   ASSERT_EQ(RAY_CASTER_OK, system_set_scene(this->System, floorScene));
 }
 
@@ -146,14 +146,14 @@ TYPED_TEST(RayCaster, PrepareFailsForEmptyScene)
 
 TYPED_TEST(RayCaster, PreparePassForNotEmptyScene)
 {
-  scene_t* floorScene = MakeFloorScene();
+  scene_t* floorScene = this->MakeFloorScene();
   system_set_scene(this->System, floorScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
 }
 
 TYPED_TEST(RayCaster, ProcessAllRays)
 {
-  scene_t* floorScene = MakeFloorScene();
+  scene_t* floorScene = this->MakeFloorScene();
 
   system_set_scene(this->System, floorScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -180,7 +180,7 @@ TYPED_TEST(RayCaster, ProcessAllRays)
 
 TYPED_TEST(RayCaster, JustWorks)
 {
-  scene_t* floorScene = MakeFloorScene();
+  scene_t* floorScene = this->MakeFloorScene();
 
   system_set_scene(this->System, floorScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -199,7 +199,7 @@ TYPED_TEST(RayCaster, JustWorks)
 
 TYPED_TEST(RayCaster, HandleRayIntersectingTriangle)
 {
-  scene_t* stackScene = MakeStackScene();
+  scene_t* stackScene = this->MakeStackScene();
 
   system_set_scene(this->System, stackScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -219,7 +219,7 @@ TYPED_TEST(RayCaster, HandleRayIntersectingTriangle)
 
 TYPED_TEST(RayCaster, FindNearestTriangle)
 {
-  scene_t* stackScene = MakeStackScene();
+  scene_t* stackScene = this->MakeStackScene();
 
   system_set_scene(this->System, stackScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -238,7 +238,7 @@ TYPED_TEST(RayCaster, FindNearestTriangle)
 
 TYPED_TEST(RayCaster, SkipTriangleNearButInOppositeDirection)
 {
-  scene_t* stackScene = MakeStackScene();
+  scene_t* stackScene = this->MakeStackScene();
 
   system_set_scene(this->System, stackScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -258,7 +258,7 @@ TYPED_TEST(RayCaster, SkipTriangleNearButInOppositeDirection)
 
 TYPED_TEST(RayCaster, IntersectTriganglesNotPlanes)
 {
-  scene_t* stackScene = MakeStackScene();
+  scene_t* stackScene = this->MakeStackScene();
 
   system_set_scene(this->System, stackScene);
   ASSERT_EQ(RAY_CASTER_OK, system_prepare(this->System));
@@ -282,7 +282,7 @@ TYPED_TEST(RayCaster, ProcessLargeScene)
   largeScene.n_faces = 1000;
   largeScene.faces = (face_t*)malloc(sizeof(face_t)* largeScene.n_faces);
 
-  face_t reference = make_floor_face1();
+  face_t reference = this->make_floor_face1();
   for (int i = -largeScene.n_faces / 2; i != largeScene.n_faces / 2; ++i)
   {
     face_t face = reference;
