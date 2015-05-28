@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 
 namespace obj_import
 {
+  /// @brief Local structure representing vertex indices for given face (polygon).
   struct idx_face_t
   {
     int indices[3];
@@ -41,6 +42,7 @@ namespace obj_import
       return -OBJ_IMPORT_FILE_ERROR;
     }
 
+    // Max and min coordinates (for bounding box).
     math::vec3 minBox = math::make_vec3(1e10, 1e10, 1e10);
     math::vec3 maxBox = math::make_vec3(-1e10, -1e10, -1e10);
 
@@ -59,53 +61,48 @@ namespace obj_import
       switch (str[0])
       {
       case 'v':
-      {
-                math::vec3 vertex;
-                int count = sscanf(str.c_str() + 1, "%f %f %f", &(vertex.x), &(vertex.y), &(vertex.z));
-                if (count == 3)
-                {
-                  vertices.push_back(vertex);
-                  minBox = min(minBox, vertex);
-                  maxBox = max(maxBox, vertex);
-                }
-                else
-                {
-                  return -OBJ_IMPORT_FORMAT_ERROR;
-                }
-      }
+        math::vec3 vertex;
+        int count = sscanf(str.c_str() + 1, "%f %f %f", &(vertex.x), &(vertex.y), &(vertex.z));
+        if (count == 3)
+        {
+          vertices.push_back(vertex);
+          minBox = min(minBox, vertex);
+          maxBox = max(maxBox, vertex);
+        }
+        else
+        {
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
         break;
 
       case 'f':
-      {
-                int i0, i1, i2;
-                i0 = i1 = i2 = 0;
-                int count = sscanf(str.c_str() + 1, "%d %d %d", &i0, &i1, &i2);
-                if (count == 3)
-                {
-                  idx_face_t face = { i0, i1, i2 };
-                  faces.push_back(face);
-                }
-                else
-                {
-                  return -OBJ_IMPORT_FORMAT_ERROR;
-                }
-      }
+        int i0, i1, i2;
+        i0 = i1 = i2 = 0;
+        int count = sscanf(str.c_str() + 1, "%d %d %d", &i0, &i1, &i2);
+        if (count == 3)
+        {
+          idx_face_t face = { i0, i1, i2 };
+          faces.push_back(face);
+        }
+        else
+        {
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
         break;
 
       case 'm':
-      {
-                int start_idx, n_faces;
-                int count = sscanf(str.c_str() + 1, "%d %d %d", &start_idx, &n_faces);
-                if (count == 2)
-                {
-                  form_factors::mesh_t mesh = { start_idx, n_faces };
-                  meshes.push_back(mesh);
-                }
-                else
-                {
-                  return -OBJ_IMPORT_FORMAT_ERROR;
-                }
-      }
+        int start_idx, n_faces;
+        int count = sscanf(str.c_str() + 1, "%d %d %d", &start_idx, &n_faces);
+        if (count == 2)
+        {
+          form_factors::mesh_t mesh = { start_idx, n_faces };
+          meshes.push_back(mesh);
+        }
+        else
+        {
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
+        break;
 
       default:
         break;
@@ -114,17 +111,22 @@ namespace obj_import
 
     file.close();
 
+    // Maximum edge length and translation.
     math::point_t cubeLen = std::max(std::max(maxBox.x - minBox.x, maxBox.y - minBox.y), maxBox.z - minBox.z);
     math::vec3 translation_vec = (maxBox + minBox) / 2;
+
+    // Scale and translate vertices.
     for (int i = 0, l = vertices.size(); i < l; ++i)
     {
       vertices[i] -= translation_vec;
       vertices[i] /= cubeLen;
     }
 
+    // Preparing scene.
     form_factors::scene_t* result = form_factors::scene_create();
     *scene = result;
 
+    // Triangulation to vertices from face indices.
     result->n_faces = faces.size();
     result->faces = (form_factors::face_t *)malloc(result->n_faces * sizeof(form_factors::face_t));
     for (int i = 0; i < result->n_faces; ++i)

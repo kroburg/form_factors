@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * This module contains functionality of loading obj-files (Wavefront).
+ */
+
 #pragma once
 
 #include "../form_factors/system.h"
@@ -24,5 +28,10 @@ namespace obj_import
 #define OBJ_IMPORT_FILE_ERROR 21
 #define OBJ_IMPORT_FORMAT_ERROR 22
 
+  /**
+   * @brief Loads scene from obj-file.
+   * @return @see OBJ_IMPORT_OK if ok, @see OBJ_IMPORT_FILE_ERROR if file can not be opened,
+   * or @see OBJ_IMPORT_FORMAT_ERROR if there is format errors.
+   */
   int import_obj(const char* filename, form_factors::scene_t** scene);
 }
