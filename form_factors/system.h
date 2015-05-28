@@ -90,7 +90,7 @@ namespace form_factors
   #define FORM_FACTORS_ERROR 100
 
   /**
-   *   @brief Virtual methods table.
+   *   @brief Virtual methods table for calculator functionality.
    *
    *   Every concrete calculator should implement these methods.
    *   C-interface functions (system_* functions, see below) just allocate memory and call these virtual methods.
