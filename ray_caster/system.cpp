@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
-
 
 #include "system.h"
 #include "../cpuRayCaster/cpu_system.h"
@@ -36,6 +35,7 @@ namespace ray_caster
     free(scene);
   }
 
+  /// @todo: This one has no usages
   task_t* task_create(int n_rays)
   {
     task_t* task = (task_t*) malloc(sizeof(task_t));
@@ -46,6 +46,7 @@ namespace ray_caster
     return task;
   }
 
+  /// @todo: This one has no usages
   void task_free(task_t* task)
   {
     free(task->ray);
