@@ -33,7 +33,7 @@
 
 namespace cpu_form_factors
 {
-  /// @brief Extended base system_t (C-style polymorphiszm)
+  /// @brief Extended base system_t (C-style polymorphism)
   struct cpu_system_t : form_factors::system_t
   {
     form_factors::scene_t* scene;
@@ -59,7 +59,7 @@ namespace cpu_form_factors
     std::uniform_real_distribution<float> Distr_0_2PI;
   };
 
-  /// @brief Initializes system with given ray caster.
+  /// @brief Initializes system with given ray caster after creation.
   int init(cpu_system_t* system, ray_caster::system_t* ray_caster)
   {
     system->scene = 0;
@@ -81,7 +81,7 @@ namespace cpu_form_factors
     return FORM_FACTORS_OK;
   }
 
-  /// @brief Frees system resources.
+  /// @brief Shutdowns calculator system prior to free memory.
   int shutdown(cpu_system_t* system)
   {
     system->scene = 0;
@@ -97,7 +97,7 @@ namespace cpu_form_factors
     return FORM_FACTORS_OK;
   }
 
-  /// @brief Sets scene for self and for ray caster.
+  /// @brief Sets loaded scene (polygons in meshes) for calculator and associated ray caster.
   int set_scene(cpu_system_t* system, form_factors::scene_t* scene)
   {
     system->scene = scene;
@@ -279,7 +279,11 @@ namespace cpu_form_factors
     return system->face_to_mesh[face_idx];
   }
 
-  /// @brief Main calculation method.
+  /**
+   *  @brief Calculates form factors for given system.
+   *
+   *  System uses ray caster (@see init()) and given task for N rays and scene's meshes.
+   */
   int calculate(cpu_system_t* system, form_factors::task_t* task)
   {
     int r = 0;
@@ -289,7 +293,7 @@ namespace cpu_form_factors
     ray_caster::task_t* ray_caster_task = make_caster_task(system, n_rays);
     if ((r = ray_caster::system_cast(system->ray_caster, ray_caster_task)) < 0)
       return r;
-    
+
     // now we have nearest intersection face for every ray in task (if intersection was occurred)
     // calculate form factors between meshes
     const int n_meshes = system->scene->n_meshes;
