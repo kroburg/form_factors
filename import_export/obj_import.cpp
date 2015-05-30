@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * This module contains functionality of loading obj-files (Wavefront).
+ */
+
 #include "obj_import.h"
 #include "../math/operations.h"
 #include <cstring>

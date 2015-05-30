@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * This module contains functionality of exporting calculated form factors to csv files.
+ */
+
 #include "csv_export.h"
 #include <fstream>
 
