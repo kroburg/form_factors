@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -14,11 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * This module contains CPU single-threaded implementation of ray caster.
+ */
+
 #pragma once
 
 #include "../ray_caster/system.h"
 
 namespace cpu_ray_caster
 {
+  /// @brief Factory method to create CPU ray caster.
   ray_caster::system_t* system_create();
 }
