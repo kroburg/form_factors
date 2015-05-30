@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * This module contains basic types to represent a scene for ray caster calculation.
+ * Module also contains base type (system_t) for ray caster with table of virtual methods.
+ */
+
 #include "system.h"
 #include "../cpuRayCaster/cpu_system.h"
 #include "../cudaRayCaster/cuda_system.h"
@@ -35,7 +40,6 @@ namespace ray_caster
     free(scene);
   }
 
-  /// @todo: This one has no usages
   task_t* task_create(int n_rays)
   {
     task_t* task = (task_t*) malloc(sizeof(task_t));
@@ -46,7 +50,6 @@ namespace ray_caster
     return task;
   }
 
-  /// @todo: This one has no usages
   void task_free(task_t* task)
   {
     free(task->ray);

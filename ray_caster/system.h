@@ -61,10 +61,10 @@ namespace ray_caster
   /// @brief Free memory for scene.
   void scene_free(scene_t* s);
 
-  /// @todo: This one has no usages
+  /// @brief Allocates memory for task with n_rays rays.
   task_t* task_create(int n_rays);
 
-  /// @todo: This one has no usages
+  /// @brief Frees memory for task.
   void task_free(task_t* task);
 
   /**
