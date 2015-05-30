@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * This module contains math operations between matrices and vectors.
+ */
+
 #include "mat.h"
 
 namespace math
