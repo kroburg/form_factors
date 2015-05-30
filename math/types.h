@@ -39,7 +39,7 @@ namespace math
     point_t y;
     point_t z;
   };
-.
+
   /// @brief 3d vector constructor from 3 scalar points
   inline vec3 make_vec3(point_t x, point_t y, point_t z)
   {
