@@ -95,7 +95,7 @@ namespace ray_caster
     /// @brief Initializes system after creation.
     int(*init)(system_t* system);
 
-    /// @brief Free memory for given ray caster system.
+    /// @brief Shutdowns system prior to free memory.
     int(*shutdown)(system_t* system);
 
     /// @brief Sets loaded scene (polygons in meshes) for ray caster.
@@ -104,7 +104,8 @@ namespace ray_caster
     /// @brief Checks system consistency before ray casting.
     int(*prepare)(system_t* system);
 
-    /// @brief Casts rays from task for given scene.
+    /// @brief Casts rays of given task task for given scene.
+    /// @note Task's rays are prepared by callee (form factors calculator).
     int(*cast)(system_t* system, task_t* task);
   };
 
