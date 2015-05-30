@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * This module contains CPU single-threaded implementation of form factors calculator.
+ * Calculator is capable of work with CPU or GPU ray caster implementation.
+ */
+
 #pragma once
 
 #include "../form_factors/system.h"
@@ -21,10 +26,13 @@
 
 namespace cpu_form_factors
 {
+  /// @brief Adding weight (ratio) to scene's polygons.
+  /// @todo: Add weight to base form_factors::face_t
   struct face_t : math::triangle_t
   {
     float weight;
   };
 
+  /// @brief Factory method to create CPU form factors calculator.
   form_factors::system_t* system_create();
 }

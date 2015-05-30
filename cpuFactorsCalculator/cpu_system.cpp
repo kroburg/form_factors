@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * This module contains CPU single-threaded implementation of form factors calculator.
+ * Calculator is capable to work with CPU or GPU ray caster implementation.
+ */
+
 #include "cpu_system.h"
 #include "../ray_caster/system.h"
 #include "../math/operations.h"
@@ -28,26 +33,33 @@
 
 namespace cpu_form_factors
 {
+  /// @brief Extended base system_t (C-style polymorphiszm)
   struct cpu_system_t : form_factors::system_t
   {
     form_factors::scene_t* scene;
+
     int n_faces;
     face_t* faces;
     float total_area;
 
+    /// @brief Inverted index to find mesh from face idx.
     int* face_to_mesh;
 
     ray_caster::system_t* ray_caster;
     ray_caster::scene_t ray_caster_scene;
 
+    // Mersenne's twister uniformly distributed [0, 1) generators.
     std::mt19937 TPGenA;
     std::mt19937 TPGenB;
     std::mt19937 HSGenTheta;
     std::mt19937 HSGenR;
+
+    // [0, 1) and [0, 2 * PI) redistributions
     std::uniform_real_distribution<float> Distr_0_1;
     std::uniform_real_distribution<float> Distr_0_2PI;
   };
 
+  /// @brief Initializes system with given ray caster.
   int init(cpu_system_t* system, ray_caster::system_t* ray_caster)
   {
     system->scene = 0;
@@ -69,6 +81,7 @@ namespace cpu_form_factors
     return FORM_FACTORS_OK;
   }
 
+  /// @brief Frees system resources.
   int shutdown(cpu_system_t* system)
   {
     system->scene = 0;
@@ -84,6 +97,7 @@ namespace cpu_form_factors
     return FORM_FACTORS_OK;
   }
 
+  /// @brief Sets scene for self and for ray caster.
   int set_scene(cpu_system_t* system, form_factors::scene_t* scene)
   {
     system->scene = scene;
@@ -98,6 +112,7 @@ namespace cpu_form_factors
     return FORM_FACTORS_OK;
   }
 
+  /// @brief Calculates area for whole scene.
   float calculate_area(form_factors::scene_t* scene)
   {
     float result = 0;
@@ -108,6 +123,8 @@ namespace cpu_form_factors
     return result;
   }
 
+
+  /// @brief Prepares calculator prior to calculation.
   int prepare(cpu_system_t* system)
   {
     if (system->scene == 0 || system->scene->n_faces == 0 || system->scene->n_meshes == 0)
@@ -125,6 +142,7 @@ namespace cpu_form_factors
     free(system->face_to_mesh);
     system->face_to_mesh = (int*)malloc(system->n_faces * sizeof(int));
 
+    // fill face-to-mesh inverted index for every mesh
     for (int m = 0; m != system->scene->n_meshes; ++m)
     {
       const form_factors::mesh_t& mesh = system->scene->meshes[m];
@@ -135,15 +153,20 @@ namespace cpu_form_factors
       }
     }
 
+    // check scene's total area
     system->total_area = calculate_area(system->scene);
     if (system->total_area < FLT_EPSILON)
       return -FORM_FACTORS_ERROR;
 
+    // calculation of every face area to total scene area ratio
     for (int i = 0; i != system->n_faces; ++i)
     {
       form_factors::face_t* source_face = &system->scene->faces[i];
       float face_area = math::triangle_area(*source_face);
       float face_weight = face_area / system->total_area;
+
+      // copy to own faces array
+      /// @todo: Why another copy of scene's faces?
       face_t* target_face = &system->faces[i];
       *((math::triangle_t*)target_face) = *source_face;
       target_face->weight = face_weight;
@@ -152,6 +175,7 @@ namespace cpu_form_factors
     return FORM_FACTORS_OK;
   }
 
+  /// @brief Minimum number of rays per scene.
   int calculate_n_rays(cpu_system_t* system, int rays_requested)
   {
     int result = 0;
@@ -163,6 +187,7 @@ namespace cpu_form_factors
     return result;
   }
 
+  /// @brief Generates uniformly distributed points on triangle.
   math::vec3 pick_face_point(cpu_system_t* system, const face_t& face)
   {
     float a = system->Distr_0_1(system->TPGenA);
@@ -178,6 +203,7 @@ namespace cpu_form_factors
     return face.points[0] + a * v0 + b * v1;
   }
 
+  /// @brief Creates rotation matrix of z vector towards face's normal.
   math::mat33 pick_face_rotation(const face_t& face, math::vec3 z)
   {
     math::vec3 v0 = face.points[1] - face.points[0];
@@ -186,24 +212,24 @@ namespace cpu_form_factors
     return math::rotate_towards(z, norm);
   }
 
+  /// @brief Generates cosine-weighted distribution of points on hemisphere
+  /// with radius of 1 and normal of (0, 0, 1).
   math::vec3 pick_malley_point(cpu_system_t* system)
   {
     float r = system->Distr_0_1(system->HSGenR);
     float rad = sqrtf(r);
     float phi = system->Distr_0_2PI(system->HSGenTheta);
-    return{ rad * cosf(phi), rad * sinf(phi), sqrtf(1 - r) };
+    return { rad * cosf(phi), rad * sinf(phi), sqrtf(1 - r) };
   }
 
+  /// @brief Creates task with n_rays random generated rays.
   ray_caster::task_t* make_caster_task(cpu_system_t* system, int n_rays)
   {
-    ray_caster::task_t* task = (ray_caster::task_t*)malloc(sizeof(ray_caster::task_t));
-    task->n_tasks = n_rays;
-    task->ray = (ray_caster::ray_t*)malloc(n_rays * sizeof(ray_caster::ray_t));
-    task->hit_face = (ray_caster::face_t**)malloc(n_rays * sizeof(ray_caster::face_t*));
-    task->hit_point = (math::vec3*)malloc(n_rays * sizeof(math::vec3));
-
+    ray_caster::task_t* task = ray_caster::task_create(n_rays);
     const int n_meshes = system->scene->n_meshes;
     int n_ray = 0;
+
+    // For every mesh in scene
     for (int m = 0; m != n_meshes; ++m)
     {
       const form_factors::mesh_t& mesh = system->scene->meshes[m];
@@ -211,18 +237,34 @@ namespace cpu_form_factors
       for (int f = 0; f != mesh_n_faces; ++f)
       {
         const face_t& face = system->faces[mesh.first_idx + f];
+
+        // For given face of given mesh number of rays is proportional to
+        // ratio of face's area to whole scene area (weight).
         const int face_rays = std::max<int>(1, (int)(n_rays * face.weight));
+
+        // Store rotation for for given face (from Z axis towards face's normal).
         math::mat33 rotation = pick_face_rotation(face, math::make_vec3(0, 0, 1));
 
         for (int j = 0; j != face_rays && n_ray < n_rays; ++j, ++n_ray)
         {
+          // Take reference to ray being generated
           ray_caster::ray_t& ray = task->ray[n_ray];
+
+          // Randomly generated ray's origin on the face
           math::vec3 origin = pick_face_point(system, face);
-          
+
+          // Pick direction from cosine-weighted distribution
           math::vec3 malley = pick_malley_point(system);
-          if (j > face_rays / 2)
+
+          if (j > face_rays / 2) {
+            // One half rays from front side and one half from back
             malley.z = -malley.z;
+          }
+
+          // Rotate ray towards face's normal
           math::vec3 relative_dist = rotation * malley;
+
+          // Store by reference
           ray = { origin + relative_dist * 0.0001f, origin + relative_dist };
         }
       }
@@ -231,11 +273,13 @@ namespace cpu_form_factors
     return task;
   }
 
+  /// @brief Returns mesh for given face.
   int face2mesh(cpu_system_t* system, int face_idx)
   {
     return system->face_to_mesh[face_idx];
   }
 
+  /// @brief Main calculation method.
   int calculate(cpu_system_t* system, form_factors::task_t* task)
   {
     int r = 0;
@@ -246,8 +290,8 @@ namespace cpu_form_factors
     if ((r = ray_caster::system_cast(system->ray_caster, ray_caster_task)) < 0)
       return r;
     
-
-    // calculate meshes form factors
+    // now we have nearest intersection face for every ray in task (if intersection was occurred)
+    // calculate form factors between meshes
     const int n_meshes = system->scene->n_meshes;
     memset(task->form_factors, 0, n_meshes * n_meshes * sizeof(float));
     
@@ -284,6 +328,7 @@ namespace cpu_form_factors
     return FORM_FACTORS_OK;
   }
 
+  /// @brief Creates virtual methods table from local methods.
   const form_factors::system_methods_t methods =
   {
     (int(*)(form_factors::system_t* system, ray_caster::system_t* ray_caster))&init,
