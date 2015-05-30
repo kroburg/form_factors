@@ -99,16 +99,16 @@ namespace form_factors
   {
     // @todo Add double init/shutdown check in base ray caster system.
 
-    /// @brief Initializes system after creation.
+    /// @brief Initializes system with given ray caster after creation.
     int(*init)(system_t* system, ray_caster::system_t* ray_caster);
 
-    /// @brief Free memory for given calculator system.
+    /// @brief Shutdowns calculator system prior to free memory.
     int(*shutdown)(system_t* system);
 
-    /// @brief Sets loaded scene (polygons in meshes) for calculator.
+    /// @brief Sets loaded scene (polygons in meshes) for calculator and associated ray caster.
     int(*set_scene)(system_t* system, scene_t* scene);
 
-    /// @brief Checks system consistency before calculation.
+    /// @brief Prepares calculator prior to calculation.
     int(*prepare)(system_t* system);
 
     /**
