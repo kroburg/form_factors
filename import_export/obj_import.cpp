@@ -65,47 +65,53 @@ namespace obj_import
       switch (str[0])
       {
       case 'v':
-        math::vec3 vertex;
-        int count = sscanf(str.c_str() + 1, "%f %f %f", &(vertex.x), &(vertex.y), &(vertex.z));
-        if (count == 3)
-        {
-          vertices.push_back(vertex);
-          minBox = min(minBox, vertex);
-          maxBox = max(maxBox, vertex);
-        }
-        else
-        {
-          return -OBJ_IMPORT_FORMAT_ERROR;
-        }
+      {
+                math::vec3 vertex;
+                int count = sscanf(str.c_str() + 1, "%f %f %f", &(vertex.x), &(vertex.y), &(vertex.z));
+                if (count == 3)
+                {
+                  vertices.push_back(vertex);
+                  minBox = min(minBox, vertex);
+                  maxBox = max(maxBox, vertex);
+                }
+                else
+                {
+                  return -OBJ_IMPORT_FORMAT_ERROR;
+                }
+      }
         break;
 
       case 'f':
-        int i0, i1, i2;
-        i0 = i1 = i2 = 0;
-        int count = sscanf(str.c_str() + 1, "%d %d %d", &i0, &i1, &i2);
-        if (count == 3)
-        {
-          idx_face_t face = { i0, i1, i2 };
-          faces.push_back(face);
-        }
-        else
-        {
-          return -OBJ_IMPORT_FORMAT_ERROR;
-        }
+      {
+                int i0, i1, i2;
+                i0 = i1 = i2 = 0;
+                int count = sscanf(str.c_str() + 1, "%d %d %d", &i0, &i1, &i2);
+                if (count == 3)
+                {
+                  idx_face_t face = { i0, i1, i2 };
+                  faces.push_back(face);
+                }
+                else
+                {
+                  return -OBJ_IMPORT_FORMAT_ERROR;
+                }
+      }
         break;
 
       case 'm':
-        int start_idx, n_faces;
-        int count = sscanf(str.c_str() + 1, "%d %d %d", &start_idx, &n_faces);
-        if (count == 2)
-        {
-          form_factors::mesh_t mesh = { start_idx, n_faces };
-          meshes.push_back(mesh);
-        }
-        else
-        {
-          return -OBJ_IMPORT_FORMAT_ERROR;
-        }
+      {
+                int start_idx, n_faces;
+                int count = sscanf(str.c_str() + 1, "%d %d %d", &start_idx, &n_faces);
+                if (count == 2)
+                {
+                  form_factors::mesh_t mesh = { start_idx, n_faces };
+                  meshes.push_back(mesh);
+                }
+                else
+                {
+                  return -OBJ_IMPORT_FORMAT_ERROR;
+                }
+      }
         break;
 
       default:
