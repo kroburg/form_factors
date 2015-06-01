@@ -291,5 +291,5 @@ TYPED_TEST(FormFactors, BoxCorrect)
   float theoretical = 0.5f;
 
   ASSERT_EQ(FORM_FACTORS_OK, system_calculate(this->Calculator, &task));
-  EXPECT_NEAR(theoretical, factors[1], 0.01);
+  EXPECT_NEAR(theoretical, factors[0], 0.01);
 }
