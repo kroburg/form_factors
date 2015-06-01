@@ -142,6 +142,42 @@ public:
     return s;
   }
 
+  scene_t* MakeBoxScene(math::mat33 rotation)
+  {
+    math::vec3 v[] = { { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 }, { 0, 0, 1 }, { 1, 0, 1 }, { 1, 1, 1 }, { 0, 1, 1 } };
+    int n_faces = 12;
+    int n_meshes = 1;
+    face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
+    faces[0] = make_face(v[0], v[1], v[2]);
+    faces[1] = make_face(v[0], v[3], v[2]);    
+    faces[8] = make_face(v[0], v[1], v[5]);
+    faces[9] = make_face(v[0], v[4], v[5]);
+    faces[4] = make_face(v[0], v[3], v[7]);
+    faces[5] = make_face(v[0], v[4], v[7]);
+    faces[6] = make_face(v[1], v[2], v[6]);
+    faces[7] = make_face(v[1], v[5], v[6]);
+    faces[2] = make_face(v[3], v[2], v[6]);
+    faces[3] = make_face(v[3], v[7], v[6]);
+    faces[10] = make_face(v[4], v[5], v[6]);
+    faces[11] = make_face(v[4], v[7], v[6]);
+    
+
+    for (int i = 0; i != n_faces; ++i)
+    {
+      faces[i].points[0] = rotation * faces[i].points[0];
+      faces[i].points[1] = rotation * faces[i].points[1];
+      faces[i].points[2] = rotation * faces[i].points[2];
+    }
+
+    mesh_t* meshes = (mesh_t*)malloc(n_meshes * sizeof(mesh_t));
+    meshes[0] = { 0, n_faces };
+
+    scene_t* s = scene_create();
+    Scene = s;
+    *s = { n_faces, faces, n_meshes, meshes };
+    return s;
+  }
+
   scene_t* Scene;
   ray_caster::system_t* RayCaster;
   system_t* Calculator;
@@ -240,4 +276,20 @@ TYPED_TEST(FormFactors, RotatedPerpendicularPlanesCorrect)
 
   ASSERT_EQ(FORM_FACTORS_OK, system_calculate(this->Calculator, &task));
   EXPECT_NEAR(theoretical, factors[2], 0.01);
+}
+
+TYPED_TEST(FormFactors, BoxCorrect)
+{
+  scene_t* scene = this->MakeBoxScene(math::IDENTITY_33);
+
+  system_set_scene(this->Calculator, scene);
+  ASSERT_EQ(FORM_FACTORS_OK, system_prepare(this->Calculator));
+
+  float factors[1 * 1];
+  task_t task = { 40000, factors };
+
+  float theoretical = 0.5f;
+
+  ASSERT_EQ(FORM_FACTORS_OK, system_calculate(this->Calculator, &task));
+  EXPECT_NEAR(theoretical, factors[1], 0.01);
 }
