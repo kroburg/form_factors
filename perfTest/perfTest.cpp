@@ -112,10 +112,9 @@ task_t* MakeCollapsingRays(int n_rays, SpherePoinsGenerator& generator)
   *task = { n_rays, rays, hit_face, hit_point };
   for (int i = 0; i != n_rays; ++i)
   { 
-    /// @todo: Rays are directed offwards center, not in, may be I'm wrong?
     math::vec3 direction = generator.Point() * 110.f;
+    // Origin is 10% less then direction - rays directed towards zero.
     math::vec3 origin = direction * 1.1f;
-    
     rays[i] = { origin, direction };
   }
 
@@ -246,7 +245,7 @@ int main(int argc, char* argv[])
 
     if (!no_cpu)
     {
-    // Run CPU ray casting task.
+      // Run CPU ray casting task.
       printf("Casting scene on CPU...\n");
       sdkResetTimer(&hTimer);
       sdkStartTimer(&hTimer);
