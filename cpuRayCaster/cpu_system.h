@@ -24,6 +24,6 @@
 
 namespace cpu_ray_caster
 {
-  /// @brief Factory method to create CPU ray caster.
+  /// @brief Creates base system for CPU ray caster.
   ray_caster::system_t* system_create();
 }

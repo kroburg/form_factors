@@ -106,6 +106,7 @@ namespace cpu_ray_caster
     (int(*)(ray_caster::system_t* system, ray_caster::task_t* task))&cast,
   };
 
+  /// @brief Creates base system for ray caster.
   ray_caster::system_t* system_create()
   {
     cpu_system_t* s = (cpu_system_t*)malloc(sizeof(cpu_system_t));
