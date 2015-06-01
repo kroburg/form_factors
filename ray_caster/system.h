@@ -37,8 +37,8 @@ namespace ray_caster
 
   /**
    * @brief Ray caster task representation.
-   *
-   * Each task consists of n_tasks rays (input), hit face index and vector to hit point (output variables).
+   * @detail Each task consists of n_tasks rays (input), indices of hit scene faces and hit points (output variables).
+   * If ray has no intersection with scene face it index will be -1.
    */
   struct task_t
   {
@@ -101,11 +101,11 @@ namespace ray_caster
     /// @brief Sets loaded scene (polygons in meshes) for ray caster.
     int(*set_scene)(system_t* system, scene_t* scene);
 
-    /// @brief Checks system consistency before ray casting.
+    /// @brief Checks system consistency and prepare scene for ray casting.
     int(*prepare)(system_t* system);
 
-    /// @brief Casts rays of given task task for given scene.
-    /// @note Task's rays are prepared by callee (form factors calculator).
+    /// @brief Casts rays of given task task for prepared scene.
+    /// @note Task's rays, rays hit faces indices and points are prepared by callee.
     int(*cast)(system_t* system, task_t* task);
   };
 
