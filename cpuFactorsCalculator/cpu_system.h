@@ -33,6 +33,13 @@ namespace cpu_form_factors
     float weight;
   };
 
-  /// @brief Factory method to create CPU form factors calculator.
+  /**
+ *  @brief Factory method to create CPU form factors calculator.
+ *  @detail Implement form-factors calculator using Monte-Carlo algorithm.
+ *  Use Mersenne's twister random numbers generator from C++ std.
+ *  Use Malley algorithm for emited rays generation.
+ *  Emited rays count per face depends on face weight - relation of face area to whole scene faces area.
+ *  Emit rays from both sides of face.
+ *  */
   form_factors::system_t* system_create();
 }
