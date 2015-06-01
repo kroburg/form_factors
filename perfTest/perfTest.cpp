@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -13,6 +13,10 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * This module contains performance test console utility for calculator (CPU) and ray caster (CPU, GPU).
+ */
 
 #include <stdio.h>
 #include <random>
@@ -30,6 +34,7 @@
 
 using namespace ray_caster;
 
+/// @brief Class to generate uniformly distributed points on sphere's surface.
 class ShperePointsGenerator
 {
 public:
@@ -43,10 +48,10 @@ public:
   {
   }
 
+  /// @brief Generates 1 point.
+  /// @note Distribution taken from http://mathworld.wolfram.com/SpherePointPicking.html
   math::vec3 Point()
-  {
-    // http://mathworld.wolfram.com/SpherePointPicking.html
-
+  {    
     float theta = ThetaDistribution(ThetaGenerator);
     float u = UDistribution(UGenerator);
 
@@ -73,6 +78,8 @@ private:
   std::uniform_real_distribution<float> RDistribution;
 };
 
+
+/// @brief Generates random triangles with vertices located on sphere's surface (confette scene).
 scene_t* MakeConfettiScene(int n_faces, ShperePointsGenerator& generator)
 {
   face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
@@ -93,6 +100,7 @@ scene_t* MakeConfettiScene(int n_faces, ShperePointsGenerator& generator)
   return scene;
 }
 
+/// @brief Creates task with n_rays rays from sphere's surface towards center.
 task_t* MakeCollapsingRays(int n_rays, ShperePointsGenerator& generator)
 {
   math::ray_t* rays = (math::ray_t*)malloc(n_rays * sizeof(math::ray_t));
@@ -104,6 +112,7 @@ task_t* MakeCollapsingRays(int n_rays, ShperePointsGenerator& generator)
   *task = { n_rays, rays, hit_face, hit_point };
   for (int i = 0; i != n_rays; ++i)
   { 
+    /// @todo: Rays are directed offwards center, not in, may be I'm wrong?
     math::vec3 direction = generator.Point() * 110.f;
     math::vec3 origin = direction * 1.1f;
     
@@ -113,6 +122,7 @@ task_t* MakeCollapsingRays(int n_rays, ShperePointsGenerator& generator)
   return task;
 }
 
+/// @brief Clones given task. Uses to copy task from GPU to CPU.
 task_t* task_clone(task_t* task)
 {
   task_t* result = (task_t*)malloc(sizeof(task_t));
@@ -123,6 +133,7 @@ task_t* task_clone(task_t* task)
   return result;
 }
 
+/// @brief Error struct for @see CalculateError(task_t* cpu, task_t* gpu).
 struct ErrorStats
 {
   ErrorStats()
@@ -139,6 +150,7 @@ struct ErrorStats
   int Mismatch;
 };
 
+/// @brief Checks errors between tasks in different ray caster implementations.
 ErrorStats CalculateError(task_t* cpu, task_t* gpu)
 {
   ErrorStats result;
@@ -165,6 +177,7 @@ ErrorStats CalculateError(task_t* cpu, task_t* gpu)
   return result;
 }
 
+/// @brief Checks for non-equal ray intersections between tasks in different ray caster implementations.
 int CalculateMismatch(task_t* cpu, task_t* gpu)
 {
   int result = 0;
