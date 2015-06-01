@@ -299,8 +299,7 @@ namespace cuda_ray_caster
     extern __shared__ distance_reduce_step_t distances[];
 
     int thread_idx = threadIdx.y;
-    int n_blocks = (n_faces + blockDim.y - 1) / blockDim.y;
-    int m = blockIdx.y == n_blocks ? n_faces % blockDim.y : blockDim.y;
+    int m = blockDim.y;
     
     while (m > 1)
     {
