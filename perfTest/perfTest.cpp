@@ -80,7 +80,7 @@ private:
 
 
 /// @brief Generates random triangles with vertices located on sphere's surface (confette scene).
-scene_t* MakeConfettiScene(int n_faces, SpherePoinsGenerator& generator)
+scene_t* MakeConfettiScene(int n_faces, SpherePointsGenerator& generator)
 {
   face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
   scene_t* scene = (scene_t*)malloc(sizeof(scene_t));
@@ -101,7 +101,7 @@ scene_t* MakeConfettiScene(int n_faces, SpherePoinsGenerator& generator)
 }
 
 /// @brief Creates task with n_rays rays from sphere's surface towards center.
-task_t* MakeCollapsingRays(int n_rays, SpherePoinsGenerator& generator)
+task_t* MakeCollapsingRays(int n_rays, SpherePointsGenerator& generator)
 {
   math::ray_t* rays = (math::ray_t*)malloc(n_rays * sizeof(math::ray_t));
   if (rays == 0)
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
     bool no_cpu = true;
     bool no_form_factors = false;
 
-    SpherePoinsGenerator generator;
+    SpherePointsGenerator generator;
 
     // Create systems for CPU and GPU.
     system_t* cuda_system = system_create(RAY_CASTER_SYSTEM_CUDA);
