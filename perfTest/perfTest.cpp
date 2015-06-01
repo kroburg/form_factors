@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
   {
     int n_faces = 1000;
     int n_rays = 1000 * n_faces;
-    bool no_cpu = true;
+    bool no_cpu = false;
     bool no_form_factors = false;
 
     SpherePointsGenerator generator;
