@@ -332,8 +332,15 @@ namespace cuda_ray_caster
     {
       ray_t ray = rays[ray_idx];
       int face_idx = distances[0].face_idx;
-      int result_code = triangle_intersect(ray, faces[face_idx].points, &points[ray_idx]);
-      indices[ray_idx] = result_code == TRIANGLE_INTERSECTION_UNIQUE ? distances[0].face_idx : -1;
+      if (face_idx != -1)
+      {
+        int result_code = triangle_intersect(ray, faces[face_idx].points, &points[ray_idx]);
+        indices[ray_idx] = result_code == TRIANGLE_INTERSECTION_UNIQUE ? distances[0].face_idx : -1;
+      }
+      else
+      {
+        indices[ray_idx] = -1;
+      }      
     }
   }
 
