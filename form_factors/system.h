@@ -29,12 +29,6 @@ namespace form_factors
   /// @brief Face (polygon) type
   typedef math::triangle_t face_t;
 
-  /// @brief Create polygon from 3 point (vectors)
-  inline face_t make_face(math::vec3 a, math::vec3 b, math::vec3 c)
-  {
-    return { a, b, c };
-  }
-
   /// @brief Mesh type (group of polygons - as offset in whole scene polygons).
   struct mesh_t
   {

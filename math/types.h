@@ -53,6 +53,15 @@ namespace math
     vec3 points[3];
   };
 
+  /// @brief Face type.
+  typedef triangle_t face_t;
+
+  /// @brief Create face from 3 points
+  inline face_t make_face(vec3 a, vec3 b, vec3 c)
+  {
+    return { a, b, c };
+  }
+
   /// @brief Ray type.
   struct ray_t
   {

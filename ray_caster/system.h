@@ -29,12 +29,6 @@ namespace ray_caster
   typedef math::triangle_t face_t;
   typedef math::ray_t ray_t;
 
-  /// @brief Creates face (polygon) from 3 vectors.
-  inline face_t make_face(math::vec3 a, math::vec3 b, math::vec3 c)
-  {
-    return { a, b, c };
-  }
-
   /**
    * @brief Ray caster task representation.
    * @detail Each task consists of n_tasks rays (input), indices of hit scene faces and hit points (output variables).
