@@ -15,7 +15,9 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module contains basic types to represent a scene for emission calculation.
+ * This module contains basic types to represent a scene emission calculation.
+ * Scene emission generate ray-caster system rays for radiosity calculation.
+ * Physical interpretation of results is out of scope of this library.
  * Module also contains base type (system_t) for emission calculation with table of virtual methods.
  */
 
