@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "import_export", "import_exp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "controller", "controller\controller.vcxproj", "{3CB1B48E-8376-418F-A148-6454D0C67023}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "emission", "emission\emission.vcxproj", "{21DB25D4-85E4-48E2-86A2-AC228605E760}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -175,6 +177,18 @@ Global
 		{3CB1B48E-8376-418F-A148-6454D0C67023}.Release|Win32.ActiveCfg = Release|Win32
 		{3CB1B48E-8376-418F-A148-6454D0C67023}.Release|Win32.Build.0 = Release|Win32
 		{3CB1B48E-8376-418F-A148-6454D0C67023}.Release|x64.ActiveCfg = Release|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Debug|ARM.ActiveCfg = Debug|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Debug|Win32.ActiveCfg = Debug|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Debug|Win32.Build.0 = Debug|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Debug|x64.ActiveCfg = Debug|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Release|ARM.ActiveCfg = Release|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Release|Win32.ActiveCfg = Release|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Release|Win32.Build.0 = Release|Win32
+		{21DB25D4-85E4-48E2-86A2-AC228605E760}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
