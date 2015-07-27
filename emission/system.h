@@ -28,29 +28,6 @@
 
 namespace emission
 {
-  /// @brief Mesh type (group of polygons - as offset in scene polygons).
-  struct mesh_t
-  {
-    int first_idx;
-    int n_faces;
-  };
-
-  /// @brief Scene representation.
-  /// @todo Provide single name for face/polygon/element entity. Consider that in future elements are not limited by 3D 3-point faces.
-  struct scene_t
-  {
-    int n_faces; ///< Total number of polygons.
-    math::face_t *faces; ///< Polygons array.
-    int n_meshes; ///< Number of meshes.
-    mesh_t* meshes; ///< Meshes array.
-  };
-
-  /// @brief Allocate memory for scene.
-  scene_t* scene_create();
-
-  /// @brief Free memory for scene.
-  void scene_free(scene_t* s);
-
   /**
    * @brief Task representation for given scene (@see task_create).
    *
@@ -58,14 +35,26 @@ namespace emission
    */
   struct task_t
   {
+    /// @brief Approximate amount of rays to be emitted.
     int n_rays;
-    float total_weight; ///< Total scene weight.
-    float* weights; ///< Two weights per face: first one in normal direction, second in opposite.
-    ray_caster::task_t* rays; ///< Ray caster task (contains input and output).
+
+    /**
+      @brief Two weights per face: first one in normal direction, second in opposite.
+      @note System will emit at least one ray per face.
+      @todo Don't emit ray from face side with weight === 0.f
+    */
+    float* weights;
+
+    /**
+      @brief Ray caster task contains calculation output.
+      @note Will be overwritten during calculate.
+      @note Actual rays amount can differ from requested n_rays count.
+      */
+    ray_caster::task_t* rays; 
   };
 
   /// @brief create task for given scene with n_rays rays.
-  task_t* task_create(scene_t* scene, int n_rays);
+  task_t* task_create(int n_rays);
 
   /// @brief Free memory for given task
   void task_free(task_t* task);
@@ -85,12 +74,6 @@ namespace emission
   #define EMISSION_ERROR 200
 
   /**
-    @brief Callback for face weights calculation.
-    @param task All memory is managed by the system.
-  */
-  typedef int(*calculate_weights)(scene_t* scene, task_t* task);
-
-  /**
    *   @brief Virtual methods table for calculator functionality.
    *
    *   Every concrete calculator should implement these methods.
@@ -99,13 +82,13 @@ namespace emission
   struct system_methods_t
   { 
     /// @brief Initializes system with given ray caster after creation.
-    int(*init)(system_t* system, ray_caster::system_t* ray_caster, calculate_weights weights);
+    int(*init)(system_t* system, ray_caster::system_t* ray_caster);
 
     /// @brief Shutdowns calculator system prior to free memory.
     int(*shutdown)(system_t* system);
 
     /// @brief Sets loaded scene (polygons in meshes) for calculator and associated ray caster.
-    int(*set_scene)(system_t* system, scene_t* scene);
+    int(*set_scene)(system_t* system, ray_caster::scene_t* scene);
 
     /// @brief Calculates weights, generate emission rays and casts rays for given system.
     int(*calculate)(system_t* system, task_t* task);
@@ -120,14 +103,14 @@ namespace emission
    * @note Only CPU calculator type (type = 1) is supported, @see ../cpuEmission/.
    * @note init() system on creation.
    */
-  system_t* system_create(int type, ray_caster::system_t* ray_caster, calculate_weights weights);
+  system_t* system_create(int type, ray_caster::system_t* ray_caster);
 
   /// Here go C-interface wrappers to call system_t's virtual methods.
 
   /// @note shutdown() system on destruction.
   void system_free(system_t* system);
-  int system_init(system_t* system, ray_caster::system_t* ray_caster, calculate_weights weights);
+  int system_init(system_t* system, ray_caster::system_t* ray_caster);
   int system_shutdown(system_t* system);
-  int system_set_scene(system_t* system, scene_t* scene);
+  int system_set_scene(system_t* system, ray_caster::scene_t* scene);
   int system_calculate(system_t* system, task_t* task);
 }

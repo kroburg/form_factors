@@ -24,37 +24,20 @@
 
 namespace emission
 {
-  scene_t* scene_create()
-  {
-    scene_t* s = (scene_t*)malloc(sizeof(scene_t));
-    *s = { 0, 0, 0, 0 };
-    return s;
-  }
-
-  void scene_free(scene_t* scene)
-  {
-    if (scene)
-    {
-      free(scene->faces);
-      free(scene->meshes);
-    }
-    free(scene);
-  }
-
-  system_t* system_create(int type, ray_caster::system_t* ray_caster, calculate_weights weights)
+  system_t* system_create(int type, ray_caster::system_t* ray_caster)
   {
     system_t* system = 0;
     switch (type)
     {
     case EMISSION_CPU:
-      //system = cpu_form_factors::system_create();
+      //system = cpu_emission::system_create();
       break;
 
     default:
       return 0;
     }
 
-    system_init(system, ray_caster, weights);
+    system_init(system, ray_caster);
 
     return system;
   }
@@ -65,11 +48,10 @@ namespace emission
     free(system);
   }
 
-  task_t* task_create(scene_t* scene, int n_rays)
+  task_t* task_create(int n_rays)
   {
     task_t* task = (task_t*)malloc(sizeof(task_t));
     task->n_rays = n_rays;
-    task->total_weight = 0;
     task->weights = 0;
     task->rays = 0;
     return task;
@@ -85,9 +67,9 @@ namespace emission
     free(task);
   }
 
-  int system_init(system_t* system, ray_caster::system_t* ray_caster, calculate_weights weights)
+  int system_init(system_t* system, ray_caster::system_t* ray_caster)
   {
-    return system->methods->init(system, ray_caster, weights);
+    return system->methods->init(system, ray_caster);
   }
 
   int system_shutdown(system_t* system)
@@ -95,7 +77,7 @@ namespace emission
     return system->methods->shutdown(system);
   }
 
-  int system_set_scene(system_t* system, scene_t* scene)
+  int system_set_scene(system_t* system, ray_caster::scene_t* scene)
   {
     return system->methods->set_scene(system, scene);
   }
