@@ -1,3 +1,84 @@
+# Form factors.
+
+### API
+
+Структурно система состоит из калькулятора форм-факторов и рейкастера. Калькулятор отвечает за генерацию тасков для рейкастера (лучи с граней), инитит рейкастер, запускает задачу и далее рассчитывает форм-факторы нпо методу Монте-Карло. Рейкастер можно использовать и без калькулятора, создав ему сцену и таски. Система расширяема, существуют базовые типы (C-style полиморфизм с кастомной таблицей виртуальных методов) для калькулятора ([form_factors/](../form_factors/)) и рейкастера ([ray_caster/](../ray_caster/)). Сами реализации имеют чистый C-интерфейс.
+
+#### Пример расчета форм-факторов:
+
+```cpp
+#include <iostream>
+
+// Хедер с фабричным методом для создания калькулятора.
+#include "../form_factors/system.h"
+
+// Хедер с фабричным методом для создания рейкастера и разными константами.
+#include "../form_factors/system.h"
+
+// Функционал для загрузки obj-файлов.
+#include "../import_export/obj_import.h"
+
+int main(int argc, char* argv[])
+{
+	int r = 0;
+
+	// Создаем кастер.
+	ray_caster::system_t* caster = ray_caster::system_create(RAY_CASTER_SYSTEM_CUDA);
+	if (!caster) {
+		std::cerr << "Failed to create ray caster" << std::endl;
+		return 1;
+	}
+
+	// И калькулятор.
+	form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, caster);
+	if (!calculator) {
+		std::cerr << "Failed to create form factors calculator" << std::endl;
+		return 1;
+	}
+
+	// Загружаем сцену.
+	form_factors::scene_t* scene = 0;
+	if ((r = obj_import::import_obj(input, &scene)) != OBJ_IMPORT_OK) {
+		std::cerr << "Failed to load scene " << input << std::endl;
+		return r;
+	}
+
+	// Создаем таск на 1М лучей.
+	form_factors::task_t* task = form_factors::task_create(scene, n_rays);
+	if (!task) {
+		std::cerr << "Failed to create calculator task" << std::endl;
+		return 1;
+	}
+
+	// Задаем сцену для калькулятора (тот сам засеттит сцену для кастера).
+	if ((r = form_factors::system_set_scene(calculator, scene)) != FORM_FACTORS_OK) {
+		std::cerr << "Failed to set scene." << std::endl;
+		return r;
+	}
+
+	// Проверяем что все ОК перед запуском.
+	if ((r = form_factors::system_prepare(calculator)) != FORM_FACTORS_OK) {
+		std::cerr << "Failed to prepare scene." << std::endl;
+		return r;
+	}
+
+	// Считаем.
+	if ((r = form_factors::system_calculate(calculator, task)) != FORM_FACTORS_OK) {
+		std::cerr << "Failed to calculate form factors." << std::endl;
+		return r;
+	}
+
+	// Освобождаем ресурсы.
+	form_factors::task_free(task);
+	form_factors::scene_free(scene);
+	ray_caster::system_free(caster);
+	form_factors::system_free(calculator);
+
+	return 0;
+}
+
+```
+
 ### Текущий статус.
 
 * Реализован рейтрейсер на CPU и GPU (Cuda).
@@ -27,13 +108,6 @@
 * [test/](../test/) - Автотесты и юнит-тесты на [gtest](https://code.google.com/p/googletest/).
 * [qt_shell/](../qt_shell/) - графическая консоль
 
-### Текущий прогресс:
-
-* Объединяем все проекты в один.
-* Поддержка CMake.
-* Дописываем тесты (табличные, для вариантов с параллельными и перпендикулярными плоскостями)
-* Пишем документацию.
-
 ### Особенности сборки.
 
 Собираем под x86.
@@ -55,3 +129,6 @@ cmake .
 ### TODO:
 
 * Избавиться от зависимостей от сэмплов Cuda.
+* Использовать общую библиотеку математики в qt_shell
+* Использовать общую библиотеку импорта в qt_shell
+* Добавить функционал controller в qt_shell

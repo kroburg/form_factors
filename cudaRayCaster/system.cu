@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -13,6 +13,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * This module contains GPU-oriented methods to cast rays on Cuda devices.
+ * Also module contains ray_caster::system_t Cuda implementation.
+ */
 
 #include "system.cuh"
 #include "cuda_system.h"
@@ -30,6 +35,7 @@
 using ray_caster::system_t;
 namespace cuda_ray_caster
 {
+  /// @brief Extended base system_t (C-style polymorphism)
   struct cuda_system_t : system_t
   {
     ray_caster::scene_t* scene;
@@ -39,6 +45,7 @@ namespace cuda_ray_caster
     int n_tpb;
   };
 
+  /// @brief Initializes system after creation, finds Cuda device.
   int init(cuda_system_t* system)
   {
     system->scene = 0;
@@ -54,6 +61,7 @@ namespace cuda_ray_caster
     return RAY_CASTER_OK;
   }
 
+  /// @brief Shutdowns system prior to free memory.
   int shutdown(cuda_system_t* system)
   {
     if (system->faces)
@@ -63,6 +71,7 @@ namespace cuda_ray_caster
     return RAY_CASTER_OK;
   }
 
+  /// @brief Sets loaded scene (polygons in meshes) for ray caster.
   int set_scene(cuda_system_t* system, ray_caster::scene_t* scene)
   {
     if (system->faces)
@@ -76,8 +85,10 @@ namespace cuda_ray_caster
     system->n_faces = scene->n_faces;
 
     if (system->n_faces == 0)
+      /// @todo: May be -RAY_CASTER_ERROR?
       return RAY_CASTER_OK;
 
+    // Allocate Cuda memory for scene's faces.
     ray_caster::face_t* sourceFaces;
     checkCudaErrors(cudaMalloc((void**)&sourceFaces, scene->n_faces * sizeof(ray_caster::face_t)));
     checkCudaErrors(cudaMemcpy(sourceFaces, scene->faces, sizeof(ray_caster::face_t) * scene->n_faces, cudaMemcpyHostToDevice));
@@ -86,8 +97,8 @@ namespace cuda_ray_caster
     
     // @todo How to test that faces upload working?
     // @todo Decide on "perfect occupancy". WTF?
-    int n_tpb = system->n_tpb;
-    int n_blocks = (system->n_faces + n_tpb - 1) / n_tpb;
+    int n_tpb = system->n_tpb; // Threads per block
+    int n_blocks = (system->n_faces + n_tpb - 1) / n_tpb; // Total number of blocks
     load_scene_faces << <n_blocks, n_tpb >> >(sourceFaces, system->faces, system->n_faces);
     checkCudaErrors(cudaPeekAtLastError());
     checkCudaErrors(cudaDeviceSynchronize());
@@ -97,12 +108,15 @@ namespace cuda_ray_caster
     return RAY_CASTER_OK;
   }
 
+  /// @brief Checks system consistency before ray casting.
   int prepare(cuda_system_t* system)
   {
     if (system->n_faces == 0)
       return -RAY_CASTER_ERROR;
     return RAY_CASTER_OK;
   }
+
+  // Convertion from and to device's types.
 
   vec3 ext2loc(math::vec3 a)
   {
@@ -114,12 +128,14 @@ namespace cuda_ray_caster
     return math::make_vec3(a.x, a.y, a.z);
   }
 
+  /// @brief Distance to intersection of given ray with face in faces array with face_idx index.
   struct distance_reduce_step_t
   {
     float distance;
     int face_idx;
   };
 
+  /// @brief Casts rays of given task task for given scene.
   int cast(cuda_system_t* system, ray_caster::task_t* task)
   {
     using namespace ray_caster;
@@ -134,6 +150,7 @@ namespace cuda_ray_caster
     thrust::host_vector<int> h_indices;
 
     ray_t* d_rays;
+    // Allocating Cuda arrays by blocks
     checkCudaErrors(cudaMalloc((void**)&d_rays, n_rays * sizeof(ray_t)));
     {
       thrust::device_vector<math::ray_t> client_rays(n_rays);
@@ -182,6 +199,7 @@ namespace cuda_ray_caster
     return RAY_CASTER_OK;
   }
 
+  /// @brief Creates virtual methods table from local methods.
   const ray_caster::system_methods_t methods =
   {
     (int(*)(system_t* system))&init,
@@ -191,6 +209,7 @@ namespace cuda_ray_caster
     (int(*)(ray_caster::system_t* system, ray_caster::task_t* task))&cast,
   };
 
+  /// @brief Creates base system for ray caster.
   system_t* system_create()
   {
     cuda_system_t* s = (cuda_system_t*)malloc(sizeof(cuda_system_t));
@@ -198,18 +217,20 @@ namespace cuda_ray_caster
     return s;
   }
 
-#define EPSILON   0.00000001
+  #define EPSILON   0.00000001
 
+  /// @brief Creates bounding box for triangle.
   __device__ void init_face_bbox(face_t* f)
   {
     f->bbox[0] = fminf(fminf(f->points[0], f->points[1]), f->points[2]);
     f->bbox[1] = fmaxf(fmaxf(f->points[0], f->points[1]), f->points[2]);
   }
 
-  __global__ void load_scene_faces(const ray_caster::face_t* source, face_t* target, int n_faces)
+  /// @brief Loads scene to GPU and converts base face_t to cuda_ray_caster::face_t (with bounding box).
+   __global__ void load_scene_faces(const ray_caster::face_t* source, face_t* target, int n_faces)
   {
+    // Copy block-by-block.
     int i = blockDim.x * blockIdx.x + threadIdx.x;
-
     if (i < n_faces)
     {
       // @todo Implement some kind of assertion here.
@@ -219,7 +240,8 @@ namespace cuda_ray_caster
     }
   }
 
-  __global__ void load_rays(const math::ray_t* source, ray_t* target, int n_rays)
+  /// @brief Loads task with n_rays to GPU.
+   __global__ void load_rays(const math::ray_t* source, ray_t* target, int n_rays)
   {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -230,10 +252,12 @@ namespace cuda_ray_caster
     }
   }
 
+  /// @brief Finds intersection of given ray (blockIdx.x) with n_faces faces (y block dimension).
   __device__ void cast_scene_intersection_step(const face_t* faces, int n_faces, const ray_t* rays, int* indices, vec3* points)
   {
     extern __shared__ distance_reduce_step_t distances[];
 
+    // Current intersection distance for given ray and block's faces.
     distance_reduce_step_t& step = distances[threadIdx.y];
     step.distance = FLT_MAX;
     step.face_idx = -1;
@@ -245,14 +269,17 @@ namespace cuda_ray_caster
     for (; face_idx < n_faces; face_idx += blockDim.y)
     { 
       ray_t ray = rays[ray_idx];
+      // If ray intersected with bounding box.
       if (face_bbox_intersect(ray, &faces[face_idx]))
       {
         vec3 point;
         int result_code = triangle_intersect(ray, faces[face_idx].points, &point);
         if (result_code == TRIANGLE_INTERSECTION_UNIQUE)
         {
+          // Final intersection check.
           point -= ray.origin;
           float distance = dot(point, point);
+          // If less then other faces - write new distance.
           if (distance < step.distance)
           {
             step.distance = distance;
@@ -266,13 +293,13 @@ namespace cuda_ray_caster
     __syncthreads();
   }
 
+  /// @brief Reduces all distances for ray (blockIdx.x) and all faces.
   __device__ void cast_scene_reduction_step(const face_t* faces, int n_faces, const ray_t* rays, int* indices, vec3* points)
   { 
     extern __shared__ distance_reduce_step_t distances[];
 
     int thread_idx = threadIdx.y;
-    int n_blocks = (n_faces + blockDim.y - 1) / blockDim.y;
-    int m = blockIdx.y == n_blocks ? n_faces % blockDim.y : blockDim.y;
+    int m = blockDim.y;
     
     while (m > 1)
     {
@@ -305,8 +332,15 @@ namespace cuda_ray_caster
     {
       ray_t ray = rays[ray_idx];
       int face_idx = distances[0].face_idx;
-      int result_code = triangle_intersect(ray, faces[face_idx].points, &points[ray_idx]);
-      indices[ray_idx] = result_code == TRIANGLE_INTERSECTION_UNIQUE ? distances[0].face_idx : -1;
+      if (face_idx != -1)
+      {
+        int result_code = triangle_intersect(ray, faces[face_idx].points, &points[ray_idx]);
+        indices[ray_idx] = result_code == TRIANGLE_INTERSECTION_UNIQUE ? distances[0].face_idx : -1;
+      }
+      else
+      {
+        indices[ray_idx] = -1;
+      }      
     }
   }
 

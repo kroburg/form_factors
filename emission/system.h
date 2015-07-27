@@ -15,8 +15,10 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module contains basic types to represent a scene for form factors calculation.
- * Module also contains base type (system_t) for form factor calculation with table of virtual methods.
+ * This module contains basic types to represent a scene emission calculation.
+ * Scene emission generate ray-caster system rays for radiosity calculation.
+ * Physical interpretation of results is out of scope of this library.
+ * Module also contains base type (system_t) for emission calculation with table of virtual methods.
  */
 
 #pragma once
@@ -24,47 +26,35 @@
 #include "../math/types.h"
 #include "../ray_caster/system.h"
 
-namespace form_factors
+namespace emission
 {
-  /// @brief Face (polygon) type
-  typedef math::triangle_t face_t;
-
-  /// @brief Mesh type (group of polygons - as offset in whole scene polygons).
-  struct mesh_t
-  {
-    int first_idx;
-    int n_faces;
-  };
-
-  /// @brief Scene representation.
-  struct scene_t
-  {
-    int n_faces; ///< Total number of polygons.
-    face_t *faces; ///< Polygons array.
-    int n_meshes; ///< Number of meshes.
-    mesh_t* meshes; ///< Meshes array.
-  };
-
-  /// @brief Allocate memory for scene.
-  scene_t* scene_create();
-
-  /// @brief Free memory for scene.
-  void scene_free(scene_t* s);
-
   /**
    * @brief Task representation for given scene (@see task_create).
    *
-   * Each task consists of N rays (as input for ray_caster) and
-   * out-parameter form_factors with size of O(N*N), where N - number of meshes in scene.
+   * Each task consists of N rays (as input for ray_caster) and out-parameter rays (result of rays casting).
    */
   struct task_t
   {
+    /// @brief Approximate amount of rays to be emitted.
     int n_rays;
-    float* form_factors;
+
+    /**
+      @brief Two weights per face: first one in normal direction, second in opposite.
+      @note System will emit at least one ray per face.
+      @todo Don't emit ray from face side with weight === 0.f
+    */
+    float* weights;
+
+    /**
+      @brief Ray caster task contains calculation output.
+      @note Will be overwritten during calculate.
+      @note Actual rays amount can differ from requested n_rays count.
+      */
+    ray_caster::task_t* rays; 
   };
 
   /// @brief create task for given scene with n_rays rays.
-  task_t* task_create(scene_t* scene, int n_rays);
+  task_t* task_create(int n_rays);
 
   /// @brief Free memory for given task
   void task_free(task_t* task);
@@ -80,8 +70,8 @@ namespace form_factors
     const struct system_methods_t* methods;
   };
 
-  #define FORM_FACTORS_OK    0
-  #define FORM_FACTORS_ERROR 100
+  #define EMISSION_OK    0
+  #define EMISSION_ERROR 200
 
   /**
    *   @brief Virtual methods table for calculator functionality.
@@ -90,9 +80,7 @@ namespace form_factors
    *   C-interface functions (system_* functions, see below) just allocate memory and call these virtual methods.
    */
   struct system_methods_t
-  {
-    // @todo Add double init/shutdown check in base ray caster system.
-
+  { 
     /// @brief Initializes system with given ray caster after creation.
     int(*init)(system_t* system, ray_caster::system_t* ray_caster);
 
@@ -100,26 +88,19 @@ namespace form_factors
     int(*shutdown)(system_t* system);
 
     /// @brief Sets loaded scene (polygons in meshes) for calculator and associated ray caster.
-    int(*set_scene)(system_t* system, scene_t* scene);
+    int(*set_scene)(system_t* system, ray_caster::scene_t* scene);
 
-    /// @brief Prepares calculator prior to calculation.
-    int(*prepare)(system_t* system);
-
-    /**
-     *  @brief Calculates form factors for given system.
-     *
-     *  System uses ray caster (@see init()) and given task for N rays and scene's meshes.
-     */
+    /// @brief Calculates weights, generate emission rays and casts rays for given system.
     int(*calculate)(system_t* system, task_t* task);
   };
 
-  #define FORM_FACTORS_CPU 1
+  #define EMISSION_CPU 1
 
   /**
    * @brief Factory method for calculator creation.
    *
-   * Creates form factors calculator system with given calculator type and raycaster.
-   * @note Only CPU calculator type (type = 1) is supported, @see ../cpuFactorsCalculator/.
+   * Creates emission calculator system with given calculator type and raycaster.
+   * @note Only CPU calculator type (type = 1) is supported, @see ../cpuEmission/.
    * @note init() system on creation.
    */
   system_t* system_create(int type, ray_caster::system_t* ray_caster);
@@ -130,7 +111,6 @@ namespace form_factors
   void system_free(system_t* system);
   int system_init(system_t* system, ray_caster::system_t* ray_caster);
   int system_shutdown(system_t* system);
-  int system_set_scene(system_t* system, scene_t* scene);
-  int system_prepare(system_t* system);
+  int system_set_scene(system_t* system, ray_caster::scene_t* scene);
   int system_calculate(system_t* system, task_t* task);
 }

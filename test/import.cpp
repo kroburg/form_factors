@@ -31,7 +31,7 @@ public:
 TEST_F(ObjImport, ParallelPlanesModel)
 {
   form_factors::scene_t* scene = 0;
-  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::import_obj("../models/parallel_planes.obj", &scene));
+  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::import_obj("models/parallel_planes.obj", &scene));
   ASSERT_EQ(4, scene->n_faces);
   ASSERT_EQ(2, scene->n_meshes);
 }

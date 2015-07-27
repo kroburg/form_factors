@@ -15,31 +15,23 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module contains CPU single-threaded implementation of form factors calculator.
+ * This module contains CPU single-threaded implementation of emission calculator.
  * Calculator is capable of work with CPU or GPU ray caster implementation.
  */
 
 #pragma once
 
-#include "../form_factors/system.h"
-#include "../math/types.h"
+#include "../emission/system.h"
 
-namespace cpu_form_factors
-{
-  /// @brief Adding weight (ratio) to scene's polygons.
-  /// @todo: Add weight to base form_factors::face_t
-  struct face_t : math::triangle_t
-  {
-    float weight;
-  };
-
+namespace cpu_emission
+{ 
   /**
- *  @brief Factory method to create CPU form factors calculator.
- *  @detail Implement form-factors calculator using Monte-Carlo algorithm.
+ *  @brief Factory method to create CPU emission calculator.
+ *  @detail Implement emission calculator using Monte-Carlo algorithm.
  *  Use Mersenne's twister random numbers generator from C++ std.
  *  Use Malley algorithm for emited rays generation.
- *  Emited rays count per face depends on face weight - relation of face area to whole scene faces area.
+ *  Emited rays count per face (side) depends on face weight.
  *  Emit rays from both sides of face.
  *  */
-  form_factors::system_t* system_create();
+  emission::system_t* system_create();
 }

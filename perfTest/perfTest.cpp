@@ -1,4 +1,4 @@
-// Copyright 2015 Stepan Tezyunichev (stepan.tezyunichev@gmail.com).
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -13,6 +13,10 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * This module contains performance test console utility for calculator (CPU) and ray caster (CPU, GPU).
+ */
 
 #include <stdio.h>
 #include <random>
@@ -30,10 +34,11 @@
 
 using namespace ray_caster;
 
-class ShperePointsGenerator
+/// @brief Class to generate uniformly distributed points on sphere's surface.
+class SpherePointsGenerator
 {
 public:
-  ShperePointsGenerator()
+  SpherePointsGenerator()
     : ThetaGenerator(0)
     , UGenerator(1)
     , RGenerator(2)
@@ -43,10 +48,10 @@ public:
   {
   }
 
+  /// @brief Generates 1 point.
+  /// @note Distribution taken from http://mathworld.wolfram.com/SpherePointPicking.html
   math::vec3 Point()
-  {
-    // http://mathworld.wolfram.com/SpherePointPicking.html
-
+  {    
     float theta = ThetaDistribution(ThetaGenerator);
     float u = UDistribution(UGenerator);
 
@@ -73,7 +78,9 @@ private:
   std::uniform_real_distribution<float> RDistribution;
 };
 
-scene_t* MakeConfettiScene(int n_faces, ShperePointsGenerator& generator)
+
+/// @brief Generates random triangles with vertices located on sphere's surface (confette scene).
+scene_t* MakeConfettiScene(int n_faces, SpherePointsGenerator& generator)
 {
   face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
   scene_t* scene = (scene_t*)malloc(sizeof(scene_t));
@@ -93,7 +100,8 @@ scene_t* MakeConfettiScene(int n_faces, ShperePointsGenerator& generator)
   return scene;
 }
 
-task_t* MakeCollapsingRays(int n_rays, ShperePointsGenerator& generator)
+/// @brief Creates task with n_rays rays from sphere's surface towards center.
+task_t* MakeCollapsingRays(int n_rays, SpherePointsGenerator& generator)
 {
   math::ray_t* rays = (math::ray_t*)malloc(n_rays * sizeof(math::ray_t));
   if (rays == 0)
@@ -105,14 +113,15 @@ task_t* MakeCollapsingRays(int n_rays, ShperePointsGenerator& generator)
   for (int i = 0; i != n_rays; ++i)
   { 
     math::vec3 direction = generator.Point() * 110.f;
+    // Origin is 10% less then direction - rays directed towards zero.
     math::vec3 origin = direction * 1.1f;
-    
     rays[i] = { origin, direction };
   }
 
   return task;
 }
 
+/// @brief Clones given task. Uses to copy task from GPU to CPU.
 task_t* task_clone(task_t* task)
 {
   task_t* result = (task_t*)malloc(sizeof(task_t));
@@ -123,6 +132,7 @@ task_t* task_clone(task_t* task)
   return result;
 }
 
+/// @brief Error struct for @see CalculateError(task_t* cpu, task_t* gpu).
 struct ErrorStats
 {
   ErrorStats()
@@ -139,6 +149,7 @@ struct ErrorStats
   int Mismatch;
 };
 
+/// @brief Checks errors between tasks in different ray caster implementations.
 ErrorStats CalculateError(task_t* cpu, task_t* gpu)
 {
   ErrorStats result;
@@ -165,6 +176,7 @@ ErrorStats CalculateError(task_t* cpu, task_t* gpu)
   return result;
 }
 
+/// @brief Checks for non-equal ray intersections between tasks in different ray caster implementations.
 int CalculateMismatch(task_t* cpu, task_t* gpu)
 {
   int result = 0;
@@ -185,18 +197,25 @@ int main(int argc, char* argv[])
   {
     int n_faces = 1000;
     int n_rays = 1000 * n_faces;
-    bool no_cpu = true;
+    bool no_cpu = false;
     bool no_form_factors = false;
 
-    ShperePointsGenerator generator;
+    SpherePointsGenerator generator;
+
+    // Create systems for CPU and GPU.
     system_t* cuda_system = system_create(RAY_CASTER_SYSTEM_CUDA);
     system_t* cpu_system = system_create(RAY_CASTER_SYSTEM_CPU);
     printf("Generating confetti scene with %d elements...\n", n_faces);
+
+    // Create random scene for ray caster.
     scene_t* scene = MakeConfettiScene(n_faces, generator);
     printf("Generating %d collapsing rays...\n", n_rays);
+
+    // Create task for ray caster.
     task_t* gpuTask = MakeCollapsingRays(n_rays, generator);
     task_t* cpuTask = task_clone(gpuTask);
 
+    // Create small warm-up scene for ray caster (from main confetti scene) and run ray caster on it.
     printf("Warming up...\n");
     scene_t warm_up_scene = *scene;
     warm_up_scene.n_faces = warm_up_scene.n_faces > 32 ? 32 : warm_up_scene.n_faces;
@@ -206,6 +225,7 @@ int main(int argc, char* argv[])
     system_prepare(cuda_system);
     system_cast(cuda_system, &warm_up_task);
 
+    // Prepare ray casters.
     system_set_scene(cuda_system, scene);
     system_prepare(cuda_system);
     system_set_scene(cpu_system, scene);
@@ -216,6 +236,7 @@ int main(int argc, char* argv[])
     sdkResetTimer(&hTimer);
     sdkStartTimer(&hTimer);
 
+    // Run GPU ray casting task.
     printf("Casting scene on GPU...\n");
     system_cast(cuda_system, gpuTask);
     sdkStopTimer(&hTimer);
@@ -224,6 +245,7 @@ int main(int argc, char* argv[])
 
     if (!no_cpu)
     {
+      // Run CPU ray casting task.
       printf("Casting scene on CPU...\n");
       sdkResetTimer(&hTimer);
       sdkStartTimer(&hTimer);
@@ -240,6 +262,7 @@ int main(int argc, char* argv[])
 
     if (!no_form_factors)
     {
+      // Run form factors calculation on Cuda's ray caster reuslts.
       form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, cuda_system);
       form_factors::scene_t calculator_scene;
       calculator_scene.n_faces = scene->n_faces;
@@ -259,6 +282,7 @@ int main(int argc, char* argv[])
       sdkResetTimer(&hTimer);
       sdkStartTimer(&hTimer);
 
+      // Finally calculate form factors.
       form_factors::system_set_scene(calculator, &calculator_scene);
       form_factors::system_prepare(calculator);
       form_factors::task_t* task = form_factors::task_create(&calculator_scene, n_rays);
