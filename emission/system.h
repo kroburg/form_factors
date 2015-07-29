@@ -39,7 +39,7 @@ namespace emission
     int n_rays;
 
     /**
-      @brief Two weights per face: first one in normal direction, second in opposite.
+      @brief Two weights per face: first one in normal direction (frontside), second in opposite (backside).
       @note System will emit at least one ray per face.
       @todo Don't emit ray from face side with weight === 0.f
     */
@@ -47,6 +47,7 @@ namespace emission
 
     /**
       @brief Ray caster task contains calculation output.
+      @detail Rays are packed face-by-face in order. Frontside rays are first, then backside rays.
       @note Will be overwritten during calculate.
       @note Actual rays amount can differ from requested n_rays count.
       */

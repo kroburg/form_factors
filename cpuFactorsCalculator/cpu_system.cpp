@@ -25,7 +25,6 @@
 #include "../math/triangle.h"
 #include "../math/mat.h"
 #include <float.h>
-#include <random>
 #include <cmath>
 #include <limits>
 #include <stdlib.h>
@@ -45,22 +44,12 @@ namespace cpu_form_factors
     /// @brief Inverted index to find mesh from face idx.
     int* face_to_mesh;
 
-    ray_caster::system_t* ray_caster;
+    emission::system_t* emitter;
     ray_caster::scene_t ray_caster_scene;
-
-    // Mersenne's twister uniformly distributed [0, 1) generators.
-    std::mt19937 TPGenA;
-    std::mt19937 TPGenB;
-    std::mt19937 HSGenTheta;
-    std::mt19937 HSGenR;
-
-    // [0, 1) and [0, 2 * PI) redistributions
-    std::uniform_real_distribution<float> Distr_0_1;
-    std::uniform_real_distribution<float> Distr_0_2PI;
   };
 
   /// @brief Initializes system with given ray caster after creation.
-  int init(cpu_system_t* system, ray_caster::system_t* ray_caster)
+  int init(cpu_system_t* system, emission::system_t* emitter)
   {
     system->scene = 0;
     system->n_faces = 0;
@@ -69,15 +58,9 @@ namespace cpu_form_factors
 
     system->face_to_mesh = 0;
 
-    system->ray_caster = ray_caster;
+    system->emitter = emitter;
     system->ray_caster_scene = { 0, 0 };
-
-    system->TPGenA = std::mt19937(1);
-    system->TPGenB = std::mt19937(2);
-    system->HSGenTheta = std::mt19937(3);
-    system->HSGenR = std::mt19937(4);
-    system->Distr_0_1 = std::uniform_real_distribution<float>(0, 1);
-    system->Distr_0_2PI = std::uniform_real_distribution<float>(0, float(M_2PI));
+   
     return FORM_FACTORS_OK;
   }
 
@@ -106,7 +89,7 @@ namespace cpu_form_factors
     system->ray_caster_scene = { system->scene->n_faces, system->scene->faces };
     
     int r = 0;
-    if ((r = ray_caster::system_set_scene(system->ray_caster, &system->ray_caster_scene)) < 0)
+    if ((r = emission::system_set_scene(system->emitter, &system->ray_caster_scene)) < 0)
       return r;
 
     return FORM_FACTORS_OK;

@@ -22,7 +22,7 @@
 #pragma once
 
 #include "../math/types.h"
-#include "../ray_caster/system.h"
+#include "../emission/system.h"
 
 namespace form_factors
 {
@@ -94,7 +94,7 @@ namespace form_factors
     // @todo Add double init/shutdown check in base ray caster system.
 
     /// @brief Initializes system with given ray caster after creation.
-    int(*init)(system_t* system, ray_caster::system_t* ray_caster);
+    int(*init)(system_t* system, emission::system_t* emitter);
 
     /// @brief Shutdowns calculator system prior to free memory.
     int(*shutdown)(system_t* system);
@@ -122,13 +122,13 @@ namespace form_factors
    * @note Only CPU calculator type (type = 1) is supported, @see ../cpuFactorsCalculator/.
    * @note init() system on creation.
    */
-  system_t* system_create(int type, ray_caster::system_t* ray_caster);
+  system_t* system_create(int type, emission::system_t* emitter);
 
   /// Here go C-interface wrappers to call system_t's virtual methods.
 
   /// @note shutdown() system on destruction.
   void system_free(system_t* system);
-  int system_init(system_t* system, ray_caster::system_t* ray_caster);
+  int system_init(system_t* system, emission::system_t* emitter);
   int system_shutdown(system_t* system);
   int system_set_scene(system_t* system, scene_t* scene);
   int system_prepare(system_t* system);
