@@ -80,8 +80,10 @@ namespace form_factors
     const struct system_methods_t* methods;
   };
 
-  #define FORM_FACTORS_OK    0
-  #define FORM_FACTORS_ERROR 100
+#define FORM_FACTORS_OK              0
+#define FORM_FACTORS_ERROR           100
+#define FORM_FACTORS_EMPTY_SCENE     101
+#define FORM_FACTORS_SCENE_TOO_SMALL 102
 
   /**
    *   @brief Virtual methods table for calculator functionality.

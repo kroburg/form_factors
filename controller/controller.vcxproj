@@ -91,8 +91,14 @@
     <ProjectReference Include="..\cpuRayCaster\cpuRayCaster.vcxproj">
       <Project>{6db47603-9ce5-4255-99e5-29ac7a1e655c}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\cpu_emission\cpu_emission.vcxproj">
+      <Project>{923e9d7c-cc1a-4a8b-85d9-34841e91abfa}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\cudaRayCaster\cudaRayCaster.vcxproj">
       <Project>{2bc5721e-f870-4a8d-9160-4139cf0a516b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\emission\emission.vcxproj">
+      <Project>{21db25d4-85e4-48e2-86a2-ac228605e760}</Project>
     </ProjectReference>
     <ProjectReference Include="..\form_factors\form_factors.vcxproj">
       <Project>{a7fdcdb0-b23d-4bba-bbca-2f714a89205a}</Project>

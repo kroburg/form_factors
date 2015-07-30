@@ -41,12 +41,14 @@ public:
   {
     Scene = 0;
     RayCaster = ray_caster::system_create(RAY_CASTER_SYSTEM_CPU);
-    Calculator = system_create(EngineType::ID, RayCaster);
+    Emitter = emission::system_create(EMISSION_CPU, RayCaster);
+    Calculator = system_create(EngineType::ID, Emitter);
   }
 
   ~FormFactors()
   {
     system_free(Calculator);
+    emission::system_free(Emitter);
     ray_caster::system_free(RayCaster);
     scene_free(Scene);
   }
@@ -180,6 +182,7 @@ public:
 
   scene_t* Scene;
   ray_caster::system_t* RayCaster;
+  emission::system_t* Emitter;
   system_t* Calculator;
 };
 

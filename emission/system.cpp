@@ -19,6 +19,7 @@
  * Module also contains base type (system_t) for form factor calculation with table of virtual methods.
  */
 
+#include "../cpu_emission/cpu_system.h"
 #include "system.h"
 #include <stdlib.h>
 
@@ -30,7 +31,7 @@ namespace emission
     switch (type)
     {
     case EMISSION_CPU:
-      //system = cpu_emission::system_create();
+      system = cpu_emission::system_create();
       break;
 
     default:

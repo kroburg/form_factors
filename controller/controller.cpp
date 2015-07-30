@@ -83,7 +83,14 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, caster);
+  emission::system_t* emitter = emission::system_create(EMISSION_CPU, caster);
+  if (!emitter)
+  {
+    std::cerr << "Failed to create emitter" << std::endl;
+    return 1;
+  }
+
+  form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, emitter);
   if (!calculator)
   {
     std::cerr << "Failed to create form factors calculator" << std::endl;
@@ -138,6 +145,8 @@ int main(int argc, char* argv[])
 
   form_factors::task_free(task);
   form_factors::scene_free(scene);
+
+  emission::system_free(emitter);
   ray_caster::system_free(caster);
   form_factors::system_free(calculator);
   

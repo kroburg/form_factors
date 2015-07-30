@@ -263,7 +263,8 @@ int main(int argc, char* argv[])
     if (!no_form_factors)
     {
       // Run form factors calculation on Cuda's ray caster reuslts.
-      form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, cuda_system);
+      emission::system_t* emitter = emission::system_create(EMISSION_CPU, cuda_system);
+      form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, emitter);
       form_factors::scene_t calculator_scene;
       calculator_scene.n_faces = scene->n_faces;
       calculator_scene.faces = scene->faces;

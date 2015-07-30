@@ -26,13 +26,6 @@
 
 namespace cpu_form_factors
 {
-  /// @brief Adding weight (ratio) to scene's polygons.
-  /// @todo: Add weight to base form_factors::face_t
-  struct face_t : math::triangle_t
-  {
-    float weight;
-  };
-
   /**
  *  @brief Factory method to create CPU form factors calculator.
  *  @detail Implement form-factors calculator using Monte-Carlo algorithm.
