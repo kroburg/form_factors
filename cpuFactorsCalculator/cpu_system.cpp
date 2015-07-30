@@ -97,7 +97,7 @@ namespace cpu_form_factors
     float result = 0;
     for (int i = 0; i != scene->n_faces; ++i)
     {
-      result += triangle_area(scene->faces[i]);
+      result += 2.f * triangle_area(scene->faces[i]);
     }
     return result;
   }

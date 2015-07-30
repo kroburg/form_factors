@@ -98,7 +98,7 @@ namespace cpu_emission
     for (int i = 0; i != n_faces; ++i)
     {
       int face_idx = 2 * i;
-      int faceRaysCount = std::max<int>(1, (int)(rays_requested * task->weights[face_idx * i])) +
+      int faceRaysCount = std::max<int>(1, (int)(rays_requested * task->weights[face_idx])) +
         std::max<int>(1, (int)(rays_requested * task->weights[face_idx + 1]));
       result += faceRaysCount;
     }
