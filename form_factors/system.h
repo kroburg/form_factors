@@ -34,6 +34,7 @@ namespace form_factors
   {
     int first_idx;
     int n_faces;
+    int padding0; // @todo Provide mesh size scene parameter for custom meshes traversal (yet fields structure must be preserved).
   };
 
   /// @brief Scene representation.
