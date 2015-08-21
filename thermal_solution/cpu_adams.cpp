@@ -183,7 +183,7 @@ namespace cpu_adams
 
     float* Tn1 = get_step_temperatures(system, n + 1);
     memcpy(Tn1, Tnew, sizeof(float) * n_meshes);
-    ++system->n_step;
+    task->n_step = ++system->n_step;
  
     return THERMAL_SOLUTION_OK;
   }
