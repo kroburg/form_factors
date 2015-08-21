@@ -20,7 +20,9 @@
 
 #include "cpu_adams.h"
 #include "../thermal_equation/system.h"
+#include "../math/triangle.h"
 #include <stdlib.h>
+#include <cstring>
 
 namespace cpu_adams
 {
@@ -29,6 +31,10 @@ namespace cpu_adams
   {
     thermal_solution::params_t params;
     thermal_solution::scene_t* scene;
+
+    int n_step;
+    float* temperatures;
+    float* energy;
   };
 
   /// @brief Initializes system with given ray caster after creation.
@@ -36,6 +42,10 @@ namespace cpu_adams
   {
     system->params = *params;
     system->scene = 0;
+
+    system->n_step = 0;
+    system->temperatures = 0;
+    system->energy = 0;
     
     return THERMAL_SOLUTION_OK;
   }
@@ -46,10 +56,18 @@ namespace cpu_adams
     thermal_solution::scene_free(system->scene);
     system->scene = 0;
 
+    system->n_step = 0;
+
+    free(system->temperatures);
+    system->temperatures = 0;
+
+    free(system->energy);
+    system->energy = 0;
+
     return THERMAL_SOLUTION_OK;
   }
 
-  int set_scene(cpu_system_t* system, thermal_solution::scene_t* scene)
+  int set_scene(cpu_system_t* system, thermal_solution::scene_t* scene, float* temperatures)
   {
     system->scene = scene;
 
@@ -61,15 +79,113 @@ namespace cpu_adams
         return r;
     }
 
+    system->n_step = 0;
+
+    free(system->temperatures);
+    system->temperatures = (float*)malloc(5 * sizeof(float) * scene->n_meshes);
+    memset(system->temperatures, 0, 5 * sizeof(float) * scene->n_meshes);
+    memcpy(system->temperatures, temperatures, sizeof(float) * scene->n_meshes);
+
+    free(system->energy);
+    system->energy = (float*)malloc(5 * sizeof(float) * scene->n_meshes);
+
     return THERMAL_SOLUTION_OK;
   }
+
+  float* get_step_energy(cpu_system_t* system, int n_step)
+  {
+    int row = n_step % 5;
+    return &system->energy[row * system->scene->n_meshes];
+  }
+
+  float* get_step_temperatures(cpu_system_t* system, int n_step)
+  {
+    int row = n_step % 5;
+    return &system->temperatures[row * system->scene->n_meshes];
+  }
+
+  int calculate_energy(cpu_system_t* system, thermal_equation::task_t* task)
+  {
+    int r = 0;
+    for (int i = 0; i != system->params.n_equations; ++i)
+    {
+      thermal_equation::system_t* equation = &system->params.equations[i];
+      if ((r = thermal_equation::system_calculate(equation, task)) < 0)
+        return r;
+    }
+
+    return THERMAL_SOLUTION_OK;
+  }
+
+  float mesh_area(cpu_system_t* system, int mesh_idx)
+  {
+    float area = 0;
+    const thermal_solution::mesh_t& mesh = system->scene->meshes[mesh_idx];
+    for (int f = 0; f != mesh.n_faces; ++f)
+    {
+      area += math::triangle_area(system->scene->faces[mesh.first_idx + f]);
+    }
+    return area;
+  }
+
+  float u_matrix[5][5] = {
+    {1,          0,           0,       0,           0},
+    {3.f/2,      -1.f/2,      0,       0,           0},
+    {23.f/12,    -4.f/3,      5.f/12,   0,          0},
+    {55.f/24,    -59.f/24,    37.f/24,  -3.f/8,     0},
+    {1901.f/720, -1387.f/360, 109.f/30, -637.f/360, 251.f/720}
+  };
 
   /**
   *  @brief Calculates thermal solution step for a given scene.
   */
   int calculate(cpu_system_t* system, thermal_solution::task_t* task)
-  {
-    return THERMAL_SOLUTION_ERROR;
+  {    
+    int n = system->n_step;
+    int k = 4;
+    if (n < k)
+      k = n;
+    float* u = u_matrix[k];
+
+    const int n_meshes = system->scene->n_meshes;
+
+    float* Tnew = task->temperatures;
+    float* En = get_step_energy(system, n);
+    float* Tn = get_step_temperatures(system, n);
+    
+    thermal_equation::task_t* te_task = thermal_equation::task_create(system->scene);
+    te_task->temperatures = Tn;
+    int r = 0;
+    if ((r = calculate_energy(system, te_task)) < 0)
+    {
+      thermal_equation::task_free(te_task);
+      return r;
+    }
+
+    for (int m = 0; m != n_meshes; ++m)
+    {
+      float power_balance = te_task->absorption[m] - te_task->emission[m];      
+      const thermal_solution::material_t* material = &system->scene->materials[system->scene->meshes[m].material_idx];
+      const float C = mesh_area(system, m) * material->c; /// @todo Precalculate areas and store with mesh (required for form_factors, sb_ff_te and here).
+      En[m] = power_balance / C;
+
+      float sum = 0;
+      for (int l = 0; l <= k; ++l)
+      {
+        float* E = get_step_energy(system, n - l);
+        sum += u[l] * E[m];
+      }
+
+      Tnew[m] = Tn[m] + task->time_delta * sum;
+    }
+
+    thermal_equation::task_free(te_task);
+
+    float* Tn1 = get_step_temperatures(system, n + 1);
+    memcpy(Tn1, Tnew, sizeof(float) * n_meshes);
+    ++system->n_step;
+ 
+    return THERMAL_SOLUTION_OK;
   }
 
   /// @brief Creates virtual methods table from local methods.
@@ -77,7 +193,7 @@ namespace cpu_adams
   {
     (int(*)(thermal_solution::system_t* system, thermal_solution::params_t* params))&init,
     (int(*)(thermal_solution::system_t* system))&shutdown,
-    (int(*)(thermal_solution::system_t* system, thermal_solution::scene_t* scene))&set_scene,
+    (int(*)(thermal_solution::system_t* system, thermal_solution::scene_t* scene, float* temperatures))&set_scene,
     (int(*)(thermal_solution::system_t* system, thermal_solution::task_t* task))&calculate,
   };
 
@@ -87,5 +203,4 @@ namespace cpu_adams
     s->methods = &methods;
     return s;
   }
-
 }

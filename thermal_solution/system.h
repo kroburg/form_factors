@@ -15,7 +15,7 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module contains basic types to represent a scene for form factors calculation.
+ * This module contains basic types to thermal solution calculation.
  * Module also contains base type (system_t) for form factor calculation with table of virtual methods.
  */
 
@@ -71,21 +71,16 @@ namespace thermal_solution
 
   /**
    * @brief Task representation for given scene (@see task_create).
-   * @detail Calculate thermal solution using Adams integration method.
    * @param temperatures current meshes temperatures.
    */
   struct task_t
   {
-    float* temperatures; ///< Initial and result meshes temperatues.
+    int n_step; ///< Current integration step.
     float time_delta;
-    int n_step; ///< Current integration step. Must be set to zero for first iteration.
-    float* previous_temperatures; ///< Previous four Adams method values.
+    float* temperatures;  ///< Result temperatures.
   };
 
-  /// @brief create task for given scene. Allocate memory for temperatues array.
   task_t* task_create(scene_t* scene);
-
-  /// @brief Free memory for given task.
   void task_free(task_t* task);
 
   /**
@@ -119,12 +114,10 @@ namespace thermal_solution
     int(*shutdown)(system_t* system);
 
     /// @brief Sets scene (polygons in meshes) for calculator and all equations.
-    int(*set_scene)(system_t* system, scene_t* scene);
+    /// @todo Provide (back again) prepare() call for initial (time consuming calculations). Consider form-factors calculation for Stefan-Boltzman form-factors based thermal equation.
+    int(*set_scene)(system_t* system, scene_t* scene, float* temperatures);
 
-    /**
-     *  @brief Calculates thermal solution.
-     *
-     */
+    /// @brief Calculates thermal solution.
     int(*calculate)(system_t* system, task_t* task);
   };
 
@@ -142,6 +135,6 @@ namespace thermal_solution
   void system_free(system_t* system);
   int system_init(system_t* system, params_t* params);
   int system_shutdown(system_t* system);
-  int system_set_scene(system_t* system, scene_t* scene);
+  int system_set_scene(system_t* system, scene_t* scene, float* temperatures);
   int system_calculate(system_t* system, task_t* task);
 }

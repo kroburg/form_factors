@@ -46,6 +46,24 @@ namespace thermal_solution
     free(scene);
   }
 
+  task_t* task_create(scene_t* scene)
+  {
+    task_t* task = (task_t*)malloc(sizeof(task_t));
+    task->n_step = 0;
+    task->time_delta = 1;
+    task->temperatures = (float*)malloc(sizeof(float) * scene->n_meshes);
+    return task;
+  }
+
+  void task_free(task_t* task)
+  {
+    if (task)
+    {
+      free(task->temperatures);
+    }
+    free(task);
+  }
+
   system_t* system_create(int type, params_t* params)
   {
     system_t* system = 0;
@@ -70,23 +88,6 @@ namespace thermal_solution
     free(system);
   }
 
-  task_t* task_create(scene_t* scene)
-  {
-    task_t* task = (task_t*)malloc(sizeof(task_t));
-    task->temperatures = (float*)malloc(scene->n_meshes * sizeof(float));
-    task->time_delta = 1;
-    task->n_step = 0;
-    task->previous_temperatures = (float*)malloc(4 * scene->n_meshes * sizeof(float));
-    return task;
-  }
-
-  void task_free(task_t* task)
-  {
-    free(task->temperatures);
-    free(task->previous_temperatures);
-    free(task);
-  }
-
   int system_init(system_t* system, params_t* params)
   {
     return system->methods->init(system, params);
@@ -97,9 +98,9 @@ namespace thermal_solution
     return system->methods->shutdown(system);
   }
 
-  int system_set_scene(system_t* system, scene_t* scene)
+  int system_set_scene(system_t* system, scene_t* scene, float* temperatures)
   {
-    return system->methods->set_scene(system, scene);
+    return system->methods->set_scene(system, scene, temperatures);
   }
 
   int system_calculate(system_t* system, task_t* task)
