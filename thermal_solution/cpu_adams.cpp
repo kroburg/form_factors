@@ -88,6 +88,7 @@ namespace cpu_adams
 
     free(system->energy);
     system->energy = (float*)malloc(5 * sizeof(float) * scene->n_meshes);
+    memset(system->energy, 0, 5 * sizeof(float) * scene->n_meshes);
 
     return THERMAL_SOLUTION_OK;
   }
