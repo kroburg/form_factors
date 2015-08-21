@@ -52,7 +52,6 @@ namespace thermal_equation
   task_t* task_create(scene_t* scene)
   {
     task_t* task = (task_t*)malloc(sizeof(task_t));
-    task->time_step = 1;
     task->temperatures = 0;
     task->emission = (float*)malloc(sizeof(float) * scene->n_meshes);
     task->absorption = (float*)malloc(sizeof(float) * scene->n_meshes);
@@ -61,8 +60,11 @@ namespace thermal_equation
 
   void task_free(task_t* task)
   {
-    free(task->emission);
-    free(task->absorption);
+    if (task)
+    {
+      free(task->emission);
+      free(task->absorption);
+    }
     free(task);
   }
 

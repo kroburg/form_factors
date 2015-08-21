@@ -34,11 +34,13 @@ namespace thermal_equation
 
   struct task_t
   {
-    float time_step; ///< Time step (s);
     const float* temperatures; ///< Objects temperature array (K). @note Not owned by equation.
-    float* emission; ///< Energy emission array per object (mesh) (J). Equation must add to task values, not set to zero.
-    float* absorption; ///< Energy absorption array per object (mesh) (J). Equation must add to task values, not set to zero.
+    float* emission; ///< Energy emission array per object (mesh) (W). Equation must add to task values, not set to zero.
+    float* absorption; ///< Energy absorption array per object (mesh) (W). Equation must add to task values, not set to zero.
   };
+
+  task_t* task_create(scene_t* scene);
+  void task_free(task_t* task);
 
   /**
    * @brief Thermal equation type represents a right side of thermal solution problem.

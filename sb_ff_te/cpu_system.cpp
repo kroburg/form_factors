@@ -130,7 +130,7 @@ namespace sb_ff_te
     for (int m = 0; m != n_meshes; ++m)
     {
       const float T = task->temperatures[m];
-      float emission = sigma * (T * T * T * T) * system->areas[m] * task->time_step;
+      float emission = sigma * (T * T * T * T) * system->areas[m];
       task->emission[m] += emission;
       for (int n = 0; n != n_meshes; ++n)
       {
