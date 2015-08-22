@@ -87,7 +87,7 @@ namespace math
     vec3 v = triangle.points[1] - triangle.points[0];
     vec3 w = triangle.points[2] - triangle.points[0];
     vec3 n = cross(v, w);
-    return sqrtf(dot(n, n));
+    return sqrtf(dot(n, n)) / 2;
   }
 
   ray_t ray_to_triangle(vec3 origin, triangle_t t)
