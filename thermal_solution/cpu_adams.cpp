@@ -52,8 +52,7 @@ namespace cpu_adams
 
   /// @brief Shutdowns calculator system prior to free memory.
   int shutdown(cpu_system_t* system)
-  {
-    thermal_solution::scene_free(system->scene);
+  {    
     system->scene = 0;
 
     system->n_step = 0;
@@ -74,7 +73,7 @@ namespace cpu_adams
     int r = 0;
     for (int i = 0; i != system->params.n_equations; ++i)
     {
-      thermal_equation::system_t* equation = &system->params.equations[i];
+      thermal_equation::system_t* equation = system->params.equations[i];
       if ((r = thermal_equation::system_set_scene(equation, scene)) < 0)
         return r;
     }
@@ -105,19 +104,6 @@ namespace cpu_adams
     return &system->temperatures[row * system->scene->n_meshes];
   }
 
-  int calculate_energy(cpu_system_t* system, thermal_equation::task_t* task)
-  {
-    int r = 0;
-    for (int i = 0; i != system->params.n_equations; ++i)
-    {
-      thermal_equation::system_t* equation = &system->params.equations[i];
-      if ((r = thermal_equation::system_calculate(equation, task)) < 0)
-        return r;
-    }
-
-    return THERMAL_SOLUTION_OK;
-  }
-
   float mesh_area(cpu_system_t* system, int mesh_idx)
   {
     float area = 0;
@@ -129,8 +115,37 @@ namespace cpu_adams
     return area;
   }
 
-  float u_matrix[5][5] = {
-    {1,          0,           0,       0,           0},
+  int calculate_energy(cpu_system_t* system, float* temperatures, float* energy)
+  {
+    thermal_equation::task_t* task = thermal_equation::task_create(system->scene);
+    task->temperatures = temperatures;
+    int r = 0;
+    for (int i = 0; i != system->params.n_equations; ++i)
+    {
+      thermal_equation::system_t* equation = system->params.equations[i];
+      if ((r = thermal_equation::system_calculate(equation, task)) < 0)
+      {
+        thermal_equation::task_free(task);
+        return r;
+      }
+    }
+
+    const int n_meshes = system->scene->n_meshes;
+    for (int m = 0; m != n_meshes; ++m)
+    {
+      float power_balance = task->absorption[m] - task->emission[m];
+      const thermal_solution::material_t* material = &system->scene->materials[system->scene->meshes[m].material_idx];
+      /// @todo Precalculate areas and store with mesh (required for form_factors, sb_ff_te and here).
+      const float C = mesh_area(system, m) * material->c;
+      energy[m] = power_balance / C;
+    }
+
+    thermal_equation::task_free(task);
+    return THERMAL_SOLUTION_OK;
+  }
+
+  const float u_matrix[5][5] = {
+    {1.f,        0,           0,       0,           0},
     {3.f/2,      -1.f/2,      0,       0,           0},
     {23.f/12,    -4.f/3,      5.f/12,   0,          0},
     {55.f/24,    -59.f/24,    37.f/24,  -3.f/8,     0},
@@ -146,30 +161,20 @@ namespace cpu_adams
     int k = 4;
     if (n < k)
       k = n;
-    float* u = u_matrix[k];
+    const float* u = u_matrix[k];
 
     const int n_meshes = system->scene->n_meshes;
 
-    float* Tnew = task->temperatures;
+    float* Tresult = task->temperatures;
     float* En = get_step_energy(system, n);
     float* Tn = get_step_temperatures(system, n);
     
-    thermal_equation::task_t* te_task = thermal_equation::task_create(system->scene);
-    te_task->temperatures = Tn;
     int r = 0;
-    if ((r = calculate_energy(system, te_task)) < 0)
-    {
-      thermal_equation::task_free(te_task);
+    if ((r = calculate_energy(system, Tn, En)) < 0)
       return r;
-    }
 
     for (int m = 0; m != n_meshes; ++m)
     {
-      float power_balance = te_task->absorption[m] - te_task->emission[m];      
-      const thermal_solution::material_t* material = &system->scene->materials[system->scene->meshes[m].material_idx];
-      const float C = mesh_area(system, m) * material->c; /// @todo Precalculate areas and store with mesh (required for form_factors, sb_ff_te and here).
-      En[m] = power_balance / C;
-
       float sum = 0;
       for (int l = 0; l <= k; ++l)
       {
@@ -177,13 +182,11 @@ namespace cpu_adams
         sum += u[l] * E[m];
       }
 
-      Tnew[m] = Tn[m] + task->time_delta * sum;
+      Tresult[m] = Tn[m] + task->time_delta * sum;
     }
 
-    thermal_equation::task_free(te_task);
-
-    float* Tn1 = get_step_temperatures(system, n + 1);
-    memcpy(Tn1, Tnew, sizeof(float) * n_meshes);
+    float* Tnext = get_step_temperatures(system, n + 1);
+    memcpy(Tnext, Tresult, sizeof(float) * n_meshes);
     task->n_step = ++system->n_step;
  
     return THERMAL_SOLUTION_OK;
