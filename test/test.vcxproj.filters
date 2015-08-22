@@ -30,5 +30,8 @@
     <ClCompile Include="export.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="adams_solution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

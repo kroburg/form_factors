@@ -27,6 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="adams_solution.cpp" />
     <ClCompile Include="export.cpp" />
     <ClCompile Include="form_factors.cpp" />
     <ClCompile Include="import.cpp" />
@@ -68,6 +69,12 @@
     </ProjectReference>
     <ProjectReference Include="..\ray_caster\ray_caster.vcxproj">
       <Project>{0730886b-2df9-40dc-914c-07e6a22aa7b4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\thermal_equation\thermal_equation.vcxproj">
+      <Project>{4e98bd4e-beb6-4886-adec-bce6f88936af}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\thermal_solution\thermal_solution.vcxproj">
+      <Project>{f0a247a1-a9ed-4ac4-a7fa-a1fe0154bab6}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
