@@ -15,9 +15,8 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module contains basic types to represent a scene for form factors calculation.
- * Module also contains base type (system_t) for form factor calculation with table of virtual methods.
- */
+* This module contains basic types to thermal solution calculation.
+*/
 
 #include "system.h"
 #include "../thermal_solution/cpu_adams.h"

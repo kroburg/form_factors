@@ -16,7 +16,6 @@
 
 /**
  * This module contains basic types to thermal solution calculation.
- * Module also contains base type (system_t) for form factor calculation with table of virtual methods.
  */
 
 #pragma once
@@ -36,7 +35,7 @@ namespace thermal_solution
   struct params_t
   {
     int n_equations;
-    struct thermal_equation::system_t* equations;
+    struct thermal_equation::system_t** equations;
   };
 
   struct material_t
@@ -114,6 +113,7 @@ namespace thermal_solution
     int(*shutdown)(system_t* system);
 
     /// @brief Sets scene (polygons in meshes) for calculator and all equations.
+    /// @note System does not own scene object.
     /// @todo Provide (back again) prepare() call for initial (time consuming calculations). Consider form-factors calculation for Stefan-Boltzman form-factors based thermal equation.
     int(*set_scene)(system_t* system, scene_t* scene, float* temperatures);
 
@@ -127,7 +127,7 @@ namespace thermal_solution
    * @brief Factory method for calculator creation.
    *
   */
-  system_t* system_create(int type);
+  system_t* system_create(int type, params_t* params);
 
   /// Here go C-interface wrappers to call system_t's virtual methods.
 
