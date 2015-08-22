@@ -69,6 +69,7 @@ namespace thermal_equation
     int(*shutdown)(system_t* system);
 
     /// @brief Sets loaded scene (polygons in meshes) for calculator.
+    /// @note System does not own scene object.
     int(*set_scene)(system_t* system, scene_t* scene);
 
     /// @brief Calculates energy flow for given system.
