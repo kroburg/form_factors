@@ -19,30 +19,11 @@
 */
 
 #include "system.h"
-#include "../sb_ff_te/cpu_system.h"
 #include <stdlib.h>
+#include <cstring>
 
 namespace thermal_equation
 {
-
-  system_t* system_create(int type, void* params)
-  {
-    system_t* system = 0;
-    switch (type)
-    {
-    case THERMAL_EQUATION_SB_FF_CPU:
-      system = sb_ff_te::system_create();
-      break;
-
-    default:
-      return 0;
-    }
-
-    system_init(system, params);
-
-    return system;
-  }
-
   void system_free(system_t* system)
   {
     system_shutdown(system);
@@ -53,8 +34,11 @@ namespace thermal_equation
   {
     task_t* task = (task_t*)malloc(sizeof(task_t));
     task->temperatures = 0;
-    task->emission = (float*)malloc(sizeof(float) * scene->n_meshes);
-    task->absorption = (float*)malloc(sizeof(float) * scene->n_meshes);
+    const int mem_size = sizeof(float) * scene->n_meshes;
+    task->emission = (float*)malloc(mem_size);
+    task->absorption = (float*)malloc(mem_size);
+    memset(task->emission, 0, mem_size);
+    memset(task->absorption, 0, mem_size);
     return task;
   }
 
