@@ -60,14 +60,13 @@ namespace sb_ff_te
   /// @brief Shutdowns calculator system prior to free memory.
   int shutdown(cpu_system_t* system)
   {
-    thermal_equation::scene_free(system->scene);
     system->scene = 0;
 
     free(system->areas);
     system->areas = 0;
 
     system->ff_calculator = 0;
-    // @todo Looks like it is better to move scene ownership to system to avoid such code.
+    // @todo Looks like it is better to move task ownership to system to avoid such code.
     form_factors::task_free(system->ff_task);
     system->ff_task = 0;
 
@@ -93,7 +92,7 @@ namespace sb_ff_te
     }
   }
 
-  /// @brief Sets loaded scene (polygons in meshes) for calculator and associated ray caster.
+  /// @detail Precalculate form factors for given scene.
   int set_scene(cpu_system_t* system, thermal_equation::scene_t* scene)
   {
     system->scene = scene;
