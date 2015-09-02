@@ -92,7 +92,9 @@ public:
     // @todo Remove params (and init()) from system_create()?
     System = thermal_solution::system_create(THERMAL_SOLUTION_CPU_ADAMS, &Params);
 
-    Materials[0] = { 1.f, 1.f, 1.f };
+    Materials[0] = { 1.f, 1.f, 1.f, 1.f, // physical
+      1.f, 1.f, 1.f, 1.f, 1.f // optical
+    };
     Faces[0] = MakeFloorFace1();
     Meshes[0] = { 0, 1, 0 };
     Scene = { 1, Faces,
@@ -167,7 +169,45 @@ TEST_F(AdamsSolution, ImplementFirstIntegrationStep)
   ASSERT_EQ(THERMAL_SOLUTION_OK, r);
   ASSERT_EQ(1, Task->n_step);
   EXPECT_NEAR(299.f, Task->temperatures[0], 0.01f);
+}
 
+TEST_F(AdamsSolution, ConsiderThickness)
+{
+  using namespace thermal_solution;
+  int r = 0;
+  Materials[0].thickness = 2;
+  r = system_set_scene(System, &Scene, Temperatures);
+  ASSERT_EQ(THERMAL_SOLUTION_OK, r);
+  r = system_calculate(System, Task);
+  ASSERT_EQ(THERMAL_SOLUTION_OK, r);
+  ASSERT_EQ(1, Task->n_step);
+  EXPECT_NEAR(299.5f, Task->temperatures[0], 0.01f);
+}
+
+TEST_F(AdamsSolution, ConsiderDensity)
+{
+  using namespace thermal_solution;
+  int r = 0;
+  Materials[0].density = 2;
+  r = system_set_scene(System, &Scene, Temperatures);
+  ASSERT_EQ(THERMAL_SOLUTION_OK, r);
+  r = system_calculate(System, Task);
+  ASSERT_EQ(THERMAL_SOLUTION_OK, r);
+  ASSERT_EQ(1, Task->n_step);
+  EXPECT_NEAR(299.5f, Task->temperatures[0], 0.01f);
+}
+
+TEST_F(AdamsSolution, ConsiderHeatCapacity)
+{
+  using namespace thermal_solution;
+  int r = 0;
+  Materials[0].heat_capacity = 2;
+  r = system_set_scene(System, &Scene, Temperatures);
+  ASSERT_EQ(THERMAL_SOLUTION_OK, r);
+  r = system_calculate(System, Task);
+  ASSERT_EQ(THERMAL_SOLUTION_OK, r);
+  ASSERT_EQ(1, Task->n_step);
+  EXPECT_NEAR(299.5f, Task->temperatures[0], 0.01f);
 }
 
 TEST_F(AdamsSolution, ImplementFirstFiveIntegrationSteps)

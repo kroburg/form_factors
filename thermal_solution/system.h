@@ -40,10 +40,18 @@ namespace thermal_solution
 
   struct material_t
   {
-    float thickness; // m
-    float density; // kg/m^3
-    float heat_capacity; // dQ/dT J/(kg*K)
-    float thermal_conductivity; // W/(m*K)
+    // Physical
+    float density; ///< kg/m^3
+    float heat_capacity; ///< dQ/dT J/(kg*K)
+    float thermal_conductivity; ///< W/(m*K)
+    float thickness; ///< m
+
+    // Optical
+    float specular_reflectance;
+    float diffuse_reflectance;
+    float absorbance; ///< Коэффициент поглощения (rus.)
+    float transmittance; ///< The ratio of the light energy falling on a body to that transmitted through it. Коэффициент пропускания (rus.)
+    float emissivity; ///< Степень черноты (rus.)
   };
 
   /// @brief Mesh type (group of polygons - as offset in whole scene polygons).
