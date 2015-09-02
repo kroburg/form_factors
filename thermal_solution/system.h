@@ -40,7 +40,9 @@ namespace thermal_solution
 
   struct material_t
   {
-    float c; // dQ/dT per square meter
+    float thickness; // m
+    float density; // kg/m^3
+    float c; // dQ/dT J/(kg*K)
   };
 
   /// @brief Mesh type (group of polygons - as offset in whole scene polygons).

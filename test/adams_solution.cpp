@@ -92,7 +92,7 @@ public:
     // @todo Remove params (and init()) from system_create()?
     System = thermal_solution::system_create(THERMAL_SOLUTION_CPU_ADAMS, &Params);
 
-    Materials[0] = { 1.f };
+    Materials[0] = { 1.f, 1.f, 1.f };
     Faces[0] = MakeFloorFace1();
     Meshes[0] = { 0, 1, 0 };
     Scene = { 1, Faces,

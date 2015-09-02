@@ -136,7 +136,7 @@ namespace cpu_adams
       float power_balance = task->absorption[m] - task->emission[m];
       const thermal_solution::material_t* material = &system->scene->materials[system->scene->meshes[m].material_idx];
       /// @todo Precalculate areas and store with mesh (required for form_factors, sb_ff_te and here).
-      const float C = mesh_area(system, m) * material->c;
+      const float C = mesh_area(system, m) * material->thickness * material->density * material->c;
       energy[m] = power_balance / C;
     }
 
