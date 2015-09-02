@@ -162,7 +162,10 @@ namespace cpu_form_factors
     
     int r = 0;
     if ((r = emission::system_calculate(system->emitter, &emission_task)) < 0)
+    {
+      ray_caster::task_free(emission_task.rays);
       return r;
+    }
 
     // now we have nearest intersection face for every ray in task (if intersection was occurred)
     // calculate form factors between meshes
