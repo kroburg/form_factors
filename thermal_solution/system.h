@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
+ï»¿// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
 // This file is part of form_factors.
 //
 // form_factors is free software: you can redistribute it and/or modify
@@ -49,9 +49,9 @@ namespace thermal_solution
     // Optical
     float specular_reflectance;
     float diffuse_reflectance;
-    float absorbance; ///< Êîýôôèöèåíò ïîãëîùåíèÿ (rus.)
-    float transmittance; ///< The ratio of the light energy falling on a body to that transmitted through it. Êîýôôèöèåíò ïðîïóñêàíèÿ (rus.)
-    float emissivity; ///< Ñòåïåíü ÷åðíîòû (rus.)
+    float absorbance; ///< ÐšÐ¾ÑÑ„Ñ„Ð¸Ñ†Ð¸ÐµÐ½Ñ‚ Ð¿Ð¾Ð³Ð»Ð¾Ñ‰ÐµÐ½Ð¸Ñ (rus.)
+    float transmittance; ///< The ratio of the light energy falling on a body to that transmitted through it. ÐšÐ¾ÑÑ„Ñ„Ð¸Ñ†Ð¸ÐµÐ½Ñ‚ Ð¿Ñ€Ð¾Ð¿ÑƒÑÐºÐ°Ð½Ð¸Ñ (rus.)
+    float emissivity; ///< Ð¡Ñ‚ÐµÐ¿ÐµÐ½ÑŒ Ñ‡ÐµÑ€Ð½Ð¾Ñ‚Ñ‹ (rus.)
   };
 
   /// @brief Mesh type (group of polygons - as offset in whole scene polygons).
