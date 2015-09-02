@@ -86,7 +86,7 @@ namespace thermal_solution
   struct task_t
   {
     int n_step; ///< Current integration step.
-    float time_delta;
+    float time_delta; ///< @todo Most integration techniques use fixed time delta. Move to init() or set_scene().
     float* temperatures;  ///< Result temperatures.
   };
 
