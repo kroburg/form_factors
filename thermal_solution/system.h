@@ -42,7 +42,8 @@ namespace thermal_solution
   {
     float thickness; // m
     float density; // kg/m^3
-    float c; // dQ/dT J/(kg*K)
+    float heat_capacity; // dQ/dT J/(kg*K)
+    float thermal_conductivity; // W/(m*K)
   };
 
   /// @brief Mesh type (group of polygons - as offset in whole scene polygons).
