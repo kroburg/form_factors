@@ -15,7 +15,7 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#include "cpu_system.h"
+#include "radiance_cpu.h"
 #include "../math/triangle.h"
 #include <float.h>
 #include <cmath>
