@@ -73,24 +73,12 @@ namespace sb_ff_te
     return THERMAL_EQUATION_OK;
   }
 
-  void calculate_areas(cpu_system_t* system, subject::scene_t* scene)
-  {
-    free(system->areas);
-    system->areas = (float*)malloc(sizeof(float) * scene->n_meshes);
-
-    const int n_meshes = scene->n_meshes;
-    for (int m = 0; m != n_meshes; ++m)
-    {
-      system->areas[m] = mesh_area(scene, m);
-    }
-  }
-
   /// @detail Precalculate form factors for given scene.
   int set_scene(cpu_system_t* system, subject::scene_t* scene)
   {
     system->scene = scene;
     
-    calculate_areas(system, scene);
+    build_mesh_areas(system->scene, &system->areas);
 
     system->ff_scene.n_faces = scene->n_faces;
     system->ff_scene.faces = scene->faces;

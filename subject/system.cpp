@@ -75,6 +75,36 @@ namespace subject
     return mesh_area(scene, scene->meshes[mesh_idx]);
   }
 
+  void build_mesh_areas(const scene_t* scene, float** areas)
+  {
+    free(*areas);
+    *areas = (float*)malloc(sizeof(float) * scene->n_meshes);
+
+    const int n_meshes = scene->n_meshes;
+    for (int m = 0; m != n_meshes; ++m)
+    {
+      *areas[m] = mesh_area(scene, m);
+    }
+  }
+
+
+  void build_face_to_mesh_index(int n_faces, int n_meshes, const mesh_t* meshes, int** index)
+  {
+    free(*index);
+    *index = (int*)malloc(n_faces * sizeof(int));
+
+    // fill face-to-mesh inverted index for every mesh
+    for (int m = 0; m != n_meshes; ++m)
+    {
+      const mesh_t& mesh = meshes[m];
+      const int mesh_n_faces = mesh.n_faces;
+      for (int f = 0; f != mesh_n_faces; ++f)
+      {
+        *index[mesh.first_idx + f] = m;
+      }
+    }
+  }
+
   const material_t& mesh_material(const scene_t* scene, int mesh_idx)
   {
     return scene->materials[scene->meshes[mesh_idx].material_idx];
