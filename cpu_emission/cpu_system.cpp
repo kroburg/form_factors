@@ -90,17 +90,15 @@ namespace cpu_emission
     return EMISSION_OK;
   }
 
-  /// @brief Minimum number of rays per scene with at least one ray from each face side.
-  /// @todo Don't emit rays from side with weight === 0.f
-  int calculate_n_rays(emission::task_t* task, int n_faces, int rays_requested)
+
+  int calculate_n_rays(emission::task_t* task, int n_faces)
   {
     int result = 0;
-    for (int i = 0; i != n_faces; ++i)
+    for (int f = 0; f != n_faces; ++f)
     {
-      int face_idx = 2 * i;
-      int faceRaysCount = std::max<int>(1, (int)(rays_requested * task->weights[face_idx])) +
-        std::max<int>(1, (int)(rays_requested * task->weights[face_idx + 1]));
-      result += faceRaysCount;
+      const int face_rays_front = emitted_front(task, f);
+      const int face_rays_rear = emitted_rear(task, f);
+      result += face_rays_front + face_rays_rear;
     }
     return result;
   }
@@ -143,7 +141,7 @@ namespace cpu_emission
   /// @brief Creates task with n_rays random generated rays.
   ray_caster::task_t* make_caster_task(cpu_system_t* system, emission::task_t* task)
   { 
-    int n_real_rays = calculate_n_rays(task, system->scene->n_faces, task->n_rays);
+    int n_real_rays = calculate_n_rays(task, system->scene->n_faces);
     ray_caster::task_t* ray_caster_task = ray_caster::task_create(n_real_rays);
     ray_caster::scene_t* scene = system->scene;
     const float* weights = task->weights;
