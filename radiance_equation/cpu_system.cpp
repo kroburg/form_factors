@@ -150,7 +150,7 @@ namespace radiance_equation
       for (int f = mesh.first_idx; f != mesh.first_idx + mesh.n_faces; ++f)
       { 
         const float front_emission = emission_task->weights[2 * f];
-        const float rear_emission = emission_task->weights[2 * f];
+        const float rear_emission = emission_task->weights[2 * f + 1];
         task->emission[m] += front_emission + rear_emission;
 
         const int face_rays_front = emitted_front(emission_task, f);
