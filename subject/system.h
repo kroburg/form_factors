@@ -90,7 +90,11 @@ namespace subject
   /// @brief Calculate areas for all meshes.
   /// @return Total area.
   /// @detail Reallocate target areas array memory.
-  float build_mesh_areas(const scene_t* scene, float** areas); 
+  float build_meshes_areas(const scene_t* scene, float** areas); 
+
+  /// @brief Calculate areas for all faces.
+  /// @detail Reallocate target areas array memory.
+  void build_faces_areas(const scene_t* scene, float** areas);
 
   /// @brief Build face to mesh index.
   /// @detail Reallocate target index array memory.

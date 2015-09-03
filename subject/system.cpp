@@ -75,7 +75,7 @@ namespace subject
     return mesh_area(scene, scene->meshes[mesh_idx]);
   }
 
-  float build_mesh_areas(const scene_t* scene, float** areas)
+  float build_meshes_areas(const scene_t* scene, float** areas)
   {
     free(*areas);
     *areas = (float*)malloc(sizeof(float) * scene->n_meshes);
@@ -92,6 +92,18 @@ namespace subject
     return total_area;
   }
 
+  void build_faces_areas(const scene_t* scene, float** areas)
+  {
+    free(*areas);
+    *areas = (float*)malloc(sizeof(float) * scene->n_faces);
+
+    const int n_faces = scene->n_faces;
+    for (int f = 0; f != n_faces; ++f)
+    {
+      float area = math::triangle_area(scene->faces[f]);
+      *areas[f] = area;
+    }
+  }
 
   void build_face_to_mesh_index(int n_faces, int n_meshes, const mesh_t* meshes, int** index)
   {

@@ -15,34 +15,23 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* This module contains basic types to represent a thermal equation.
-*/
+ * This module contains thermal equation for Stefan-Boltzman radiation using Monte-Carlo method.
+ * Calculate faces weights based on power emission.
+ * Calculate power emission/absorption on each step.
+ */
 
-#include "system.h"
-#include "../sb_ff_te/cpu_system.h"
-#include "../radiance_equation/cpu_system.h"
+#pragma once
 
-namespace thermal_equation
+#include "../thermal_equation/system.h"
+#include "../emission/system.h"
+
+namespace radiance_equation
 {
-
-  system_t* system_create(int type, void* params)
+  struct params_t
   {
-    system_t* system = 0;
-    switch (type)
-    {
-    case THERMAL_EQUATION_SB_FF_CPU:
-      system = sb_ff_te::system_create();
-      break;
+    emission::system_t* emitter;
+    int n_rays;
+  };
 
-    case THERMAL_EQUATION_RADIANCE_CPU:
-      system = radiance_equation::system_create();
-
-    default:
-      return 0;
-    }
-
-    system_init(system, params);
-
-    return system;
-  }
+  thermal_equation::system_t* system_create();
 }

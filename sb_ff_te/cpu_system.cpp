@@ -78,7 +78,7 @@ namespace sb_ff_te
   {
     system->scene = scene;
     
-    build_mesh_areas(system->scene, &system->areas);
+    build_meshes_areas(system->scene, &system->areas);
 
     system->ff_scene.n_faces = scene->n_faces;
     system->ff_scene.faces = scene->faces;
