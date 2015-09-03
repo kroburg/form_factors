@@ -75,16 +75,21 @@ namespace subject
     return mesh_area(scene, scene->meshes[mesh_idx]);
   }
 
-  void build_mesh_areas(const scene_t* scene, float** areas)
+  float build_mesh_areas(const scene_t* scene, float** areas)
   {
     free(*areas);
     *areas = (float*)malloc(sizeof(float) * scene->n_meshes);
 
+    float total_area = 0;
     const int n_meshes = scene->n_meshes;
     for (int m = 0; m != n_meshes; ++m)
     {
-      *areas[m] = mesh_area(scene, m);
+      float area = mesh_area(scene, m);
+      total_area += area;
+      *areas[m] = area;
     }
+
+    return total_area;
   }
 
 
