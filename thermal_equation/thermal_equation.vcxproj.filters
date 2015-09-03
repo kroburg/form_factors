@@ -2,9 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="system.h" />
+    <ClInclude Include="radiance_cpu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system.cpp" />
     <ClCompile Include="factory.cpp" />
+    <ClCompile Include="radiance_cpu.cpp" />
   </ItemGroup>
 </Project>

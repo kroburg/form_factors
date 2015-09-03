@@ -20,7 +20,7 @@
 
 #include "system.h"
 #include "../sb_ff_te/cpu_system.h"
-#include "../radiance_equation/cpu_system.h"
+#include "radiance_cpu.h"
 
 namespace thermal_equation
 {

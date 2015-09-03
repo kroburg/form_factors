@@ -37,8 +37,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "thermal_equation", "thermal
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "subject", "subject\subject.vcxproj", "{1EE5DE7F-60F6-4BB0-A5A0-B1A0A4D2C990}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "radiance_equation", "radiance_equation\radiance_equation.vcxproj", "{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -261,18 +259,6 @@ Global
 		{1EE5DE7F-60F6-4BB0-A5A0-B1A0A4D2C990}.Release|Win32.ActiveCfg = Release|Win32
 		{1EE5DE7F-60F6-4BB0-A5A0-B1A0A4D2C990}.Release|Win32.Build.0 = Release|Win32
 		{1EE5DE7F-60F6-4BB0-A5A0-B1A0A4D2C990}.Release|x64.ActiveCfg = Release|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Debug|ARM.ActiveCfg = Debug|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Debug|Win32.ActiveCfg = Debug|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Debug|Win32.Build.0 = Debug|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Debug|x64.ActiveCfg = Debug|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Release|ARM.ActiveCfg = Release|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Release|Win32.ActiveCfg = Release|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Release|Win32.Build.0 = Release|Win32
-		{715C79E4-E989-4CF8-A9AE-EA9A36C323DF}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
