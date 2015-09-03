@@ -194,6 +194,7 @@ namespace cpu_emission
   {
     if (task->rays)
     {
+      // @todo Provide realloc
       ray_caster::task_free(task->rays);
       task->rays = 0;
     }
