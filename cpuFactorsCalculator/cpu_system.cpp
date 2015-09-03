@@ -26,7 +26,6 @@
 #include "../math/mat.h"
 #include <float.h>
 #include <cmath>
-#include <limits>
 #include <stdlib.h>
 #include <cstring>
 
@@ -118,6 +117,7 @@ namespace cpu_form_factors
     free(system->face_weights);
     system->face_weights = (float*)malloc(2 * n_faces * sizeof(float));
 
+    // @todo Use subject::build_face_to_mesh_index()
     free(system->face_to_mesh);
     system->face_to_mesh = (int*)malloc(n_faces * sizeof(int));
 
@@ -185,11 +185,9 @@ namespace cpu_form_factors
       {
         const int face_idx = mesh.first_idx + f;
         const ray_caster::face_t& face = system->scene->faces[face_idx];
-        // @todo Report face rays count as emission task result.
-        // @note It is important to use task->n_rays not emission_task->rays->n_tasks.
-        const int face_rays_front = std::max<int>(1, (int)(task->n_rays * system->face_weights[2 * face_idx]));
-        const int face_rays_back = std::max<int>(1, (int)(task->n_rays * system->face_weights[2 * face_idx + 1]));
-        const int face_rays = face_rays_front + face_rays_back;
+        const int face_rays_front = emitted_front(&emission_task, face_idx);
+        const int face_rays_rear = emitted_rear(&emission_task, face_idx);
+        const int face_rays = face_rays_front + face_rays_rear;
         for (int j = 0; j != face_rays && n_ray < emission_task.rays->n_tasks; ++j, ++n_ray)
         {
           ++mesh_outgoing_rays;

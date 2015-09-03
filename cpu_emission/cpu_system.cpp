@@ -154,10 +154,9 @@ namespace cpu_emission
       const ray_caster::face_t& face = system->scene->faces[f];
 
       // For given face number of rays is proportional to faces front/back weights.
-      int face_weight_idx = f * 2;
-      const int face_rays_front = std::max<int>(1, (int)(n_real_rays * weights[face_weight_idx]));
-      const int face_rays_back = std::max<int>(1, (int)(n_real_rays * weights[face_weight_idx + 1]));
-      const int face_rays = face_rays_front + face_rays_back;
+      const int face_rays_front = emitted_front(task, f);
+      const int face_rays_rear = emitted_rear(task, f);
+      const int face_rays = face_rays_front + face_rays_rear;
 
       // Store rotation for for given face (from Z axis towards face's normal).
       math::mat33 rotation = pick_face_rotation(face, math::make_vec3(0, 0, 1));

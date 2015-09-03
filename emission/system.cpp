@@ -21,6 +21,7 @@
 
 #include "../cpu_emission/cpu_system.h"
 #include "system.h"
+#include <algorithm>
 #include <stdlib.h>
 
 namespace emission
@@ -47,6 +48,18 @@ namespace emission
   {
     system_shutdown(system);
     free(system);
+  }
+
+  int emitted_front(const task_t* task, int face_idx)
+  {
+    const float weight = task->weights[2 * face_idx];
+    return weight > 0 ? std::max<int>(1, (int)(task->n_rays * weight)) : 0;
+  }
+
+  int emitted_rear(const task_t* task, int face_idx)
+  {
+    const float weight = task->weights[2 * face_idx + 1];
+    return weight > 0 ? std::max<int>(1, (int)(task->n_rays * weight)) : 0;
   }
 
   task_t* task_create(int n_rays)

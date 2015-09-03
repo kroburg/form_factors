@@ -56,7 +56,14 @@ namespace emission
     ray_caster::task_t* rays; 
   };
 
+  /// @brief Rays count to be emitted from front side (weight-based).
+  int emitted_front(const task_t* task, int face_idx);
+
+  /// @brief Rays count to be emitted from rear side (weight-based).
+  int emitted_rear(const task_t* task, int face_idx);
+
   /// @brief create task for given scene with n_rays rays.
+  /// @detail Don't allocate memory for weights.
   task_t* task_create(int n_rays);
 
   /// @brief Free memory for given task
