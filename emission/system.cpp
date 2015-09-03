@@ -62,12 +62,14 @@ namespace emission
     return weight > 0 ? std::max<int>(1, (int)(task->n_rays * (weight / task->total_weight))) : 0;
   }
 
-  task_t* task_create(int n_rays)
+  task_t* task_create(int n_rays, int n_faces)
   {
     task_t* task = (task_t*)malloc(sizeof(task_t));
     task->n_rays = n_rays;
     task->total_weight = 0;
-    task->weights = 0;
+    const int weights_mem_size = 2 * n_faces * sizeof(float);
+    task->weights = (float*)malloc(weights_mem_size);
+    memset(task->weights, 0, weights_mem_size);
     task->rays = 0;
     return task;
   }
@@ -78,8 +80,8 @@ namespace emission
     {
       free(task->weights);
       ray_caster::task_free(task->rays);
+      free(task);
     }
-    free(task);
   }
 
   int system_init(system_t* system, ray_caster::system_t* ray_caster)

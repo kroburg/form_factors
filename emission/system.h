@@ -66,8 +66,7 @@ namespace emission
   int emitted_rear(const task_t* task, int face_idx);
 
   /// @brief create task for given scene with n_rays rays.
-  /// @detail Don't allocate memory for weights.
-  task_t* task_create(int n_rays);
+  task_t* task_create(int n_rays, int n_faces);
 
   /// @brief Free memory for given task
   void task_free(task_t* task);

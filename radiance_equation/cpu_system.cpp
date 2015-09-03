@@ -67,7 +67,7 @@ namespace radiance_equation
     system->face_to_mesh_index = 0;
 
     system->emission_calculator = 0;
-    // @todo Looks like it is better to move task ownership to system to avoid such code.
+    // @todo Looks like it is better to move task ownership to base system to avoid such code.
     emission::task_free(system->emission_task);
     system->emission_task = 0;
 
@@ -79,15 +79,15 @@ namespace radiance_equation
     system->scene = scene;
     system->emission_scene = *(ray_caster::scene_t*)scene; // slicing binary compatible scenes
 
-    build_faces_areas(system->scene, &system->face_areas);
-    build_face_to_mesh_index(scene->n_faces, scene->n_meshes, scene->meshes, &system->face_to_mesh_index);
-    
     int r = 0;
     if ((r = emission::system_set_scene(system->emission_calculator, &system->emission_scene)) < 0)
       return r;
 
-    system->emission_task = emission::task_create(system->params.n_rays);
-    system->emission_task->weights = (float*)malloc(scene->n_faces * 2 * sizeof(float));
+    build_faces_areas(system->scene, &system->face_areas);
+    build_face_to_mesh_index(scene->n_faces, scene->n_meshes, scene->meshes, &system->face_to_mesh_index);
+
+    emission::task_free(system->emission_task);
+    system->emission_task = emission::task_create(system->params.n_rays, scene->n_faces);
 
     return THERMAL_EQUATION_OK;
   }
@@ -161,9 +161,12 @@ namespace radiance_equation
         {
           if (ray_caster_task->hit_face[n_ray])
           {
-            int hit_face_idx = ray_caster_task->hit_face[n_ray] - system->emission_scene.faces;
-            int hit_mesh_idx = face2mesh(system, hit_face_idx);
-            float ray_power = j < face_rays_front ? (front_emission / face_rays_front) : (rear_emission / face_rays_rear);
+            const int hit_face_idx = ray_caster_task->hit_face[n_ray] - system->emission_scene.faces;
+            const int hit_mesh_idx = face2mesh(system, hit_face_idx);
+
+            // @note Accepting material properties (like absorbance) does not matter. It should handled by emission and ray casting modules.
+            const float ray_power = j < face_rays_front ? (front_emission / face_rays_front) : (rear_emission / face_rays_rear);
+
             task->absorption[hit_mesh_idx] += ray_power; 
           }
         }
