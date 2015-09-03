@@ -25,13 +25,6 @@
 
 namespace thermal_equation
 {
-  // @todo Move object-based scene definition from form_factors library to common place.
-  typedef thermal_solution::scene_t scene_t;
-  using thermal_solution::scene_create;
-  using thermal_solution::scene_free;
-
-  typedef thermal_solution::mesh_t mesh_t;
-
   struct task_t
   {
     const float* temperatures; ///< Objects temperature array (K). @note Not owned by equation.
@@ -39,7 +32,7 @@ namespace thermal_equation
     float* absorption; ///< Energy absorption array per object (mesh) (W). Equation must add to task values, not set to zero.
   };
 
-  task_t* task_create(scene_t* scene);
+  task_t* task_create(subject::scene_t* scene);
   void task_free(task_t* task);
 
   /**
@@ -70,7 +63,7 @@ namespace thermal_equation
 
     /// @brief Sets loaded scene (polygons in meshes) for calculator.
     /// @note System does not own scene object.
-    int(*set_scene)(system_t* system, scene_t* scene);
+    int(*set_scene)(system_t* system, subject::scene_t* scene);
 
     /// @brief Calculates energy flow for given system.
     int(*calculate)(system_t* system, task_t* task);
@@ -91,6 +84,6 @@ namespace thermal_equation
   void system_free(system_t* system);
   int system_init(system_t* system, void* params);
   int system_shutdown(system_t* system);
-  int system_set_scene(system_t* system, scene_t* scene);
+  int system_set_scene(system_t* system, subject::scene_t* scene);
   int system_calculate(system_t* system, task_t* task);
 }

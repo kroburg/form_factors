@@ -19,6 +19,8 @@
 */
 
 #include "system.h"
+#include "../math/triangle.h"
+#include <stdlib.h>
 
 namespace subject
 {
@@ -35,5 +37,46 @@ namespace subject
   material_t black_body()
   {
     return { default_shell_properties(), black_material(), black_material() };
+  }
+
+  scene_t* scene_create()
+  {
+    scene_t* s = (scene_t*)malloc(sizeof(scene_t));
+    *s = { 0, 0 // faces
+      , 0, 0 // materials
+      , 0, 0 // meshes
+    };
+    return s;
+  }
+
+  void scene_free(scene_t* scene)
+  {
+    if (scene)
+    {
+      free(scene->faces);
+      free(scene->meshes);
+      free(scene->materials);
+      free(scene);
+    }
+  }
+
+  float mesh_area(const scene_t* scene, const mesh_t& mesh)
+  {
+    float area = 0;
+    for (int f = 0; f != mesh.n_faces; ++f)
+    {
+      area += math::triangle_area(scene->faces[mesh.first_idx + f]);
+    }
+    return area;
+  }
+
+  float mesh_area(const scene_t* scene, int mesh_idx)
+  {
+    return mesh_area(scene, scene->meshes[mesh_idx]);
+  }
+
+  const material_t& mesh_material(const scene_t* scene, int mesh_idx)
+  {
+    return scene->materials[scene->meshes[mesh_idx].material_idx];
   }
 }

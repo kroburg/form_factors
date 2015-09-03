@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "../math/types.h"
+#include "../subject/system.h"
 
 namespace thermal_equation
 {
@@ -29,55 +29,11 @@ namespace thermal_equation
 
 namespace thermal_solution
 {
-  /// @brief Face (polygon) type
-  typedef math::triangle_t face_t;
-
   struct params_t
   {
     int n_equations;
     struct thermal_equation::system_t** equations;
   };
-
-  struct material_t
-  {
-    // Physical
-    float density; ///< kg/m^3
-    float heat_capacity; ///< dQ/dT J/(kg*K)
-    float thermal_conductivity; ///< W/(m*K)
-    float thickness; ///< m
-
-    // Optical
-    float specular_reflectance;
-    float diffuse_reflectance;
-    float absorbance; ///< Коэффициент поглощения (rus.)
-    float transmittance; ///< The ratio of the light energy falling on a body to that transmitted through it. Коэффициент пропускания (rus.)
-    float emissivity; ///< Степень черноты (rus.)
-  };
-
-  /// @brief Mesh type (group of polygons - as offset in whole scene polygons).
-  struct mesh_t
-  {
-    int first_idx;
-    int n_faces;
-    int material_idx;
-  };
-
-  /// @brief Scene representation.
-  struct scene_t
-  {
-    int n_faces; ///< Total number of polygons.
-    face_t *faces; ///< Polygons array.    
-    int n_meshes; ///< Number of meshes.
-    mesh_t* meshes; ///< Meshes array.    
-    int n_materials; ///< Total number of materials.
-    material_t* materials; ///< Materials array.
-  };
-
-  /// @brief Allocate memory for scene.
-  scene_t* scene_create();
-
-  /// @brief Free memory for scene.
-  void scene_free(scene_t* s);
 
   /**
    * @brief Task representation for given scene (@see task_create).
@@ -90,7 +46,7 @@ namespace thermal_solution
     float* temperatures;  ///< Result temperatures.
   };
 
-  task_t* task_create(scene_t* scene);
+  task_t* task_create(subject::scene_t* scene);
   void task_free(task_t* task);
 
   /**
@@ -126,7 +82,7 @@ namespace thermal_solution
     /// @brief Sets scene (polygons in meshes) for calculator and all equations.
     /// @note System does not own scene object.
     /// @todo Provide (back again) prepare() call for initial (time consuming calculations). Consider form-factors calculation for Stefan-Boltzman form-factors based thermal equation.
-    int(*set_scene)(system_t* system, scene_t* scene, float* temperatures);
+    int(*set_scene)(system_t* system, subject::scene_t* scene, float* temperatures);
 
     /// @brief Calculates thermal solution.
     int(*calculate)(system_t* system, task_t* task);
@@ -146,6 +102,6 @@ namespace thermal_solution
   void system_free(system_t* system);
   int system_init(system_t* system, params_t* params);
   int system_shutdown(system_t* system);
-  int system_set_scene(system_t* system, scene_t* scene, float* temperatures);
+  int system_set_scene(system_t* system, subject::scene_t* scene, float* temperatures);
   int system_calculate(system_t* system, task_t* task);
 }

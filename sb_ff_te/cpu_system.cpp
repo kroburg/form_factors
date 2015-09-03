@@ -36,7 +36,7 @@ namespace sb_ff_te
   {    
     params_t params;
 
-    thermal_equation::scene_t* scene;
+    subject::scene_t* scene;
     float* areas;
 
     // @todo Move form factors calculation of process?
@@ -73,7 +73,7 @@ namespace sb_ff_te
     return THERMAL_EQUATION_OK;
   }
 
-  void calculate_areas(cpu_system_t* system, thermal_equation::scene_t* scene)
+  void calculate_areas(cpu_system_t* system, subject::scene_t* scene)
   {
     free(system->areas);
     system->areas = (float*)malloc(sizeof(float) * scene->n_meshes);
@@ -81,19 +81,12 @@ namespace sb_ff_te
     const int n_meshes = scene->n_meshes;
     for (int m = 0; m != n_meshes; ++m)
     {
-      const thermal_equation::mesh_t& mesh = scene->meshes[m];
-      float mesh_area = 0;
-      for (int f = 0; f != mesh.n_faces; ++f)
-      {
-        float face_area = math::triangle_area(scene->faces[mesh.first_idx + f]);
-        mesh_area += face_area;
-      }
-      system->areas[m] = mesh_area;
+      system->areas[m] = mesh_area(scene, m);
     }
   }
 
   /// @detail Precalculate form factors for given scene.
-  int set_scene(cpu_system_t* system, thermal_equation::scene_t* scene)
+  int set_scene(cpu_system_t* system, subject::scene_t* scene)
   {
     system->scene = scene;
     
@@ -129,9 +122,10 @@ namespace sb_ff_te
     for (int m = 0; m != n_meshes; ++m)
     {
       const int material_idx = system->scene->meshes[m].material_idx;
-      const thermal_solution::material_t& material = system->scene->materials[material_idx];
+      const subject::material_t& material = mesh_material(system->scene, m);
       const float T = task->temperatures[m];
-      float emission = material.emissivity * sigma * (T * T * T * T) * system->areas[m];
+      float power = sigma * (T * T * T * T) * system->areas[m];
+      float emission = material.front.emissivity * power + material.rear.emissivity * power;
       task->emission[m] += emission;
       for (int n = 0; n != n_meshes; ++n)
       {
@@ -147,7 +141,7 @@ namespace sb_ff_te
   {
     (int(*)(thermal_equation::system_t* system, void* params))&init,
     (int(*)(thermal_equation::system_t* system))&shutdown,
-    (int(*)(thermal_equation::system_t* system, thermal_equation::scene_t* scene))&set_scene,
+    (int(*)(thermal_equation::system_t* system, subject::scene_t* scene))&set_scene,
     (int(*)(thermal_equation::system_t* system, thermal_equation::task_t* task))&calculate,
   };
 

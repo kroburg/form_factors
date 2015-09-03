@@ -28,7 +28,7 @@ namespace test_equation
   /// @brief Extended base system_t (C-style polymorphism)
   struct cpu_system_t : thermal_equation::system_t
   {
-    thermal_equation::scene_t* scene;
+    subject::scene_t* scene;
   };
 
   /// @brief Initializes system with given ray caster after creation.
@@ -46,7 +46,7 @@ namespace test_equation
     return THERMAL_EQUATION_OK;
   }
 
-  int set_scene(cpu_system_t* system, thermal_equation::scene_t* scene)
+  int set_scene(cpu_system_t* system, subject::scene_t* scene)
   {
     system->scene = scene;
     return THERMAL_EQUATION_OK;
@@ -70,7 +70,7 @@ namespace test_equation
   {
     (int(*)(thermal_equation::system_t* system, void* params))&init,
     (int(*)(thermal_equation::system_t* system))&shutdown,
-    (int(*)(thermal_equation::system_t* system, thermal_equation::scene_t* scene))&set_scene,
+    (int(*)(thermal_equation::system_t* system, subject::scene_t* scene))&set_scene,
     (int(*)(thermal_equation::system_t* system, thermal_equation::task_t* task))&calculate,
   };
 
@@ -92,9 +92,7 @@ public:
     // @todo Remove params (and init()) from system_create()?
     System = thermal_solution::system_create(THERMAL_SOLUTION_CPU_ADAMS, &Params);
 
-    Materials[0] = { 1.f, 1.f, 1.f, 1.f, // physical
-      1.f, 1.f, 1.f, 1.f, 1.f // optical
-    };
+    Materials[0] = subject::black_body();
     Faces[0] = MakeFloorFace1();
     Meshes[0] = { 0, 1, 0 };
     Scene = { 1, Faces,
@@ -114,7 +112,7 @@ public:
   }
 
   /// @Face of area ~1.
-  thermal_solution::face_t MakeFloorFace1()
+  subject::face_t MakeFloorFace1()
   {
     using namespace math;
     vec3 a = { 0.f, 0.f, 0.f };
@@ -128,10 +126,10 @@ public:
 
   thermal_solution::params_t Params;
   thermal_solution::system_t* System;
-  thermal_solution::material_t Materials[1];
-  thermal_solution::face_t Faces[1];
-  thermal_solution::mesh_t Meshes[1];
-  thermal_solution::scene_t Scene;
+  subject::material_t Materials[1];
+  subject::face_t Faces[1];
+  subject::mesh_t Meshes[1];
+  subject::scene_t Scene;
   float Temperatures[1];
   thermal_solution::task_t* Task;
   
@@ -175,7 +173,7 @@ TEST_F(AdamsSolution, ConsiderThickness)
 {
   using namespace thermal_solution;
   int r = 0;
-  Materials[0].thickness = 2;
+  Materials[0].shell.thickness = 2;
   r = system_set_scene(System, &Scene, Temperatures);
   ASSERT_EQ(THERMAL_SOLUTION_OK, r);
   r = system_calculate(System, Task);
@@ -188,7 +186,7 @@ TEST_F(AdamsSolution, ConsiderDensity)
 {
   using namespace thermal_solution;
   int r = 0;
-  Materials[0].density = 2;
+  Materials[0].shell.density = 2;
   r = system_set_scene(System, &Scene, Temperatures);
   ASSERT_EQ(THERMAL_SOLUTION_OK, r);
   r = system_calculate(System, Task);
@@ -201,7 +199,7 @@ TEST_F(AdamsSolution, ConsiderHeatCapacity)
 {
   using namespace thermal_solution;
   int r = 0;
-  Materials[0].heat_capacity = 2;
+  Materials[0].shell.heat_capacity = 2;
   r = system_set_scene(System, &Scene, Temperatures);
   ASSERT_EQ(THERMAL_SOLUTION_OK, r);
   r = system_calculate(System, Task);

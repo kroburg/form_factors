@@ -83,4 +83,9 @@ namespace subject
 
   /// @brief Free memory for scene.
   void scene_free(scene_t* s);
+
+  float mesh_area(const scene_t* scene, const mesh_t& mesh);
+  float mesh_area(const scene_t* scene, int mesh_idx);
+
+  const material_t& mesh_material(const scene_t* scene, int mesh_idx);
 }

@@ -30,7 +30,7 @@ namespace thermal_equation
     free(system);
   }
 
-  task_t* task_create(scene_t* scene)
+  task_t* task_create(subject::scene_t* scene)
   {
     task_t* task = (task_t*)malloc(sizeof(task_t));
     task->temperatures = 0;
@@ -62,7 +62,7 @@ namespace thermal_equation
     return system->methods->shutdown(system);
   }
 
-  int system_set_scene(system_t* system, scene_t* scene)
+  int system_set_scene(system_t* system, subject::scene_t* scene)
   {
     return system->methods->set_scene(system, scene);
   }

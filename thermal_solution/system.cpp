@@ -24,28 +24,7 @@
 
 namespace thermal_solution
 {
-  scene_t* scene_create()
-  {
-    scene_t* s = (scene_t*)malloc(sizeof(scene_t));
-    *s = { 0, 0 // faces
-      , 0, 0 // materials
-      , 0, 0 // meshes
-    };
-    return s;
-  }
-
-  void scene_free(scene_t* scene)
-  {
-    if (scene)
-    {
-      free(scene->faces);
-      free(scene->meshes);
-      free(scene->materials);
-    }
-    free(scene);
-  }
-
-  task_t* task_create(scene_t* scene)
+  task_t* task_create(subject::scene_t* scene)
   {
     task_t* task = (task_t*)malloc(sizeof(task_t));
     task->n_step = 0;
@@ -97,7 +76,7 @@ namespace thermal_solution
     return system->methods->shutdown(system);
   }
 
-  int system_set_scene(system_t* system, scene_t* scene, float* temperatures)
+  int system_set_scene(system_t* system, subject::scene_t* scene, float* temperatures)
   {
     return system->methods->set_scene(system, scene, temperatures);
   }

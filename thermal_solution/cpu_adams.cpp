@@ -30,7 +30,7 @@ namespace cpu_adams
   struct cpu_system_t : thermal_solution::system_t
   {
     thermal_solution::params_t params;
-    thermal_solution::scene_t* scene;
+    subject::scene_t* scene;
 
     int n_step;
     float* temperatures;
@@ -66,7 +66,7 @@ namespace cpu_adams
     return THERMAL_SOLUTION_OK;
   }
 
-  int set_scene(cpu_system_t* system, thermal_solution::scene_t* scene, float* temperatures)
+  int set_scene(cpu_system_t* system, subject::scene_t* scene, float* temperatures)
   {
     system->scene = scene;
 
@@ -104,17 +104,6 @@ namespace cpu_adams
     return &system->temperatures[row * system->scene->n_meshes];
   }
 
-  float mesh_area(cpu_system_t* system, int mesh_idx)
-  {
-    float area = 0;
-    const thermal_solution::mesh_t& mesh = system->scene->meshes[mesh_idx];
-    for (int f = 0; f != mesh.n_faces; ++f)
-    {
-      area += math::triangle_area(system->scene->faces[mesh.first_idx + f]);
-    }
-    return area;
-  }
-
   int calculate_energy(cpu_system_t* system, float* temperatures, float* energy)
   {
     thermal_equation::task_t* task = thermal_equation::task_create(system->scene);
@@ -134,9 +123,9 @@ namespace cpu_adams
     for (int m = 0; m != n_meshes; ++m)
     {
       float power_balance = task->absorption[m] - task->emission[m];
-      const thermal_solution::material_t* material = &system->scene->materials[system->scene->meshes[m].material_idx];
+      const subject::shell_properties_t& shell = mesh_material(system->scene, m).shell;
       /// @todo Precalculate areas and store with mesh (required for form_factors, sb_ff_te and here).
-      const float C = mesh_area(system, m) * material->thickness * material->density * material->heat_capacity;
+      const float C = mesh_area(system->scene, m) * shell.thickness * shell.density * shell.heat_capacity;
       energy[m] = power_balance / C;
     }
 
@@ -197,7 +186,7 @@ namespace cpu_adams
   {
     (int(*)(thermal_solution::system_t* system, thermal_solution::params_t* params))&init,
     (int(*)(thermal_solution::system_t* system))&shutdown,
-    (int(*)(thermal_solution::system_t* system, thermal_solution::scene_t* scene, float* temperatures))&set_scene,
+    (int(*)(thermal_solution::system_t* system, subject::scene_t* scene, float* temperatures))&set_scene,
     (int(*)(thermal_solution::system_t* system, thermal_solution::task_t* task))&calculate,
   };
 
