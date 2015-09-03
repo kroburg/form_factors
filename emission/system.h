@@ -38,10 +38,13 @@ namespace emission
     /// @brief Approximate amount of rays to be emitted.
     int n_rays;
 
+    /// @brief Total weight of all faces (requried to normalize).
+    /// @todo Pass total or 1/total (scale factor) (to use multiplication instead of division in emitted_xxx() functions)?
+    float total_weight;
+
     /**
       @brief Two weights per face: first one in normal direction (frontside), second in opposite (backside).
-      @note System will emit at least one ray per face.
-      @todo Don't emit ray from face side with weight === 0.f
+      @note System will emit at least one ray per face with non zero weight.
     */
     float* weights;
 

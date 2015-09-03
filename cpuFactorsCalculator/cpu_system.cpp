@@ -90,27 +90,11 @@ namespace cpu_form_factors
     return FORM_FACTORS_OK;
   }
 
-  /// @brief Calculates area for whole scene.
-  float calculate_area(form_factors::scene_t* scene)
-  {
-    float result = 0;
-    for (int i = 0; i != scene->n_faces; ++i)
-    {
-      result += 2.f * triangle_area(scene->faces[i]);
-    }
-    return result;
-  }
-
   /// @brief Prepares calculator prior to calculation.
   int prepare(cpu_system_t* system)
   {
     if (system->scene == 0 || system->scene->n_faces == 0 || system->scene->n_meshes == 0)
       return -FORM_FACTORS_EMPTY_SCENE;
-
-    // check scene's total area
-    system->total_area = calculate_area(system->scene);
-    if (system->total_area < FLT_EPSILON)
-      return -FORM_FACTORS_SCENE_TOO_SMALL;
 
     const int n_faces = system->scene->n_faces;
 
@@ -122,6 +106,7 @@ namespace cpu_form_factors
     system->face_to_mesh = (int*)malloc(n_faces * sizeof(int));
 
     // fill face-to-mesh inverted index for every mesh
+    // @todo Use subject::build_face_to_mesh_index() function.
     for (int m = 0; m != system->scene->n_meshes; ++m)
     {
       const form_factors::mesh_t& mesh = system->scene->meshes[m];
@@ -137,10 +122,14 @@ namespace cpu_form_factors
     {
       form_factors::face_t* face = &system->scene->faces[i];
       float face_area = math::triangle_area(*face);
-      float face_weight = face_area / system->total_area;
-      system->face_weights[2 * i] = face_weight;
-      system->face_weights[2 * i + 1] = face_weight;
+      system->total_area += 2.f * face_area;
+      system->face_weights[2 * i] = face_area;
+      system->face_weights[2 * i + 1] = face_area;
     }
+
+    // check scene's total area
+    if (system->total_area < FLT_EPSILON)
+      return -FORM_FACTORS_SCENE_TOO_SMALL;
     
     return FORM_FACTORS_OK;
   }
@@ -158,7 +147,7 @@ namespace cpu_form_factors
    */
   int calculate(cpu_system_t* system, form_factors::task_t* task)
   {
-    emission::task_t emission_task = { task->n_rays, system->face_weights, 0 };
+    emission::task_t emission_task = { task->n_rays, system->total_area, system->face_weights, 0 };
     
     int r = 0;
     if ((r = emission::system_calculate(system->emitter, &emission_task)) < 0)

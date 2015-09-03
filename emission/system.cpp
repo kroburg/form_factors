@@ -53,19 +53,20 @@ namespace emission
   int emitted_front(const task_t* task, int face_idx)
   {
     const float weight = task->weights[2 * face_idx];
-    return weight > 0 ? std::max<int>(1, (int)(task->n_rays * weight)) : 0;
+    return weight > 0 ? std::max<int>(1, (int)(task->n_rays * (weight / task->total_weight))) : 0;
   }
 
   int emitted_rear(const task_t* task, int face_idx)
   {
     const float weight = task->weights[2 * face_idx + 1];
-    return weight > 0 ? std::max<int>(1, (int)(task->n_rays * weight)) : 0;
+    return weight > 0 ? std::max<int>(1, (int)(task->n_rays * (weight / task->total_weight))) : 0;
   }
 
   task_t* task_create(int n_rays)
   {
     task_t* task = (task_t*)malloc(sizeof(task_t));
     task->n_rays = n_rays;
+    task->total_weight = 0;
     task->weights = 0;
     task->rays = 0;
     return task;
