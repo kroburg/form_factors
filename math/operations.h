@@ -133,4 +133,10 @@ namespace math
     vec3 dist = a - b;
     return dot(dist, dist) < _FLT_EPSILON;
   }
+
+  /// @brief Union of two aabb (aabb to containing both aabb).
+  inline aabb_t operator+(const aabb_t& l, const aabb_t& r)
+  {
+    return { min(l.min, r.min), max(l.max, r.max) };
+  }
 }

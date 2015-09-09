@@ -45,4 +45,7 @@ namespace math
 
   /// @brief Creates ray looking from origin point to triangle center with length equal to half of distance.
   ray_t ray_to_triangle(vec3 origin, triangle_t t);
+
+  /// @brief Calculate triangle axes aligned bounding box.
+  aabb_t triangle_aabb(const triangle_t& t);
 }

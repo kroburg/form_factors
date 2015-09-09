@@ -81,4 +81,11 @@ namespace math
     mat33 result = { { { a00, a01, a02 }, { a10, a11, a12 }, { a20, a21, a22 } } };
     return result;
   }
+
+  /// @brief Axes-aligned bounding box.
+  struct aabb_t
+  {
+    vec3 min;
+    vec3 max;
+  };
 }

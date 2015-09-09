@@ -96,4 +96,9 @@ namespace math
     vec3 destination = origin + (center - origin) / 2.f; // ray direction vec3
     return{ origin, destination };
   }
+
+  aabb_t triangle_aabb(const triangle_t& t)
+  {
+    return { min(min(t.points[0], t.points[1]), t.points[2]), max(max(t.points[0], t.points[1]), t.points[2]) };
+  }
 }
