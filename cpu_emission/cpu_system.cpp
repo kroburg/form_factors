@@ -121,10 +121,8 @@ namespace cpu_emission
 
   /// @brief Creates rotation matrix of z vector towards face's normal.
   math::mat33 pick_face_rotation(const math::face_t& face, math::vec3 z)
-  {
-    math::vec3 v0 = face.points[1] - face.points[0];
-    math::vec3 v1 = face.points[2] - face.points[0];
-    math::vec3 norm = cross(v0, v1);
+  { 
+    math::vec3 norm = normal(face);
     return math::rotate_towards(z, norm);
   }
 
