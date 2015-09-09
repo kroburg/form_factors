@@ -50,5 +50,12 @@ namespace math
   aabb_t triangle_aabb(const triangle_t& t);
 
   /// @brief Triangle normal (not normalized).
-  vec3 normal(const triangle_t& t);
+  vec3 triangle_normal(const triangle_t& t);
+
+  /// @brief Reorder points to flip normal direction.
+  void triangle_flip_normal(triangle_t& t);
+
+  /// @brief Set subject normal to the same half-space as sample.
+  /// @detail Complexity is two cross and one dot products.
+  void triangle_unify_normals(const triangle_t& sample, triangle_t& subject);
 }

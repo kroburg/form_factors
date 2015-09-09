@@ -32,6 +32,14 @@
 
 namespace math
 {
+  /// @brief Swap two points.
+  inline void swap(vec3& l, vec3& r)
+  {
+    vec3 temp = l;
+    l = r;
+    r = temp;
+  }
+
   /// @brief Dot product of two 3d vectors.
   inline float dot(vec3 a, vec3 b)
   {
@@ -138,5 +146,10 @@ namespace math
   inline aabb_t operator+(const aabb_t& l, const aabb_t& r)
   {
     return { min(l.min, r.min), max(l.max, r.max) };
+  }
+
+  inline void operator+=(aabb_t& l, const aabb_t& r)
+  {
+    l = l + r;
   }
 }

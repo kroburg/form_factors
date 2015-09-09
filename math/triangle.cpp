@@ -99,13 +99,26 @@ namespace math
 
   aabb_t triangle_aabb(const triangle_t& t)
   {
-    return { min(min(t.points[0], t.points[1]), t.points[2]), max(max(t.points[0], t.points[1]), t.points[2]) };
+    return{ min(min(t.points[0], t.points[1]), t.points[2]), max(max(t.points[0], t.points[1]), t.points[2]) };
   }
 
-  vec3 normal(const triangle_t& t)
+  vec3 triangle_normal(const triangle_t& t)
   {
     vec3 v0 = t.points[1] - t.points[0];
     vec3 v1 = t.points[2] - t.points[0];
     return cross(v0, v1);
+  }
+
+  void triangle_flip_normal(triangle_t& t)
+  {
+    swap(t.points[1], t.points[2]);
+  }
+
+  void triangle_unify_normals(const triangle_t& sample, triangle_t& subject)
+  {
+    vec3 sample_norm = triangle_normal(sample);
+    vec3 subject_norm = triangle_normal(subject);
+    if (dot(sample_norm, subject_norm) < 0)
+      triangle_flip_normal(subject);
   }
 }
