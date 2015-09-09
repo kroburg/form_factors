@@ -48,4 +48,7 @@ namespace math
 
   /// @brief Calculate triangle axes aligned bounding box.
   aabb_t triangle_aabb(const triangle_t& t);
+
+  /// @brief Triangle normal (not normalized).
+  vec3 normal(const triangle_t& t);
 }

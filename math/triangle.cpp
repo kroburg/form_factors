@@ -101,4 +101,11 @@ namespace math
   {
     return { min(min(t.points[0], t.points[1]), t.points[2]), max(max(t.points[0], t.points[1]), t.points[2]) };
   }
+
+  vec3 normal(const triangle_t& t)
+  {
+    vec3 v0 = t.points[1] - t.points[0];
+    vec3 v1 = t.points[2] - t.points[0];
+    return cross(v0, v1);
+  }
 }
