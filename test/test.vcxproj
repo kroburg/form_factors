@@ -33,6 +33,7 @@
     <ClCompile Include="import.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ray_casting.cpp" />
+    <ClCompile Include="triangle_math.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cpuFactorsCalculator\cpuFactorsCalculator.vcxproj">

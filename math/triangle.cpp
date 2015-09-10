@@ -121,4 +121,74 @@ namespace math
     if (dot(sample_norm, subject_norm) < 0)
       triangle_flip_normal(subject);
   }
+
+  float triangle_least_side_square(const triangle_t& t)
+  {
+    vec3 v0 = t.points[1] - t.points[0];
+    vec3 v1 = t.points[2] - t.points[1];
+    vec3 v2 = t.points[0] - t.points[2];
+
+    float d0 = dot(v0, v0);
+    float d1 = dot(v1, v1);
+    float d2 = dot(v2, v2);
+
+    if (d0 <= d1)
+    {
+      return d0 < d2 ? d0 : d2;
+    }
+    else
+    {
+      return d1 < d2 ? d1 : d2;
+    }
+  }
+
+  int triangle_find_adjacent_vertex(const triangle_t& t, const vec3& p)
+  {
+    float scale = 1.f / triangle_least_side_square(t);
+    return triangle_find_adjacent_vertex(t, p, scale);
+  }
+
+  int triangle_find_adjacent_vertex(const triangle_t& t, const vec3& p, float triangle_scale)
+  {
+    vec3 v0 = t.points[0] - p;
+    float d0 = dot(v0, v0);
+    if (d0 * triangle_scale < FLT_EPSILON)
+      return 0;
+
+    vec3 v1 = t.points[1] - p;
+    float d1 = dot(v1, v1);
+    if (d1 * triangle_scale < FLT_EPSILON)
+      return 1;
+
+    vec3 v2 = t.points[2] - p;
+    float d2 = dot(v2, v2);
+    if (d2 * triangle_scale < FLT_EPSILON)
+      return 2;
+
+    return -1;
+  }
+
+  int triangle_find_adjacent_vertices(const triangle_t& l, const triangle_t& r)
+  {
+    int m = 0;
+    float scale = 1.f / triangle_least_side_square(r);
+
+    int a = -1;
+    if ((a = triangle_find_adjacent_vertex(r, l.points[0], scale)) >= 0)
+      m |= 1 << a;
+
+    if ((a = triangle_find_adjacent_vertex(r, l.points[1], scale)) >= 0)
+      m |= 1 << (a + 3);
+
+    if ((a = triangle_find_adjacent_vertex(r, l.points[2], scale)) >= 0)
+      m |= 1 << (a + 6);
+
+    return m;
+  }
+
+  bool triangle_has_adjacent_edge(const triangle_t& l, const triangle_t& r)
+  {
+    int m = triangle_find_adjacent_vertices(l, r);
+    return m & (m - 1);
+  }
 }

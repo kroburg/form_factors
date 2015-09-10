@@ -58,4 +58,22 @@ namespace math
   /// @brief Set subject normal to the same half-space as sample.
   /// @detail Complexity is two cross and one dot products.
   void triangle_unify_normals(const triangle_t& sample, triangle_t& subject);
+
+  /// @brief Square length of least triangle side.
+  float triangle_least_side_square(const triangle_t& t);
+
+  /**
+    @brief Find triangle vertex closest to point.
+    @return -1 if point is not close enought, vertex index (0-2) otherwise.
+  */
+  int triangle_find_adjacent_vertex(const triangle_t& t, const vec3& p);
+  int triangle_find_adjacent_vertex(const triangle_t& t, const vec3& p, float triangle_scale);
+
+  /**
+    @brief Find adjacent vertices of two triangles.
+    @return Bitmap of adjacent vertices (l[2]?r[2], l[2]?r[1], l[2]?r[0], l[1]?r[2], l[1]?r[1], l[1]?r[0], l[0]?r[2], l[0]?r[1], l[0]?r[0]).
+  */
+  int triangle_find_adjacent_vertices(const triangle_t& l, const triangle_t& r);
+
+  bool triangle_has_adjacent_edge(const triangle_t& l, const triangle_t& r);
 }
