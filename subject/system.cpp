@@ -128,23 +128,22 @@ namespace subject
     return scene->materials[scene->meshes[mesh_idx].material_idx];
   }
 
-  int mesh_walk_graph_n2c(const scene_t* scene, int mesh_idx, mesh_graph_walker visitor, void* param)
-  {
-    mesh_t& mesh = scene->meshes[mesh_idx];
-    
-    int r = 0;
-    for (int e = 0; e != mesh.n_faces; ++e)
+  
+  int face_walk_graph_n2c(const face_t* faces, int n_faces, face_graph_walker walker, void* param)
+  { 
+    for (int e = 0; e != n_faces; ++e)
     {
+      int r = 0;
       int adjacent_face_idx = -1;
-      const face_t& current = scene->faces[mesh.first_idx + e];
-      for (int i = e + 1; i != mesh.n_faces; ++i)
+      const face_t& current = faces[e];
+      for (int i = e + 1; i != n_faces; ++i)
       {
-        const face_t& test = scene->faces[mesh.first_idx + i];
+        const face_t& test = faces[i];
         if (triangle_has_adjacent_edge(current, test))
         {
           if (adjacent_face_idx != -1)
           {
-            if ((r = visitor(e, adjacent_face_idx, true, param)) != 0)
+            if ((r = walker(e, adjacent_face_idx, true, param)) != 0)
               return r;
           }
             
@@ -153,10 +152,49 @@ namespace subject
       }
 
       // report last adjacent face or -1
-      if ((r = visitor(e, adjacent_face_idx, false, param)) != 0)
+      if ((r = walker(e, adjacent_face_idx, false, param)) != 0)
         return r;
     }
 
     return 0;
+  }
+
+  struct unify_normals_param_t
+  {
+    face_t* faces;
+    int flip_count;
+  };
+
+  int unify_normals_walker(int current_idx, int leaf_idx, bool have_more, unify_normals_param_t* param)
+  {
+    if (leaf_idx == -1)
+      return 0;
+
+    const face_t& current_face = param->faces[current_idx];
+    face_t& leaf_face = param->faces[leaf_idx];
+    math::vec3 current_normal = triangle_normal(current_face);
+    math::vec3 leaf_normal = triangle_normal(leaf_face);
+
+    float angle = dot(current_normal, leaf_normal);
+    if (angle < 0)
+    {
+      triangle_flip_normal(leaf_face);
+      ++param->flip_count;
+    }
+
+    return 0;
+  }
+
+  int face_unify_normals(face_t* faces, int n_faces)
+  {
+    unify_normals_param_t param = { faces, 0 };
+    face_walk_graph_n2c(faces, n_faces, (face_graph_walker)unify_normals_walker, &param);
+    return param.flip_count;
+  }
+
+  int mesh_unify_normals(scene_t* scene, int mesh_idx)
+  {
+    const mesh_t& mesh = scene->meshes[mesh_idx];
+    return face_unify_normals(&scene->faces[mesh.first_idx], mesh.n_faces);
   }
 }

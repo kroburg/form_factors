@@ -42,20 +42,10 @@ int ReportSingleFaceCheck(int current_idx, int leaf_idx, bool have_more, void* p
 
 TEST(MeshGraph, ReportSingleFace)
 {
-  scene_t s;
   face_t faces[1] = { make_face(A, B, C) };
-  s.faces = faces;
-  s.n_faces = 1;
-
-  mesh_t meshes[1] = { 0, 1, 0 };
-  s.meshes = meshes;
-  s.n_meshes = 1;
-
-  s.materials = 0;
-  s.n_materials = 0;
 
   int invoke_counter = 0;
-  mesh_walk_graph_n2c(&s, 0, ReportSingleFaceCheck, &invoke_counter);
+  face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), ReportSingleFaceCheck, &invoke_counter);
   ASSERT_EQ(1, invoke_counter);
 };
 
@@ -89,20 +79,10 @@ int ReportSecondFaceCheck(int current_idx, int leaf_idx, bool have_more, void* p
 
 TEST(MeshGraph, ReportSecondFace)
 {
-  scene_t s;
   face_t faces[2] = { make_face(A, B, C), make_face(B, C, D) };
-  s.faces = faces;
-  s.n_faces = 2;
-
-  mesh_t meshes[1] = { 0, 2, 0 };
-  s.meshes = meshes;
-  s.n_meshes = 1;
-
-  s.materials = 0;
-  s.n_materials = 0;
-
+ 
   int invoke_counter = 0;
-  mesh_walk_graph_n2c(&s, 0, ReportSecondFaceCheck, &invoke_counter);
+  face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), ReportSecondFaceCheck, &invoke_counter);
   ASSERT_EQ(2, invoke_counter);
 };
 
@@ -152,20 +132,10 @@ int SignalHaveMoreForMultipleFacesCheck(int current_idx, int leaf_idx, bool have
 
 TEST(MeshGraph, SignalHaveMoreForMultipleFaces)
 {
-  scene_t s;
   face_t faces[3] = { make_face(A, B, C), make_face(B, C, D), make_face(A, B, E) };
-  s.faces = faces;
-  s.n_faces = 3;
-
-  mesh_t meshes[1] = { 0, 3, 0 };
-  s.meshes = meshes;
-  s.n_meshes = 1;
-
-  s.materials = 0;
-  s.n_materials = 0;
 
   int invoke_counter = 0;
-  mesh_walk_graph_n2c(&s, 0, SignalHaveMoreForMultipleFacesCheck, &invoke_counter);
+  face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), SignalHaveMoreForMultipleFacesCheck, &invoke_counter);
   ASSERT_EQ(4, invoke_counter);
 };
 
@@ -199,20 +169,10 @@ int ReportDisconnectedFacesCheck(int current_idx, int leaf_idx, bool have_more, 
 
 TEST(MeshGraph, ReportDisconnectedFaces)
 {
-  scene_t s;
   face_t faces[2] = { make_face(B, C, D), make_face(A, B, E) };
-  s.faces = faces;
-  s.n_faces = 2;
-
-  mesh_t meshes[1] = { 0, 2, 0 };
-  s.meshes = meshes;
-  s.n_meshes = 1;
-
-  s.materials = 0;
-  s.n_materials = 0;
 
   int invoke_counter = 0;
-  mesh_walk_graph_n2c(&s, 0, ReportDisconnectedFacesCheck, &invoke_counter);
+  face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), ReportDisconnectedFacesCheck, &invoke_counter);
   ASSERT_EQ(2, invoke_counter);
 };
 
@@ -229,20 +189,10 @@ int StopOnDemandCheck(int current_idx, int leaf_idx, bool have_more, void* param
 
 TEST(MeshGraph, StopOnDemand)
 {
-  scene_t s;
   face_t faces[2] = { make_face(B, C, D), make_face(A, B, E) };
-  s.faces = faces;
-  s.n_faces = 2;
-
-  mesh_t meshes[1] = { 0, 2, 0 };
-  s.meshes = meshes;
-  s.n_meshes = 1;
-
-  s.materials = 0;
-  s.n_materials = 0;
 
   int invoke_counter = 0;
-  int return_code = mesh_walk_graph_n2c(&s, 0, StopOnDemandCheck, &invoke_counter);
+  int return_code = face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), StopOnDemandCheck, &invoke_counter);
   ASSERT_EQ(1, invoke_counter);
   ASSERT_EQ(42, return_code);
 };

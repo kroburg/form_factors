@@ -103,18 +103,32 @@ namespace subject
   const material_t& mesh_material(const scene_t* scene, int mesh_idx);
 
   /**
-    @brief Mesh graph walker callback.
-    @param current_idx Zero-based mesh face index.
-    @param leaf_idx Zero-based mesh face adjacent to current face. -1 if there are no adjacent faces to current face.
+    @brief Face graph walker callback.
+    @param current_idx Zero-based face index.
+    @param leaf_idx Zero-based face adjacent to current face. -1 if there are no adjacent faces to current face.
     @param have_more Signal if there are more adjacent faces.
-    @param param Data passed to initial mesh_walk_graph() function.
+    @param param Data passed to initial walk() function.
     @return 0 to continue, >0 to stop iteration, <0 for error.
   */
-  typedef int(*mesh_graph_walker)(int current_idx, int leaf_idx, bool have_more, void* param);
+  typedef int(*face_graph_walker)(int current_idx, int leaf_idx, bool have_more, void* param);
 
   /**
-    @brief Walk mesh face graph.
-    @note Algorithm complexity is ~N^2, there N is mesh faces count.
+    @brief Walk face graph.
+    @note Algorithm complexity is ~N^2, there N is faces count.
   */
-  int mesh_walk_graph_n2c(const scene_t* scene, int mesh_idx, mesh_graph_walker walker, void* param);
+  int face_walk_graph_n2c(const face_t* faces, int n_faces, face_graph_walker walker, void* param);
+
+  /**
+    @brief Try to unify face graph normals direction.
+    @note It may be impossible to to unify normals for not closed mesh (consider Mobius strip).
+    @return Count on flipped faces.
+  */
+  int face_unify_normals(face_t* faces, int n_faces);
+
+  /**
+    @brief Try to unify mesh normals direction.
+    @note It may be impossible to to unify normals for not closed mesh (consider Mobius strip).
+    @return Count on flipped faces.
+  */
+  int mesh_unify_normals(scene_t* scene, int mesh_idx);
 }
