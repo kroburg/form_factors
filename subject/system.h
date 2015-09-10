@@ -101,4 +101,20 @@ namespace subject
   void build_face_to_mesh_index(int n_faces, int n_meshes, const mesh_t* meshes, int** index);
 
   const material_t& mesh_material(const scene_t* scene, int mesh_idx);
+
+  /**
+    @brief Mesh graph walker callback.
+    @param current_idx Zero-based mesh face index.
+    @param leaf_idx Zero-based mesh face adjacent to current face. -1 if there are no adjacent faces to current face.
+    @param have_more Signal if there are more adjacent faces.
+    @param param Data passed to initial mesh_walk_graph() function.
+    @return 0 to continue, >0 to stop iteration, <0 for error.
+  */
+  typedef int(*mesh_graph_walker)(int current_idx, int leaf_idx, bool have_more, void* param);
+
+  /**
+    @brief Walk mesh face graph.
+    @note Algorithm complexity is ~N^2, there N is mesh faces count.
+  */
+  int mesh_walk_graph_n2c(const scene_t* scene, int mesh_idx, mesh_graph_walker walker, void* param);
 }

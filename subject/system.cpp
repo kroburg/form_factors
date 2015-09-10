@@ -20,6 +20,7 @@
 
 #include "system.h"
 #include "../math/triangle.h"
+#include "../math/operations.h"
 #include <stdlib.h>
 
 namespace subject
@@ -125,5 +126,37 @@ namespace subject
   const material_t& mesh_material(const scene_t* scene, int mesh_idx)
   {
     return scene->materials[scene->meshes[mesh_idx].material_idx];
+  }
+
+  int mesh_walk_graph_n2c(const scene_t* scene, int mesh_idx, mesh_graph_walker visitor, void* param)
+  {
+    mesh_t& mesh = scene->meshes[mesh_idx];
+    
+    int r = 0;
+    for (int e = 0; e != mesh.n_faces; ++e)
+    {
+      int adjacent_face_idx = -1;
+      const face_t& current = scene->faces[mesh.first_idx + e];
+      for (int i = e + 1; i != mesh.n_faces; ++i)
+      {
+        const face_t& test = scene->faces[mesh.first_idx + i];
+        if (triangle_has_adjacent_edge(current, test))
+        {
+          if (adjacent_face_idx != -1)
+          {
+            if ((r = visitor(e, adjacent_face_idx, true, param)) != 0)
+              return r;
+          }
+            
+          adjacent_face_idx = i;
+        }
+      }
+
+      // report last adjacent face or -1
+      if ((r = visitor(e, adjacent_face_idx, false, param)) != 0)
+        return r;
+    }
+
+    return 0;
   }
 }

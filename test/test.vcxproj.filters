@@ -8,5 +8,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ray_casting.cpp" />
     <ClCompile Include="triangle_math.cpp" />
+    <ClCompile Include="mesh_graph.cpp" />
   </ItemGroup>
 </Project>
