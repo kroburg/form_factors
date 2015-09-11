@@ -67,6 +67,12 @@ namespace math
     @return -1 if point is not close enought, vertex index (0-2) otherwise.
   */
   int triangle_find_adjacent_vertex(const triangle_t& t, const vec3& p);
+
+  /**
+    @brief Find triangle vertex closest to point.
+    @param triangle_scale 1/triangle specific size.
+    @return -1 if point is not close enought, vertex index (0-2) otherwise.
+  */
   int triangle_find_adjacent_vertex(const triangle_t& t, const vec3& p, float triangle_scale);
 
   /**
@@ -75,5 +81,18 @@ namespace math
   */
   int triangle_find_adjacent_vertices(const triangle_t& l, const triangle_t& r);
 
+  /**
+    @brief Check two triangles vertex mapping for adjacent edge existence.
+    @param vertex_mapping mapping from triangle_find_adjacent_vertices() call.
+  */
+  bool triangle_has_adjacent_edge(int vertex_mapping);
+
+  /**
+    @brief Check two triangles has unidirectional normals.
+    @param vertex_mapping mapping from triangle_find_adjacent_vertices() call.
+  */
+  bool triangle_has_unidirectrional_normals(int vertex_mapping);
+
+  /// @brief Check two triangles for adjacent edge existence.
   bool triangle_has_adjacent_edge(const triangle_t& l, const triangle_t& r);
 }

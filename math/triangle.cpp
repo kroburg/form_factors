@@ -186,9 +186,41 @@ namespace math
     return m;
   }
 
+  bool triangle_has_adjacent_edge(int vertex_mapping)
+  {
+    return (vertex_mapping & (vertex_mapping - 1)) != 0;
+  }
+
+#define MAKE_VERTEX_MAPPING2(l1, l2, r1, r2) (1 << (r1 + 3 * l1) | 1 << (r2 + 3 * l2))
+#define MAKE_VERTEX_MAPPING3(r1, r2, r3) (1 << r1 | 1 << (r2 + 3) | 1 << (r3 + 6))
+
+  bool triangle_has_unidirectrional_normals(int vertex_mapping)
+  {
+    switch (vertex_mapping)
+    {
+    case MAKE_VERTEX_MAPPING2(0, 1, 1, 0):
+    case MAKE_VERTEX_MAPPING2(0, 1, 2, 1):
+    case MAKE_VERTEX_MAPPING2(0, 1, 0, 2):
+    case MAKE_VERTEX_MAPPING2(1, 2, 1, 0):
+    case MAKE_VERTEX_MAPPING2(1, 2, 2, 1):
+    case MAKE_VERTEX_MAPPING2(1, 2, 0, 2):
+    case MAKE_VERTEX_MAPPING2(2, 0, 1, 0):
+    case MAKE_VERTEX_MAPPING2(2, 0, 2, 1):
+    case MAKE_VERTEX_MAPPING2(2, 0, 0, 2):
+    case MAKE_VERTEX_MAPPING3(0, 1, 2):
+    case MAKE_VERTEX_MAPPING3(2, 0, 1):
+    case MAKE_VERTEX_MAPPING3(1, 2, 0):
+      return true;
+      break;
+
+      default:
+        return false;
+    }
+  }
+
   bool triangle_has_adjacent_edge(const triangle_t& l, const triangle_t& r)
   {
     int m = triangle_find_adjacent_vertices(l, r);
-    return m & (m - 1);
+    return triangle_has_adjacent_edge(m);
   }
 }
