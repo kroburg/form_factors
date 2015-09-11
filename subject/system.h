@@ -110,7 +110,7 @@ namespace subject
     @param param Data passed to initial walk() function.
     @return 0 to continue, >0 to stop iteration, <0 for error.
   */
-  typedef int(*face_graph_walker)(int current_idx, int leaf_idx, bool have_more, void* param);
+  typedef int(*face_graph_walker)(int current_idx, int leaf_idx, int vertex_mapping, bool have_more, void* param);
 
   /**
     @brief Walk face graph.

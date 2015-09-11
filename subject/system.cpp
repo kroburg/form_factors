@@ -20,7 +20,6 @@
 
 #include "system.h"
 #include "../math/triangle.h"
-#include "../math/operations.h"
 #include <stdlib.h>
 
 namespace subject
@@ -135,24 +134,27 @@ namespace subject
     {
       int r = 0;
       int adjacent_face_idx = -1;
+      int vertex_mapping = 0;
       const face_t& current = faces[e];
       for (int i = e + 1; i != n_faces; ++i)
       {
         const face_t& test = faces[i];
-        if (triangle_has_adjacent_edge(current, test))
+        int m = triangle_find_adjacent_vertices(current, test);
+        if (math::triangle_has_adjacent_edge(m))
         {
           if (adjacent_face_idx != -1)
           {
-            if ((r = walker(e, adjacent_face_idx, true, param)) != 0)
+            if ((r = walker(e, adjacent_face_idx, vertex_mapping, true, param)) != 0)
               return r;
           }
             
           adjacent_face_idx = i;
+          vertex_mapping = m;
         }
       }
 
       // report last adjacent face or -1
-      if ((r = walker(e, adjacent_face_idx, false, param)) != 0)
+      if ((r = walker(e, adjacent_face_idx, vertex_mapping, false, param)) != 0)
         return r;
     }
 
@@ -165,19 +167,14 @@ namespace subject
     int flip_count;
   };
 
-  int unify_normals_walker(int current_idx, int leaf_idx, bool have_more, unify_normals_param_t* param)
+  int unify_normals_walker(int current_idx, int leaf_idx, int mapping, bool have_more, unify_normals_param_t* param)
   {
     if (leaf_idx == -1)
       return 0;
 
-    const face_t& current_face = param->faces[current_idx];
-    face_t& leaf_face = param->faces[leaf_idx];
-    math::vec3 current_normal = triangle_normal(current_face);
-    math::vec3 leaf_normal = triangle_normal(leaf_face);
-
-    float angle = dot(current_normal, leaf_normal);
-    if (angle < 0)
+    if (!math::triangle_has_unidirectrional_normals(mapping))
     {
+      face_t& leaf_face = param->faces[leaf_idx];
       triangle_flip_normal(leaf_face);
       ++param->flip_count;
     }

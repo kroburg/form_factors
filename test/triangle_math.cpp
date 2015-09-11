@@ -81,6 +81,24 @@ TEST(FindAdjacentVertex, MapTriangles)
   EXPECT_EQ(expected, actual);
 };
 
+TEST(NormalsDirectivity, UnidirectionalForSameTriangle)
+{
+  int mapping = triangle_find_adjacent_vertices(make_face(A, D, B), make_face(A, D, B));
+  EXPECT_TRUE(math::triangle_has_unidirectrional_normals(mapping));
+}
+
+TEST(NormalsDirectivity, UnidirectionalForADB_ACD)
+{
+  int mapping = triangle_find_adjacent_vertices(make_face(A, D, B), make_face(A, C, D));
+  EXPECT_TRUE(math::triangle_has_unidirectrional_normals(mapping));
+}
+
+TEST(NormalsDirectivity, ContradictionalForADB_ADC)
+{
+  int mapping = triangle_find_adjacent_vertices(make_face(A, D, B), make_face(A, D, C));
+  EXPECT_FALSE(math::triangle_has_unidirectrional_normals(mapping));
+}
+
 TEST(HasAdjacentEdge, IgnoreUnrelatedTriangles)
 {
   triangle_t t1 = make_face(A, B, C);
@@ -108,3 +126,4 @@ TEST(HasAdjacentEdge, AcceptMultipleCommonEdges)
   triangle_t t2 = make_face(C, A, B);
   EXPECT_TRUE(triangle_has_adjacent_edge(t1, t2));
 }
+

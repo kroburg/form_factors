@@ -28,7 +28,7 @@ const math::vec3 C = { 0.f, 1.f, 0.f };
 const math::vec3 D = { 1.f, 1.f, 0.f };
 const math::vec3 E = { 0.f, -1.f, 0.f };
 
-int ReportSingleFaceCheck(int current_idx, int leaf_idx, bool have_more, void* param)
+int ReportSingleFaceCheck(int current_idx, int leaf_idx, int mapping, bool have_more, void* param)
 {
   EXPECT_TRUE(param != 0);
 
@@ -49,7 +49,7 @@ TEST(MeshGraph, ReportSingleFace)
   ASSERT_EQ(1, invoke_counter);
 };
 
-int ReportSecondFaceCheck(int current_idx, int leaf_idx, bool have_more, void* param)
+int ReportSecondFaceCheck(int current_idx, int leaf_idx, int mapping, bool have_more, void* param)
 {
   EXPECT_TRUE(param != 0);
   if (param == 0)
@@ -86,7 +86,7 @@ TEST(MeshGraph, ReportSecondFace)
   ASSERT_EQ(2, invoke_counter);
 };
 
-int SignalHaveMoreForMultipleFacesCheck(int current_idx, int leaf_idx, bool have_more, void* param)
+int SignalHaveMoreForMultipleFacesCheck(int current_idx, int leaf_idx, int mapping, bool have_more, void* param)
 {
   EXPECT_TRUE(param != 0);
   if (param == 0)
@@ -139,7 +139,7 @@ TEST(MeshGraph, SignalHaveMoreForMultipleFaces)
   ASSERT_EQ(4, invoke_counter);
 };
 
-int ReportDisconnectedFacesCheck(int current_idx, int leaf_idx, bool have_more, void* param)
+int ReportDisconnectedFacesCheck(int current_idx, int leaf_idx, int mapping, bool have_more, void* param)
 {
   EXPECT_TRUE(param != 0);
   if (param == 0)
@@ -176,7 +176,7 @@ TEST(MeshGraph, ReportDisconnectedFaces)
   ASSERT_EQ(2, invoke_counter);
 };
 
-int StopOnDemandCheck(int current_idx, int leaf_idx, bool have_more, void* param)
+int StopOnDemandCheck(int current_idx, int leaf_idx, int mapping, bool have_more, void* param)
 {
   EXPECT_TRUE(param != 0);
   if (param == 0)
