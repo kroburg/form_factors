@@ -11,10 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="box.h" />
+    <ClInclude Include="objects.h" />
     <ClInclude Include="system.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="objects.cpp" />
     <ClCompile Include="system.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

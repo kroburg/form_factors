@@ -2,9 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="system.h" />
-    <ClInclude Include="box.h" />
+    <ClInclude Include="objects.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system.cpp" />
+    <ClCompile Include="objects.cpp" />
   </ItemGroup>
 </Project>
