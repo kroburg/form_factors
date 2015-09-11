@@ -15,8 +15,10 @@
     <ClInclude Include="system.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="mesh_graph.cpp" />
     <ClCompile Include="objects.cpp" />
     <ClCompile Include="system.cpp" />
+    <ClCompile Include="unify_normals.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1EE5DE7F-60F6-4BB0-A5A0-B1A0A4D2C990}</ProjectGuid>

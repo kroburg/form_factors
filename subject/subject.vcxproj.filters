@@ -7,5 +7,7 @@
   <ItemGroup>
     <ClCompile Include="system.cpp" />
     <ClCompile Include="objects.cpp" />
+    <ClCompile Include="mesh_graph.cpp" />
+    <ClCompile Include="unify_normals.cpp" />
   </ItemGroup>
 </Project>
