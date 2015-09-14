@@ -90,6 +90,9 @@ namespace sb_ff_te
     if ((r = form_factors::system_set_scene(system->ff_calculator, &system->ff_scene)) < 0)
       return r;
 
+    if ((r = form_factors::system_prepare(system->ff_calculator)) < 0)
+      return r;
+
     system->ff_task = form_factors::task_create(&system->ff_scene, system->params.n_rays);
 
     if ((r = form_factors::system_calculate(system->ff_calculator, system->ff_task)) < 0)
