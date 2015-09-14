@@ -86,7 +86,7 @@ namespace subject
     {
       float area = mesh_area(scene, m);
       total_area += area;
-      *areas[m] = area;
+      (*areas)[m] = area;
     }
 
     return total_area;
