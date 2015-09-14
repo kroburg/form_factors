@@ -9,5 +9,7 @@
     <ClCompile Include="ray_casting.cpp" />
     <ClCompile Include="triangle_math.cpp" />
     <ClCompile Include="mesh_graph.cpp" />
+    <ClCompile Include="math_matrix.cpp" />
+    <ClCompile Include="radiance_solution.cpp" />
   </ItemGroup>
 </Project>

@@ -32,7 +32,9 @@
     <ClCompile Include="form_factors.cpp" />
     <ClCompile Include="import.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="math_matrix.cpp" />
     <ClCompile Include="mesh_graph.cpp" />
+    <ClCompile Include="radiance_solution.cpp" />
     <ClCompile Include="ray_casting.cpp" />
     <ClCompile Include="triangle_math.cpp" />
   </ItemGroup>
@@ -71,6 +73,9 @@
     </ProjectReference>
     <ProjectReference Include="..\ray_caster\ray_caster.vcxproj">
       <Project>{0730886b-2df9-40dc-914c-07e6a22aa7b4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\sb_ff_te\sb_ff_te.vcxproj">
+      <Project>{719cd64b-0e60-47e4-a708-67828bf95928}</Project>
     </ProjectReference>
     <ProjectReference Include="..\subject\subject.vcxproj">
       <Project>{1ee5de7f-60f6-4bb0-a5a0-b1a0a4d2c990}</Project>
