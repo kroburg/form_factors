@@ -21,5 +21,5 @@
 
 namespace subject
 {
-  const math::face_t* BoxFaces(); // 12 faces
+  const math::face_t* box(); // 12 faces
 }

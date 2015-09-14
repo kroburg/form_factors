@@ -19,32 +19,32 @@
 
 namespace subject
 {
-  const math::face_t* UnifyObjectFaces(math::face_t* faces, int n_faces)
+  math::face_t* unify_object_faces(math::face_t* faces, int n_faces)
   {
     face_unify_normals(faces, n_faces);
     return faces;
   }
 
-  const math::vec3 BoxVertices[8] = { { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 }, { 0, 0, 1 }, { 1, 0, 1 }, { 1, 1, 1 }, { 0, 1, 1 } };
+  const math::vec3 box_vertices[8] = { { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 }, { 0, 0, 1 }, { 1, 0, 1 }, { 1, 1, 1 }, { 0, 1, 1 } };
 
-  math::face_t RawBoxFaces[12] = {
-    make_face(BoxVertices[0], BoxVertices[2], BoxVertices[1]), // first face normal point downward
-    make_face(BoxVertices[0], BoxVertices[3], BoxVertices[2]),
-    make_face(BoxVertices[3], BoxVertices[2], BoxVertices[6]),
-    make_face(BoxVertices[3], BoxVertices[7], BoxVertices[6]),
-    make_face(BoxVertices[0], BoxVertices[3], BoxVertices[7]),
-    make_face(BoxVertices[0], BoxVertices[4], BoxVertices[7]),
-    make_face(BoxVertices[1], BoxVertices[2], BoxVertices[6]),
-    make_face(BoxVertices[1], BoxVertices[5], BoxVertices[6]),
-    make_face(BoxVertices[0], BoxVertices[1], BoxVertices[5]),
-    make_face(BoxVertices[0], BoxVertices[4], BoxVertices[5]),
-    make_face(BoxVertices[4], BoxVertices[5], BoxVertices[6]),
-    make_face(BoxVertices[4], BoxVertices[7], BoxVertices[6])
+  math::face_t raw_box_faces[12] = {
+    make_face(box_vertices[0], box_vertices[2], box_vertices[1]), // first face normal point downward
+    make_face(box_vertices[0], box_vertices[3], box_vertices[2]),
+    make_face(box_vertices[3], box_vertices[2], box_vertices[6]),
+    make_face(box_vertices[3], box_vertices[7], box_vertices[6]),
+    make_face(box_vertices[0], box_vertices[3], box_vertices[7]),
+    make_face(box_vertices[0], box_vertices[4], box_vertices[7]),
+    make_face(box_vertices[1], box_vertices[2], box_vertices[6]),
+    make_face(box_vertices[1], box_vertices[5], box_vertices[6]),
+    make_face(box_vertices[0], box_vertices[1], box_vertices[5]),
+    make_face(box_vertices[0], box_vertices[4], box_vertices[5]),
+    make_face(box_vertices[4], box_vertices[5], box_vertices[6]),
+    make_face(box_vertices[4], box_vertices[7], box_vertices[6])
   };
 
-  const math::face_t* BoxFaces()
+  const math::face_t* box()
   {
-    static const math::face_t* faces = UnifyObjectFaces(RawBoxFaces, 12);
+    static math::face_t* faces = unify_object_faces(raw_box_faces, 12);
     return faces;
   }
 }
