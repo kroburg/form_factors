@@ -101,7 +101,7 @@ namespace subject
     for (int f = 0; f != n_faces; ++f)
     {
       float area = math::triangle_area(scene->faces[f]);
-      *areas[f] = area;
+      (*areas)[f] = area;
     }
   }
 
@@ -117,7 +117,7 @@ namespace subject
       const int mesh_n_faces = mesh.n_faces;
       for (int f = 0; f != mesh_n_faces; ++f)
       {
-        *index[mesh.first_idx + f] = m;
+        (*index)[mesh.first_idx + f] = m;
       }
     }
   }
