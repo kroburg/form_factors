@@ -28,9 +28,9 @@
 
 using namespace testing;
 
-struct StefanBoltzmanParameters
+struct FormFactorsParameters
 {
-  StefanBoltzmanParameters()
+  FormFactorsParameters()
     : FormFactors(0)
     , Accuracy(0.01f)
   {
@@ -44,7 +44,7 @@ struct StefanBoltzmanParameters
     return thermal_equation::system_create(THERMAL_EQUATION_SB_FF_CPU, &EquationParams);
   }
 
-  ~StefanBoltzmanParameters()
+  ~FormFactorsParameters()
   {
     form_factors::system_free(FormFactors);
   }
@@ -54,9 +54,9 @@ struct StefanBoltzmanParameters
   float Accuracy;
 };
 
-struct RadianceParameters
+struct DirectMethodParameters
 {
-  RadianceParameters()
+  DirectMethodParameters()
     : Accuracy(0.001f)
   {
   }
@@ -74,7 +74,7 @@ struct RadianceParameters
 
 class RadianceSolution
   : public Test
-  , public RadianceParameters
+  , public DirectMethodParameters
 {
 public:
   RadianceSolution()
