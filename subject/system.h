@@ -121,14 +121,14 @@ namespace subject
   /**
     @brief Try to unify face graph normals direction.
     @note It may be impossible to to unify normals for not closed mesh (consider Mobius strip).
-    @return Count on flipped faces.
+    @return Count of flipped faces.
   */
   int face_unify_normals(face_t* faces, int n_faces);
 
   /**
     @brief Try to unify mesh normals direction.
     @note It may be impossible to to unify normals for not closed mesh (consider Mobius strip).
-    @return Count on flipped faces.
+    @return Count of flipped faces.
   */
   int mesh_unify_normals(scene_t* scene, int mesh_idx);
 }
