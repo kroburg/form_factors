@@ -77,7 +77,7 @@ namespace thermal_equation
    * @brief Factory method for equation creation.
    * @note init() system on creation.
    */
-  system_t* system_create(int type);
+  system_t* system_create(int type, void* params);
 
   /// Here go C-interface wrappers to call system_t's virtual methods.
 
