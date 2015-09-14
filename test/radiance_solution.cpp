@@ -19,24 +19,69 @@
 #include "math/operations.h"
 #include "math/triangle.h"
 #include "emission/system.h"
+#include "form_factors/system.h"
 #include "thermal_solution/system.h"
 #include "thermal_equation/system.h"
 #include "thermal_equation/radiance_cpu.h"
+#include "sb_ff_te/cpu_system.h"
 #include "subject/objects.h"
 
 using namespace testing;
 
-class RadianceSolution : public Test
+struct StefanBoltzmanParameters
+{
+  StefanBoltzmanParameters()
+    : FormFactors(0)
+    , Accuracy(0.01f)
+  {
+  }
+
+  thermal_equation::system_t* CreateEquation(emission::system_t* emitter)
+  {
+    FormFactors = form_factors::system_create(FORM_FACTORS_CPU, emitter);
+    EquationParams.form_factors_calculator = FormFactors;
+    EquationParams.n_rays = 10000;
+    return thermal_equation::system_create(THERMAL_EQUATION_SB_FF_CPU, &EquationParams);
+  }
+
+  ~StefanBoltzmanParameters()
+  {
+    form_factors::system_free(FormFactors);
+  }
+
+  form_factors::system_t* FormFactors;
+  sb_ff_te::params_t EquationParams;
+  float Accuracy;
+};
+
+struct RadianceParameters
+{
+  RadianceParameters()
+    : Accuracy(0.001f)
+  {
+  }
+
+  thermal_equation::system_t* CreateEquation(emission::system_t* emitter)
+  { 
+    EquationParams.emitter = emitter;
+    EquationParams.n_rays = 1000;
+    return thermal_equation::system_create(THERMAL_EQUATION_RADIANCE_CPU, &EquationParams);
+  }
+  
+  radiance_equation::params_t EquationParams;
+  float Accuracy;
+};
+
+class RadianceSolution
+  : public Test
+  , public RadianceParameters
 {
 public:
   RadianceSolution()
   {
     RayCaster = ray_caster::system_create(RAY_CASTER_SYSTEM_CUDA);
     Emitter = emission::system_create(EMISSION_CPU, RayCaster);
-
-    EquationParams.emitter = Emitter;
-    EquationParams.n_rays = 1000;
-    Equation = thermal_equation::system_create(THERMAL_EQUATION_RADIANCE_CPU, &EquationParams);
+    Equation = this->CreateEquation(Emitter);
 
     SolutionParams = { 1, &Equation };
     System = thermal_solution::system_create(THERMAL_SOLUTION_CPU_ADAMS, &SolutionParams);
@@ -47,7 +92,7 @@ public:
     memcpy(Faces, subject::box(), sizeof(subject::face_t) * 12);
     memcpy(Faces + 12, subject::box(), sizeof(subject::face_t) * 12);
 
-    Scale = 5;
+    Scale = 3;
 
     float factor = 1.f / Scale;
     float shift_value = 0.5f - factor / 2.f;
@@ -90,7 +135,6 @@ public:
   
   ray_caster::system_t* RayCaster;
   emission::system_t* Emitter;
-  radiance_equation::params_t EquationParams;
   thermal_equation::system_t* Equation;
   thermal_solution::params_t SolutionParams;
   thermal_solution::system_t* System;
@@ -120,7 +164,7 @@ TEST_F(RadianceSolution, BoxPreserveEnergy)
   }
   r = system_calculate(System, Task);
   ASSERT_EQ(THERMAL_SOLUTION_OK, r);
-  ASSERT_NEAR(1.f, Task->temperatures[0] / initialEnergy, .001f);
+  ASSERT_NEAR(1.f, Task->temperatures[0] / initialEnergy, this->Accuracy);
 }
 
 TEST_F(RadianceSolution, NestedBoxesPreserveEnergy)
@@ -140,5 +184,5 @@ TEST_F(RadianceSolution, NestedBoxesPreserveEnergy)
   ASSERT_EQ(THERMAL_SOLUTION_OK, r);
 
   float resultEnergy = Task->temperatures[0] * Scale * Scale + Task->temperatures[1];
-  ASSERT_NEAR(1.f, resultEnergy / initialEnergy, .001f);
+  ASSERT_NEAR(1.f, resultEnergy / initialEnergy, this->Accuracy);
 }
