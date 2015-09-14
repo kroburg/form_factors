@@ -52,10 +52,13 @@ namespace ray_caster
 
   void task_free(task_t* task)
   {
-    free(task->ray);
-    free(task->hit_face);
-    free(task->hit_point);
-    free(task);
+    if (task)
+    {
+      free(task->ray);
+      free(task->hit_face);
+      free(task->hit_point);
+      free(task);
+    }
   }
 
   system_t* system_create(int type)
