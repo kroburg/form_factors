@@ -92,6 +92,13 @@ namespace math
     return make_vec3(a.x * b, a.y * b, a.z * b);
   }
 
+  inline void operator*=(vec3& a, point_t b)
+  {
+    a.x *= b;
+    a.y *= b;
+    a.z *= b;
+  }
+
   /// @brief 3d vector to scalar multiplication.
   inline vec3 operator*(point_t b, vec3 a)
   {
