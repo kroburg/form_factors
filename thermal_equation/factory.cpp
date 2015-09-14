@@ -36,6 +36,7 @@ namespace thermal_equation
 
     case THERMAL_EQUATION_RADIANCE_CPU:
       system = radiance_equation::system_create();
+      break;
 
     default:
       return 0;
