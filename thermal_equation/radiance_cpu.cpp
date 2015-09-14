@@ -97,27 +97,27 @@ namespace radiance_equation
     // Reset to zero. There may be faces not included in meshes.
     memset(task->weights, 0, scene->n_faces * 2 * sizeof(float));
 
-    float total_power = 0;
+    float total = 0;
     for (int m = 0; m != scene->n_meshes; ++m)
     { 
       const subject::material_t& material = mesh_material(scene, m);
       const float T = temperatures[m];
-      const float power_density = sigma * (T * T * T * T);
-      const float front_density = power_density * material.front.emissivity;
-      const float rear_density = power_density * material.rear.emissivity;
+      const float density = T;
+      const float front_density = density * material.front.emissivity;
+      const float rear_density = density * material.rear.emissivity;
      
       const subject::mesh_t& mesh = scene->meshes[m];
       for (int f = mesh.first_idx; f != mesh.first_idx + mesh.n_faces; ++f)
       {
         const float front = front_density * face_areas[f];
         const float rear = rear_density * face_areas[f];
-        total_power += front + rear;
+        total += front + rear;
         task->weights[f * 2] = front;
         task->weights[f * 2 + 1] = rear;
       }
     }
 
-    task->total_weight = total_power;
+    task->total_weight = total;
   }
 
   int face2mesh(cpu_system_t* system, int face_idx)
@@ -147,10 +147,16 @@ namespace radiance_equation
     for (int m = 0; m != n_meshes; ++m)
     {
       const subject::mesh_t& mesh = system->scene->meshes[m];
+      const subject::material_t& material = mesh_material(system->scene, m);
+      const float T = task->temperatures[m];
+      const float power_density = sigma * (T * T * T * T);
+      const float front_density = power_density * material.front.emissivity;
+      const float rear_density = power_density * material.rear.emissivity;
+
       for (int f = mesh.first_idx; f != mesh.first_idx + mesh.n_faces; ++f)
       { 
-        const float front_emission = emission_task->weights[2 * f];
-        const float rear_emission = emission_task->weights[2 * f + 1];
+        const float front_emission = front_density * system->face_areas[f];
+        const float rear_emission = rear_density * system->face_areas[f];
         task->emission[m] += front_emission + rear_emission;
 
         const int face_rays_front = emitted_front(emission_task, f);
