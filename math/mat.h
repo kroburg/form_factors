@@ -99,12 +99,14 @@ namespace math
   /// @brief Identity diagonal 3x3 matrix.
   static const mat33 IDENTITY_33 = make_mat33(1, 0, 0, 0, 1, 0, 0, 0, 1);
 
+  /// @brief Rotation matrix whiñh reverse vector direction.
+  static const mat33 REVERSE_33 = make_mat33(1, 0, 0, 0, -1, 0, 0, 0, -1);
+
   /**
    * @brief Produces 3x3 matrix of rotation source 3d vector to target 3d vector.
    *
-   * Function checks for parallel vectors but both of them should be normalized.
-   * @param[in] subject source 3d vector
-   * @param[in] to target 3d vector
+   * @param[in] subject source 3D vector. Must be normalized.
+   * @param[in] to target 3D vector. May be not normalized(?).
    * @return 3x3 rotation matrix
    * @warning Parameters should be normalized
    */

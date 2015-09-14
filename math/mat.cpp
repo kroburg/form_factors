@@ -24,7 +24,6 @@ namespace math
 {
   mat33 rotate_towards(vec3 subject, vec3 to)
   {
-    subject = normalize(subject);
     vec3 v = cross(subject, to);
     point_t s2 = dot(v, v);
     point_t c = dot(subject, to); // TODO: Normalize?
@@ -37,6 +36,13 @@ namespace math
       mat33 ssc2 = ssc_mul(ssc, ssc);
       ssc2 = ssc2 * ((1 - c) / s2);
       rot = rot + ssc + ssc2;
+    }
+    else
+    {
+      vec3 f = subject + to;
+      float l = dot(f, f);
+      if (l < FLT_EPSILON)
+        rot = REVERSE_33;
     }
 
     return rot;
