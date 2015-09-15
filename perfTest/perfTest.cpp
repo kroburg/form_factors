@@ -19,7 +19,6 @@
  */
 
 #include <stdio.h>
-#include <random>
 #include <cmath>
 
 #ifdef _WIN32
@@ -32,58 +31,14 @@
 #include "../thermal_solution/system.h"
 #include "../thermal_equation/system.h"
 #include "../thermal_equation/radiance_cpu.h"
+#include "../subject/spherical_generator.h"
 
 #include <helper_timer.h>
 
 using namespace ray_caster;
 
-/// @brief Class to generate uniformly distributed points on sphere's surface.
-class SpherePointsGenerator
-{
-public:
-  SpherePointsGenerator()
-    : ThetaGenerator(0)
-    , UGenerator(1)
-    , RGenerator(2)
-    , ThetaDistribution(0, float(M_PI * 2.))
-    , UDistribution(-1, 1)
-    , RDistribution(-100, 100)
-  {
-  }
-
-  /// @brief Generates 1 point.
-  /// @note Distribution taken from http://mathworld.wolfram.com/SpherePointPicking.html
-  math::vec3 Point()
-  {    
-    float theta = ThetaDistribution(ThetaGenerator);
-    float u = UDistribution(UGenerator);
-
-    float c = sqrtf(1 - u * u);
-
-    float x = c * cos(theta);
-    float y = c * sin(theta);
-    float z = u;
-
-    return math::make_vec3(x, y, z);
-  }
-
-  math::vec3 Position()
-  {
-    return Point() * RDistribution(RGenerator);
-  }
-
-private:
-  std::mt19937 ThetaGenerator;
-  std::mt19937 UGenerator;
-  std::mt19937 RGenerator;
-  std::uniform_real_distribution<float> ThetaDistribution;
-  std::uniform_real_distribution<float> UDistribution;
-  std::uniform_real_distribution<float> RDistribution;
-};
-
-
 /// @brief Generates random triangles with vertices located on sphere's surface (confette scene).
-scene_t* MakeConfettiScene(int n_faces, SpherePointsGenerator& generator)
+scene_t* MakeConfettiScene(int n_faces, float radius, subject::generator_t* generator)
 {
   face_t* faces = (face_t*)malloc(n_faces * sizeof(face_t));
   scene_t* scene = (scene_t*)malloc(sizeof(scene_t));
@@ -91,20 +46,20 @@ scene_t* MakeConfettiScene(int n_faces, SpherePointsGenerator& generator)
   for (int i = 0; i != n_faces; ++i)
   {
     face_t& f = faces[i];
-    f.points[0] = generator.Point();
-    f.points[1] = generator.Point();
-    f.points[2] = generator.Point();
-    math::vec3 positon = generator.Position();
-    f.points[0] += positon;
-    f.points[1] += positon;
-    f.points[2] += positon;
+    generator_surface_point(generator, 3, f.points);
+    math::vec3 position;
+    generator_volume_point(generator, 1, &position);
+    position *= radius;
+    f.points[0] += position;
+    f.points[1] += position;
+    f.points[2] += position;
   }  
   
   return scene;
 }
 
 /// @brief Creates task with n_rays rays from sphere's surface towards center.
-task_t* MakeCollapsingRays(int n_rays, SpherePointsGenerator& generator)
+task_t* MakeCollapsingRays(int n_rays, float radius, subject::generator_t* generator)
 {
   math::ray_t* rays = (math::ray_t*)malloc(n_rays * sizeof(math::ray_t));
   if (rays == 0)
@@ -115,8 +70,10 @@ task_t* MakeCollapsingRays(int n_rays, SpherePointsGenerator& generator)
   *task = { n_rays, rays, hit_face, hit_point };
   for (int i = 0; i != n_rays; ++i)
   { 
-    math::vec3 direction = generator.Point() * 110.f;
-    // Origin is 10% less then direction - rays directed towards zero.
+    math::vec3 direction;
+    generator_surface_point(generator, 1, &direction);
+    direction *= (2 + radius);
+    // Origin is scaled by 10% to direction - rays directed towards zero.
     math::vec3 origin = direction * 1.1f;
     rays[i] = { origin, direction };
   }
@@ -204,8 +161,9 @@ int main(int argc, char* argv[])
     bool no_form_factors = false;
     bool no_radiance = false;
 
-    SpherePointsGenerator generator;
-
+    float radius = 100;
+    
+    subject::generator_t* generator = subject::generator_create_spherical();
     // Create systems for CPU and GPU.
     system_t* cuda_system = system_create(RAY_CASTER_SYSTEM_CUDA);
     system_t* cpu_system = system_create(RAY_CASTER_SYSTEM_CPU);
@@ -213,11 +171,11 @@ int main(int argc, char* argv[])
     printf("Generating confetti scene with %d elements...\n", n_faces);
 
     // Create random scene for ray caster.
-    scene_t* scene = MakeConfettiScene(n_faces, generator);
+    scene_t* scene = MakeConfettiScene(n_faces, radius, generator);
     printf("Generating %d collapsing rays...\n", n_rays);
 
     // Create task for ray caster.
-    task_t* gpuTask = MakeCollapsingRays(n_rays, generator);
+    task_t* gpuTask = MakeCollapsingRays(n_rays, radius, generator);
     task_t* cpuTask = task_clone(gpuTask);
 
     // Create small warm-up scene for ray caster (from main confetti scene) and run ray caster on it.
@@ -335,6 +293,8 @@ int main(int argc, char* argv[])
     free(cpuTask->hit_face);
     free(cpuTask->hit_point);
     free(cpuTask);
+
+    generator_free(generator);
 
     return 0;
   }
