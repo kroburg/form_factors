@@ -220,27 +220,25 @@ int main(int argc, char* argv[])
       ErrorStats error = CalculateError(cpuTask, gpuTask);
       printf("Error is %f average, %f max, %f total.\n", error.AverageDistance, error.MaxDistance, error.TotalDistance);
       printf("Face hit mismatch count is %d.\n", error.Mismatch);
-      printf("GPU/CPU performance ratio is %f.\n", cpuTime / gpuTime);
+      printf("GPU/CPU performance ratio is %.3f.\n", cpuTime / gpuTime);
     }
-
-    
 
     if (!no_form_factors)
     {
-      // Run form factors calculation on Cuda's ray caster reuslts.
+      // Run form factors calculation on Cuda's ray caster results.
       
       form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, emitter);
-      form_factors::scene_t calculator_scene;
-      calculator_scene.n_faces = scene->n_faces;
-      calculator_scene.faces = scene->faces;
+      form_factors::scene_t ff_scene;
+      ff_scene.n_faces = scene->n_faces;
+      ff_scene.faces = scene->faces;
 
       int n_meshes = scene->n_faces;
 
-      calculator_scene.n_meshes = n_meshes;
-      calculator_scene.meshes = (form_factors::mesh_t*) malloc(n_meshes * sizeof(form_factors::mesh_t));
+      ff_scene.n_meshes = n_meshes;
+      ff_scene.meshes = (form_factors::mesh_t*) malloc(n_meshes * sizeof(form_factors::mesh_t));
       for (int i = 0; i != n_meshes; ++i)
       {
-        form_factors::mesh_t& mesh = calculator_scene.meshes[i];
+        form_factors::mesh_t& mesh = ff_scene.meshes[i];
         mesh.first_idx = i;
         mesh.n_faces = 1;
       }
@@ -250,9 +248,9 @@ int main(int argc, char* argv[])
       sdkStartTimer(&hTimer);
 
       // Finally calculate form factors.
-      form_factors::system_set_scene(calculator, &calculator_scene);
+      form_factors::system_set_scene(calculator, &ff_scene);
       form_factors::system_prepare(calculator);
-      form_factors::task_t* task = form_factors::task_create(&calculator_scene, n_rays);
+      form_factors::task_t* task = form_factors::task_create(&ff_scene, n_rays);
       form_factors::system_calculate(calculator, task);
 
       sdkStopTimer(&hTimer);
@@ -260,14 +258,15 @@ int main(int argc, char* argv[])
       printf("Done in %fs.\n", cpuTime);
 
       task_free(task);
-      free(calculator_scene.meshes);
+      free(ff_scene.meshes);
     }
 
     if (!no_radiance)
     {
+      const int rays_per_face = 100;
       radiance_equation::params_t equationParams;
       equationParams.emitter = emitter;
-      equationParams.n_rays = 1000;
+      equationParams.n_rays = rays_per_face * scene->n_faces;
 
       thermal_equation::system_t* equation = thermal_equation::system_create(THERMAL_EQUATION_RADIANCE_CPU, &equationParams);
 
@@ -277,6 +276,62 @@ int main(int argc, char* argv[])
       subject::material_t materials[1];
       materials[0] = subject::black_body();
 
+      subject::scene_t te_scene;
+      te_scene.n_faces = scene->n_faces;
+      te_scene.faces = scene->faces;
+
+      int n_meshes = scene->n_faces;
+      te_scene.n_meshes = n_meshes;
+      te_scene.meshes = (subject::mesh_t*)malloc(n_meshes * sizeof(subject::mesh_t));
+      float* temperatures = (float*)malloc(n_meshes * sizeof(float));
+
+      for (int m = 0; m != n_meshes; ++m)
+      {
+        subject::mesh_t& mesh = te_scene.meshes[m];
+        mesh.first_idx = m;
+        mesh.n_faces = 1;
+        mesh.material_idx = 0;
+
+        temperatures[m] = 300;
+      }
+
+      te_scene.n_materials = 1;
+      te_scene.materials = materials;
+
+      thermal_solution::task_t* task = thermal_solution::task_create(&te_scene);
+      task->time_delta = 0.1f;
+
+      int steps_count = 100;
+      printf("Calculating %d steps of thermal solution using %d rays per face in average...\n", steps_count, rays_per_face);
+      sdkResetTimer(&hTimer);
+      sdkStartTimer(&hTimer);
+
+      int r = 0;
+      if ((r = system_set_scene(solution, &te_scene, temperatures)) < 0)
+      {
+        printf("Failed to calculate thermal solution step.");
+        return r;
+      }
+      
+      for (int step = 1; step < steps_count; ++step)
+      {
+        if ((r = system_calculate(solution, task)) < 0)
+        {
+          printf("Failed to calculate thermal solution step.");
+          return r;
+        }
+      }
+      
+
+      sdkStopTimer(&hTimer);
+      double cpuTime = 1.0e-3 * sdkGetTimerValue(&hTimer);
+      printf("Done in %fs.\n", cpuTime);
+      int solution_ray_casts = scene->n_faces * rays_per_face * steps_count;
+      printf("Solution/Ray one ray casting times ratio is %.3f\n", (cpuTime / solution_ray_casts) / (gpuTime / n_rays));
+
+      free(temperatures);
+      free(te_scene.meshes);
+      thermal_solution::task_free(task);
       thermal_solution::system_free(solution);
       thermal_equation::system_free(equation);
     }
@@ -300,7 +355,7 @@ int main(int argc, char* argv[])
   }
   catch (const std::exception& e)
   {
-    std::cerr << e.what() << std::endl;
+    printf("%s\n", e.what());
     return -1;
   }
 }
