@@ -5,11 +5,10 @@ v 1 1 0
 v 0 0 1
 v 0 1 1
 
+g first
 f 1 2 3
 f 2 3 4 
 
+g second
 f 1 5 3
 f 6 5 3
-
-m 0 2
-m 2 2

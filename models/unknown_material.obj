@@ -1,0 +1,7 @@
+v 0 0 0
+v 0 1 0
+v 1 0 0
+
+g test_object
+usemtl unknown_material
+f 1 2 3

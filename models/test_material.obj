@@ -1,0 +1,23 @@
+v 0 0 0
+v 0 1 0
+v 1 0 0
+
+newmtl test_material
+shell.density 1
+shell.heat_capacity 1
+shell.thermal_conductivity 1
+shell.thickness 1
+front.specular_reflectance 1
+front.diffuse_reflectance 1
+front.absorbance 1
+front.transmittance 1
+front.emissivity 1
+rear.specular_reflectance 1
+rear.diffuse_reflectance 1
+rear.absorbance 1
+rear.transmittance 1
+rear.emissivity 1
+
+g test_object
+usemtl test_material
+f 1 2 3
