@@ -29,6 +29,9 @@
 #include "../ray_caster/system.h"
 #include "../form_factors/system.h"
 #include "../math/operations.h"
+#include "../thermal_solution/system.h"
+#include "../thermal_equation/system.h"
+#include "../thermal_equation/radiance_cpu.h"
 
 #include <helper_timer.h>
 
@@ -199,12 +202,14 @@ int main(int argc, char* argv[])
     int n_rays = 1000 * n_faces;
     bool no_cpu = false;
     bool no_form_factors = false;
+    bool no_radiance = false;
 
     SpherePointsGenerator generator;
 
     // Create systems for CPU and GPU.
     system_t* cuda_system = system_create(RAY_CASTER_SYSTEM_CUDA);
     system_t* cpu_system = system_create(RAY_CASTER_SYSTEM_CPU);
+    emission::system_t* emitter = emission::system_create(EMISSION_CPU, cuda_system);
     printf("Generating confetti scene with %d elements...\n", n_faces);
 
     // Create random scene for ray caster.
@@ -260,16 +265,19 @@ int main(int argc, char* argv[])
       printf("GPU/CPU performance ratio is %f.\n", cpuTime / gpuTime);
     }
 
+    
+
     if (!no_form_factors)
     {
       // Run form factors calculation on Cuda's ray caster reuslts.
-      emission::system_t* emitter = emission::system_create(EMISSION_CPU, cuda_system);
+      
       form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, emitter);
       form_factors::scene_t calculator_scene;
       calculator_scene.n_faces = scene->n_faces;
       calculator_scene.faces = scene->faces;
 
       int n_meshes = scene->n_faces;
+
       calculator_scene.n_meshes = n_meshes;
       calculator_scene.meshes = (form_factors::mesh_t*) malloc(n_meshes * sizeof(form_factors::mesh_t));
       for (int i = 0; i != n_meshes; ++i)
@@ -297,6 +305,25 @@ int main(int argc, char* argv[])
       free(calculator_scene.meshes);
     }
 
+    if (!no_radiance)
+    {
+      radiance_equation::params_t equationParams;
+      equationParams.emitter = emitter;
+      equationParams.n_rays = 1000;
+
+      thermal_equation::system_t* equation = thermal_equation::system_create(THERMAL_EQUATION_RADIANCE_CPU, &equationParams);
+
+      thermal_solution::params_t solutionParams = { 1, &equation };
+      thermal_solution::system_t* solution = thermal_solution::system_create(THERMAL_SOLUTION_CPU_ADAMS, &solutionParams);
+
+      subject::material_t materials[1];
+      materials[0] = subject::black_body();
+
+      thermal_solution::system_free(solution);
+      thermal_equation::system_free(equation);
+    }
+
+    emission::system_free(emitter);
     system_free(cuda_system);
     system_free(cpu_system);
 

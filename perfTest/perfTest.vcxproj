@@ -109,6 +109,15 @@
     <ProjectReference Include="..\ray_caster\ray_caster.vcxproj">
       <Project>{0730886b-2df9-40dc-914c-07e6a22aa7b4}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\subject\subject.vcxproj">
+      <Project>{1ee5de7f-60f6-4bb0-a5a0-b1a0a4d2c990}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\thermal_equation\thermal_equation.vcxproj">
+      <Project>{4e98bd4e-beb6-4886-adec-bce6f88936af}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\thermal_solution\thermal_solution.vcxproj">
+      <Project>{f0a247a1-a9ed-4ac4-a7fa-a1fe0154bab6}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
