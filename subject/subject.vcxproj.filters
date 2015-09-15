@@ -3,11 +3,13 @@
   <ItemGroup>
     <ClInclude Include="system.h" />
     <ClInclude Include="objects.h" />
+    <ClInclude Include="spherical_generator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system.cpp" />
     <ClCompile Include="objects.cpp" />
     <ClCompile Include="mesh_graph.cpp" />
     <ClCompile Include="unify_normals.cpp" />
+    <ClCompile Include="spherial_generator.cpp" />
   </ItemGroup>
 </Project>
