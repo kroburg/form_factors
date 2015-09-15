@@ -19,7 +19,7 @@
 * Equation consider pre-calculated form factors matrix for meshes.
 */
 
-#include "cpu_system.h"
+#include "form_factors.h"
 #include "../math/triangle.h"
 #include <float.h>
 #include <cmath>
@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <cstring>
 
-namespace sb_ff_te
+namespace form_factors_equation
 {
   const float sigma = 5.670400e-8f;
 

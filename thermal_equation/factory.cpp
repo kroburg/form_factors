@@ -19,7 +19,7 @@
 */
 
 #include "system.h"
-#include "../sb_ff_te/cpu_system.h"
+#include "form_factors.h"
 #include "radiance_cpu.h"
 
 namespace thermal_equation
@@ -31,7 +31,7 @@ namespace thermal_equation
     switch (type)
     {
     case THERMAL_EQUATION_SB_FF_CPU:
-      system = sb_ff_te::system_create();
+      system = form_factors_equation::system_create();
       break;
 
     case THERMAL_EQUATION_RADIANCE_CPU:

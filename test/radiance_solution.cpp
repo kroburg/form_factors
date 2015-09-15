@@ -23,7 +23,7 @@
 #include "thermal_solution/system.h"
 #include "thermal_equation/system.h"
 #include "thermal_equation/radiance_cpu.h"
-#include "sb_ff_te/cpu_system.h"
+#include "thermal_equation/form_factors.h"
 #include "subject/objects.h"
 
 using namespace testing;
@@ -50,7 +50,7 @@ struct FormFactorsParameters
   }
 
   form_factors::system_t* FormFactors;
-  sb_ff_te::params_t EquationParams;
+  form_factors_equation::params_t EquationParams;
   float Accuracy;
 };
 

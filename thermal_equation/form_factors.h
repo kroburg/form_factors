@@ -21,10 +21,10 @@
 
 #pragma once
 
-#include "../thermal_equation/system.h"
+#include "system.h"
 #include "../form_factors/system.h"
 
-namespace sb_ff_te
+namespace form_factors_equation
 {
   struct params_t
   {

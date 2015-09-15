@@ -3,10 +3,12 @@
   <ItemGroup>
     <ClInclude Include="system.h" />
     <ClInclude Include="radiance_cpu.h" />
+    <ClInclude Include="form_factors.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system.cpp" />
     <ClCompile Include="factory.cpp" />
     <ClCompile Include="radiance_cpu.cpp" />
+    <ClCompile Include="form_factors.cpp" />
   </ItemGroup>
 </Project>
