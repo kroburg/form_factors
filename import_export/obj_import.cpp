@@ -40,6 +40,7 @@ namespace obj_import
     int indices[3];
   };
 
+  /// @note Mindflow mode on
   int import_obj(const char* filename, subject::scene_t** scene)
   {
     std::ifstream file(filename);
@@ -294,4 +295,5 @@ namespace obj_import
 
     return OBJ_IMPORT_OK;
   }
+  /// @note Mindflow mode off
 }
