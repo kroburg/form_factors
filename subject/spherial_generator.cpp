@@ -24,16 +24,6 @@ namespace spherical_generator
 {
   struct generator_t : subject::generator_t
   {
-    generator_t()
-      : ThetaGenerator(0)
-      , UGenerator(1)
-      , RGenerator(2)
-      , ThetaDistribution(0, float(M_PI * 2.))
-      , UDistribution(-1, 1)
-      , RDistribution(0, 1)
-    {
-    }
-
     /// @note Distribution taken from http://mathworld.wolfram.com/SpherePointPicking.html
     math::vec3 SurfacePoint()
     {
@@ -65,13 +55,17 @@ namespace spherical_generator
 
   int init(generator_t* generator)
   {
+    generator->ThetaGenerator = std::mt19937(0);
+    generator->UGenerator = std::mt19937(1);
+    generator->RGenerator = std::mt19937(2);
+    generator->ThetaDistribution = std::uniform_real_distribution<float>(0, float(M_PI * 2.));
+    generator->UDistribution = std::uniform_real_distribution<float>(-1, 1);
+    generator->RDistribution = std::uniform_real_distribution<float>(0, 1);
     return 0;
   }
 
-  int free(generator_t* generator)
+  void shutdown(generator_t* generator)
   {
-    delete generator;
-    return 0;
   }
 
   int surface_point(generator_t* generator, int count, math::vec3* result)
@@ -91,14 +85,14 @@ namespace spherical_generator
   const subject::generator_methods_t methods =
   {
     (int(*)(subject::generator_t* generator))&init,
-    (int(*)(subject::generator_t* generator))&free,
+    (void(*)(subject::generator_t* generator))&shutdown,
     (int(*)(subject::generator_t* generator, int count, math::vec3* result))&surface_point,
     (int(*)(subject::generator_t* generator, int count, math::vec3* result))&volume_point
   };
 
   subject::generator_t* generator_create()
   {
-    generator_t* g = new generator_t();
+    generator_t* g = (generator_t*)malloc(sizeof(generator_t));
     g->methods = &methods;
     return g;
   }
@@ -118,9 +112,10 @@ namespace subject
     return g->methods->init(g);
   }
 
-  int generator_free(generator_t* g)
+  void generator_free(generator_t* g)
   {
-    return g->methods->free(g);
+    g->methods->shutdown;
+    free(g);
   }
 
   int generator_surface_point(generator_t* g, int count, math::vec3* result)

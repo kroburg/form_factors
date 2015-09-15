@@ -36,7 +36,7 @@ namespace subject
     int(*init)(generator_t* generator);
 
     /// @brief Shutdown and free generator memory.
-    int(*free)(generator_t* generator);
+    void(*shutdown)(generator_t* generator);
 
     /// @brief Generate surface point.
     int(*surface_point)(generator_t* generator, int count, math::vec3* result);
@@ -48,7 +48,7 @@ namespace subject
   generator_t* generator_create_spherical();
 
   int generator_init(generator_t* generator);
-  int generator_free(generator_t* generator);
+  void generator_free(generator_t* generator);
   int generator_surface_point(generator_t* generator, int count, math::vec3* result);
   int generator_volume_point(generator_t* generator, int count, math::vec3* result);
 }
