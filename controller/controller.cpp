@@ -29,10 +29,6 @@
 #include <iostream>
 #include <cstring>
 
-#ifdef _WIN32
-#include <tchar.h>
-#endif
-
 void PrintUsage()
 {
   std::cout << "Usage: controller <input scene> <input task> <result output [-]> <rays_count [1000000]> <step count [100]> <ray_caster type:(cpu/cuda)[cpu]" << std::endl;
