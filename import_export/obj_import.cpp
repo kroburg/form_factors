@@ -50,10 +50,6 @@ namespace obj_import
       return -OBJ_IMPORT_FILE_ERROR;
     }
 
-    // Max and min coordinates (for bounding box).
-    math::vec3 minBox = math::make_vec3(1e10, 1e10, 1e10);
-    math::vec3 maxBox = math::make_vec3(-1e10, -1e10, -1e10);
-
     std::vector<math::vec3> vertices;
     std::vector<idx_face_t> faces;
     int mesh_start_idx = -1;
