@@ -35,7 +35,7 @@
 
 void PrintUsage()
 {
-  std::cout << "Usage: controller <input obj> <output obj> <rays_count [1000000]> <step count [100]> <ray_caster type:(cpu/cuda)[cpu]" << std::endl;
+  std::cout << "Usage: controller <input scene> <input task> <result output [-]> <rays_count [1000000]> <step count [100]> <ray_caster type:(cpu/cuda)[cpu]" << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -46,8 +46,9 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  const char* input = 0;
-  const char* output = 0;
+  const char* input_scene = 0;
+  const char* input_task = 0;
+  const char* result_name = "-";
   int n_rays = 1000 * 1000;
   int n_steps = 100;
   int type = RAY_CASTER_SYSTEM_CPU;
@@ -57,22 +58,26 @@ int main(int argc, char* argv[])
     switch (i)
     {
     case 1:
-      input = argv[i];
+      input_scene = argv[i];
       break;
 
     case 2:
-      output = argv[i];
+      input_task = argv[i];
       break;
 
     case 3:
-      n_rays = atoi(argv[i]);
+      result_name = argv[i];
       break;
 
     case 4:
-      n_steps = atoi(argv[i]);
+      n_rays = atoi(argv[i]);
       break;
 
     case 5:
+      n_steps = atoi(argv[i]);
+      break;
+
+    case 6:
       if (strcmp("cuda", argv[i]) == 0)
         type = RAY_CASTER_SYSTEM_CUDA;
       else if (strcmp("cpu", argv[i]) == 0)
@@ -84,10 +89,37 @@ int main(int argc, char* argv[])
 
   int r = 0;
   subject::scene_t* scene = 0;
-  if ((r = obj_import::import_obj(input, &scene)) != OBJ_IMPORT_OK)
+  if ((r = obj_import::scene(input_scene, &scene)) != OBJ_IMPORT_OK)
   {
-    std::cerr << "Failed to load scene " << input << std::endl;
+    std::cerr << "Failed to load scene " << input_scene << std::endl;
     return r;
+  }
+
+  thermal_solution::task_t* task = thermal_solution::task_create(0);
+  task->time_delta = 0.1f;
+  FILE* task_file = fopen(input_task, "r");
+  if (!task_file)
+  {
+    fprintf(stderr, "Failed to load task '%s'\n", input_task);
+    return -1;
+  }
+  else
+  {
+    r = obj_import::task(task_file, task);
+    fclose(task_file);
+    if (r < 0)
+    {
+      fprintf(stderr, "Failed to load task '%s'\n", input_task);
+      return r;
+    }
+  }
+
+  if (r < scene->n_meshes)
+  {
+    std::cerr << "There are not enough object temperatues defined in task. Initializing to default values." << std::endl;
+    realloc(task->temperatures, scene->n_meshes * sizeof(float));
+    for (; r != scene->n_meshes; ++r)
+      task->temperatures[r] = 300;
   }
 
   ray_caster::system_t* caster = ray_caster::system_create(type);
@@ -123,18 +155,10 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  if ((r = obj_export::scene(stdout, scene)) != 0)
-  {
-    std::cerr << "Failed to export scene." << std::endl;
-    return r;
-  }
-  
-  thermal_solution::task_t* task = thermal_solution::task_create(scene->n_meshes);
-  task->time_delta = 0.1f;
-  task->temperatures = (float*)malloc(scene->n_meshes * sizeof(float));
-  for (int i = 0; i != scene->n_meshes; ++i)
-    task->temperatures[i] = 300; // @todo Import values from file.
+  FILE* result_file = result_name[0] == '-' ? stdout : fopen(result_name, "w");
 
+  obj_export::task(result_file, scene->n_meshes, task);
+  
   StopWatchInterface *hTimer;
   sdkCreateTimer(&hTimer);
   sdkResetTimer(&hTimer);
@@ -153,14 +177,16 @@ int main(int argc, char* argv[])
       std::cerr << "Failed to calculate thermal solution step" << std::endl; 
       return 1;
     }
-    obj_export::task(stdout, scene->n_meshes, task);
+
+    obj_export::task(result_file, scene->n_meshes, task);
   }
   
   sdkStopTimer(&hTimer);
   double cpuTime = 1.0e-3 * sdkGetTimerValue(&hTimer);
-  printf("#Done in %fs.\n", cpuTime);
+  printf("#Done in %fs.\n", cpuTime);  
 
-  
+  if (result_name[0] != '-')
+    fclose(result_file);
 
   thermal_solution::task_free(task);
   thermal_solution::system_free(solution);
