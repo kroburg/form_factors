@@ -112,6 +112,7 @@ namespace obj_import
       {
         subject::mesh_t mesh;
         mesh.first_idx = faces.size();
+        mesh.material_idx = 0;
         if (!meshes.empty())
           meshes.back().n_faces = faces.size() - meshes.back().first_idx;
         meshes.push_back(mesh);
@@ -282,6 +283,7 @@ namespace obj_import
     if (meshes.empty())
     {
       result->meshes[0].first_idx = 0;
+      result->meshes[0].material_idx = 0;
       result->n_faces = result->meshes[0].n_faces = faces.size();
     }
     else
