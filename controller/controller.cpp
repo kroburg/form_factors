@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
     return r;
   }
   
-  thermal_solution::task_t* task = thermal_solution::task_create(scene);
+  thermal_solution::task_t* task = thermal_solution::task_create(scene->n_meshes);
   task->time_delta = 0.1f;
   task->temperatures = (float*)malloc(scene->n_meshes * sizeof(float));
   for (int i = 0; i != scene->n_meshes; ++i)

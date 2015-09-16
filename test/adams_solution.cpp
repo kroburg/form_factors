@@ -101,7 +101,8 @@ public:
 
     Temperatures[0] = 300.f;
 
-    Task = thermal_solution::task_create(&Scene);
+    Task = thermal_solution::task_create(Scene.n_meshes);
+    Task->time_delta = 1;
   }
 
   ~AdamsSolution()

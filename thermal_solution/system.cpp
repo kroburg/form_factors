@@ -24,12 +24,12 @@
 
 namespace thermal_solution
 {
-  task_t* task_create(subject::scene_t* scene)
+  task_t* task_create(int n_meshes)
   {
     task_t* task = (task_t*)malloc(sizeof(task_t));
     task->n_step = 0;
-    task->time_delta = 1;
-    task->temperatures = (float*)malloc(sizeof(float) * scene->n_meshes);
+    task->time_delta = 0.1f;
+    task->temperatures = (float*)malloc(sizeof(float) * n_meshes);
     return task;
   }
 

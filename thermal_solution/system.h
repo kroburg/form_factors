@@ -46,7 +46,7 @@ namespace thermal_solution
     float* temperatures;  ///< Result temperatures.
   };
 
-  task_t* task_create(subject::scene_t* scene);
+  task_t* task_create(int n_meshes);
   void task_free(task_t* task);
 
   /**
