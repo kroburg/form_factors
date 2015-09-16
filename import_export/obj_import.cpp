@@ -158,6 +158,14 @@ namespace obj_import
 
         subject::material_t m = subject::material_t();
 
+        if (name.length() >= sizeof(m.name))
+        {
+          fprintf(stderr, "Material name '%s' is too long at line %d\n", name.c_str(), line);
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
+
+        strncpy(m.name, name.c_str(), std::min(sizeof(m.name), name.length()));
+
         typedef std::map<std::string, float*> MaterialPropertiesMap;
         MaterialPropertiesMap materialProperties;
         materialProperties["shell.density"] = &m.shell.density;

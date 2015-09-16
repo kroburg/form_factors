@@ -54,6 +54,7 @@ namespace subject
     shell_properties_t shell;
     optical_properties_t front;
     optical_properties_t rear;
+    char name[128];
   };
 
   /// @brief Black body with major parameters equal to 1.f
