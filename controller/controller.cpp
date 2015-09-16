@@ -21,8 +21,10 @@
 
 #include "../import_export/obj_import.h"
 #include "../ray_caster/system.h"
-#include "../form_factors/system.h"
-#include "../import_export/csv_export.h"
+#include "../thermal_solution/system.h"
+#include "../thermal_equation/system.h"
+#include "../thermal_equation/radiance_cpu.h"
+#include "../import_export/obj_export.h"
 #include <helper_timer.h>
 #include <iostream>
 #include <cstring>
@@ -33,7 +35,7 @@
 
 void PrintUsage()
 {
-  std::cout << "Usage: controller <input obj> <output csv> <rays_count [1000000]> <ray_caster type:(cpu/cuda)[cpu]" << std::endl;
+  std::cout << "Usage: controller <input obj> <output obj> <rays_count [1000000]> <step count [100]> <ray_caster type:(cpu/cuda)[cpu]" << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -47,6 +49,7 @@ int main(int argc, char* argv[])
   const char* input = 0;
   const char* output = 0;
   int n_rays = 1000 * 1000;
+  int n_steps = 100;
   int type = RAY_CASTER_SYSTEM_CPU;
 
   for (int i = 1; i < argc; ++i)
@@ -66,6 +69,10 @@ int main(int argc, char* argv[])
       break;
 
     case 4:
+      n_steps = atoi(argv[i]);
+      break;
+
+    case 5:
       if (strcmp("cuda", argv[i]) == 0)
         type = RAY_CASTER_SYSTEM_CUDA;
       else if (strcmp("cpu", argv[i]) == 0)
@@ -76,6 +83,13 @@ int main(int argc, char* argv[])
   }
 
   int r = 0;
+  subject::scene_t* scene = 0;
+  if ((r = obj_import::import_obj(input, &scene)) != OBJ_IMPORT_OK)
+  {
+    std::cerr << "Failed to load scene " << input << std::endl;
+    return r;
+  }
+
   ray_caster::system_t* caster = ray_caster::system_create(type);
   if (!caster)
   {
@@ -90,65 +104,69 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  form_factors::system_t* calculator = form_factors::system_create(FORM_FACTORS_CPU, emitter);
-  if (!calculator)
+  radiance_equation::params_t equationParams;
+  equationParams.emitter = emitter;
+  equationParams.n_rays = n_rays;
+
+  thermal_equation::system_t* equation = thermal_equation::system_create(THERMAL_EQUATION_RADIANCE_CPU, &equationParams);
+  if (!equation)
   {
-    std::cerr << "Failed to create form factors calculator" << std::endl;
+    std::cerr << "Failed to create radiance equation" << std::endl;
     return 1;
   }
 
-  form_factors::scene_t* scene = 0;
-  if ((r = obj_import::import_obj(input, &scene)) != OBJ_IMPORT_OK)
+  thermal_solution::params_t solutionParams = { 1, &equation };
+  thermal_solution::system_t* solution = thermal_solution::system_create(THERMAL_SOLUTION_CPU_ADAMS, &solutionParams);
+  if (!solution)
   {
-    std::cerr << "Failed to load scene " << input << std::endl;
-    return r;
-  }
-
-  form_factors::task_t* task = form_factors::task_create(scene, n_rays);
-  if (!task)
-  {
-    std::cerr << "Failed to create calculator task" << std::endl;
+    std::cerr << "Failed to create thermal solution" << std::endl;
     return 1;
   }
 
-  if ((r = form_factors::system_set_scene(calculator, scene)) != FORM_FACTORS_OK)
+  if ((r = obj_export::scene(stdout, scene)) != 0)
   {
-    std::cerr << "Failed to set scene." << std::endl;
+    std::cerr << "Failed to export scene." << std::endl;
     return r;
   }
-
-  if ((r = form_factors::system_prepare(calculator)) != FORM_FACTORS_OK)
-  {
-    std::cerr << "Failed to prepare scene." << std::endl;
-    return r;
-  }
+  
+  thermal_solution::task_t* task = thermal_solution::task_create(scene);
+  task->time_delta = 0.1f;
+  task->temperatures = (float*)malloc(scene->n_meshes * sizeof(float));
+  for (int i = 0; i != scene->n_meshes; ++i)
+    task->temperatures[i] = 300; // @todo Import values from file.
 
   StopWatchInterface *hTimer;
   sdkCreateTimer(&hTimer);
   sdkResetTimer(&hTimer);
   sdkStartTimer(&hTimer);
-  printf("Calculating form factors...\n");
-  if ((r = form_factors::system_calculate(calculator, task)) != FORM_FACTORS_OK)
+
+  if ((r = system_set_scene(solution, scene, task->temperatures)) < 0)
   {
-    std::cerr << "Failed to calculate form factors." << std::endl;
+    printf("Failed to set thermal solution scene.");
     return r;
   }
+
+  for (int step = 0; step < n_steps; ++step)
+  {
+    if ((r = system_calculate(solution, task)) < 0)
+    { 
+      std::cerr << "Failed to calculate thermal solution step" << std::endl; 
+      return 1;
+    }
+    obj_export::task(stdout, scene->n_meshes, task);
+  }
+  
   sdkStopTimer(&hTimer);
   double cpuTime = 1.0e-3 * sdkGetTimerValue(&hTimer);
-  printf("Done in %fs.\n", cpuTime);
+  printf("#Done in %fs.\n", cpuTime);
 
-  if ((r = csv_export::export_csv(output, scene, task)) != CSV_EXPORT_OK)
-  {
-    std::cerr << "Failed to export csv." << std::endl;
-    return r;
-  }
+  
 
-  form_factors::task_free(task);
-  form_factors::scene_free(scene);
-
+  thermal_solution::task_free(task);
+  thermal_solution::system_free(solution);
+  thermal_equation::system_free(equation);
   emission::system_free(emitter);
   ray_caster::system_free(caster);
-  form_factors::system_free(calculator);
   
 	return 0;
 }
