@@ -21,6 +21,8 @@
 #pragma once
 
 #include "../subject/system.h"
+#include "../thermal_solution/system.h"
+#include <cstdio>
 
 namespace obj_import
 {
@@ -36,5 +38,10 @@ namespace obj_import
    * @return @see OBJ_IMPORT_OK if ok, @see OBJ_IMPORT_FILE_ERROR if file can not be opened,
    * or @see OBJ_IMPORT_FORMAT_ERROR if there is format errors.
    */
-  int import_obj(const char* filename, subject::scene_t** scene);
+  int scene(const char* filename, subject::scene_t** scene);
+
+  /**
+    @brief Load thermal solution task values from file of obj-like format.
+  */
+  int task(FILE* in, thermal_solution::task_t* t);
 }

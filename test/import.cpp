@@ -31,27 +31,27 @@ using namespace testing;
 TEST(ObjImport, ParseFaces)
 {
   subject::scene_t* scene = 0;
-  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::import_obj("models/parallel_planes.obj", &scene));
+  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::scene("models/parallel_planes.obj", &scene));
   ASSERT_EQ(4, scene->n_faces);
 }
 
 TEST(ObjImport, ParseMeshes)
 {
   subject::scene_t* scene = 0;
-  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::import_obj("models/parallel_planes.obj", &scene));
+  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::scene("models/parallel_planes.obj", &scene));
   ASSERT_EQ(2, scene->n_meshes);
 }
 
 TEST(ObjImport, DetectUnknownMaterial)
 {
   subject::scene_t* scene = 0;
-  ASSERT_EQ(-OBJ_IMPORT_MATERIAL_NOT_DEFINED, obj_import::import_obj("models/unknown_material.obj", &scene));
+  ASSERT_EQ(-OBJ_IMPORT_MATERIAL_NOT_DEFINED, obj_import::scene("models/unknown_material.obj", &scene));
 }
 
 TEST(ObjImport, ParseMaterials)
 {
   subject::scene_t* scene = 0;
-  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::import_obj("models/test_material.obj", &scene));
+  ASSERT_EQ(OBJ_IMPORT_OK, obj_import::scene("models/test_material.obj", &scene));
   ASSERT_EQ(1, scene->n_materials);
   subject::material_t& m = scene->materials[0];
   ASSERT_NEAR(1, m.shell.density, 0.01);

@@ -27,6 +27,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <cstdlib>
 
 #ifdef _WIN32
 #pragma warning(disable:4996)
@@ -41,7 +42,7 @@ namespace obj_import
   };
 
   /// @note Mindflow mode on
-  int import_obj(const char* filename, subject::scene_t** scene)
+  int scene(const char* filename, subject::scene_t** scene)
   {
     std::ifstream file(filename);
     if (!file.is_open())
@@ -306,4 +307,136 @@ namespace obj_import
     return OBJ_IMPORT_OK;
   }
   /// @note Mindflow mode off
+
+  /// @detail Copy-paste from here https://code.google.com/p/ea-utils/source/browse/trunk/clipper/getline.c
+  /* Read up to (and including) a TERMINATOR from STREAM into *LINEPTR
+  + OFFSET (and null-terminate it). *LINEPTR is a pointer returned from
+  malloc (or NULL), pointing to *N characters of space.  It is realloc'd
+  as necessary.  Return the number of characters read (not including the
+  null terminator), or -1 on error or EOF.  */
+
+  int getstr(char ** lineptr, size_t *n, FILE * stream, char terminator, int offset)
+  {
+    int nchars_avail;             /* Allocated but unused chars in *LINEPTR.  */
+    char *read_pos;               /* Where we're reading into *LINEPTR. */
+    int ret;
+
+    if (!lineptr || !n || !stream)
+      return -1;
+
+    if (!*lineptr)
+    {
+      *n = 64;
+      *lineptr = (char *)malloc(*n);
+      if (!*lineptr)
+        return -1;
+    }
+
+    nchars_avail = *n - offset;
+    read_pos = *lineptr + offset;
+
+    for (;;)
+    {
+      int c = getc(stream);
+
+      /* We always want at least one char left in the buffer, since we
+      always (unless we get an error while reading the first char)
+      NUL-terminate the line buffer.  */
+
+      if (nchars_avail < 1)
+      {
+        if (*n > 64)
+          *n *= 2;
+        else
+          *n += 64;
+
+        nchars_avail = *n + *lineptr - read_pos;
+        *lineptr = (char *)realloc(*lineptr, *n);
+        if (!*lineptr)
+          return -1;
+        read_pos = *n - nchars_avail + *lineptr;
+      }
+
+      if (c == EOF || ferror(stream))
+      {
+        /* Return partial line, if any.  */
+        if (read_pos == *lineptr)
+          return -1;
+        else
+          break;
+      }
+
+      *read_pos++ = c;
+      nchars_avail--;
+
+      if (c == terminator)
+        /* Return the line.  */
+        break;
+    }
+
+    /* Done - NUL terminate and return the number of chars read.  */
+    *read_pos = '\0';
+
+    ret = read_pos - (*lineptr + offset);
+    return ret;
+  }
+
+  size_t getline(char **lineptr, size_t *n, FILE *stream)
+  {
+    return getstr(lineptr, n, stream, '\n', 0);
+  }
+
+  int task(FILE* in, thermal_solution::task_t* t)
+  {
+    char * line = NULL;
+    size_t len = 0;
+    size_t read;
+    size_t n = 0;
+    size_t left = 0;
+    
+    while ((read = getline(&line, &len, in)) != -1)
+    {
+      switch (line[0])
+      {
+      case 'n':
+        left += n;
+        n = 0;
+        break;
+
+      case 's':
+        if (sscanf(line, "step %f", &t->time_delta) != 1)
+        {
+          free(line);
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
+        break;
+
+      case 't':
+      { 
+        if (left == 0)
+        {
+          left = 8;
+          t->temperatures = (float*)realloc(t->temperatures, (n + left) * sizeof(float));
+        }
+
+        if (sscanf(line, "tmprt %f", t->temperatures + (n++)) != 1)
+        {
+          free(line);
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
+
+        --left;
+      }
+      break;
+
+      case '\0':
+      case '#':
+      default:
+        break;
+      }
+    }
+
+    free(line);
+    return n;
+  }
 }
