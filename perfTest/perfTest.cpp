@@ -32,6 +32,7 @@
 #include "../thermal_equation/system.h"
 #include "../thermal_equation/radiance_cpu.h"
 #include "../subject/spherical_generator.h"
+#include "../import_export/obj_export.h"
 
 #include <helper_timer.h>
 
@@ -155,13 +156,13 @@ int main(int argc, char* argv[])
 {
   try
   {
-    int n_faces = 1000;
-    int n_rays = 1000 * n_faces;
-    bool no_cpu = false;
-    bool no_form_factors = false;
+    int n_faces = 2000;
+    int n_rays = 100 * n_faces;
+    bool no_cpu = true;
+    bool no_form_factors = true;
     bool no_radiance = false;
 
-    float radius = 100;
+    float radius = 20;
     
     subject::generator_t* generator = subject::generator_create_spherical();
     // Create systems for CPU and GPU.
@@ -298,8 +299,12 @@ int main(int argc, char* argv[])
       te_scene.n_materials = 1;
       te_scene.materials = materials;
 
-      thermal_solution::task_t* task = thermal_solution::task_create(&te_scene);
+      thermal_solution::task_t* task = thermal_solution::task_create(te_scene.n_meshes);
       task->time_delta = 0.1f;
+
+      FILE* scene_dump = fopen("perf_test_scene.obj", "w");
+      obj_export::scene(scene_dump, &te_scene);
+      fclose(scene_dump);
 
       int steps_count = 100;
       printf("Calculating %d steps of thermal solution using %d rays per face in average...\n", steps_count, rays_per_face);
