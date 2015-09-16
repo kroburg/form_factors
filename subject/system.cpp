@@ -36,7 +36,7 @@ namespace subject
 
   material_t black_body()
   {
-    return { default_shell_properties(), black_material(), black_material() };
+    return { default_shell_properties(), black_material(), black_material(), "black_body" };
   }
 
   scene_t* scene_create()
