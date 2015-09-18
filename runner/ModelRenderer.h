@@ -8,8 +8,8 @@
 #include "AppContainer.h"
 #include "OpenGLShaderProgram.h"
 #include "CubeGenerator.h"
-#include "../import_export/obj_import.h";
-#include "../subject/system.h";
+#include "../import_export/obj_import.h"
+#include "../subject/system.h"
 
 class ModelRenderer: public AppContainer {
 private:
