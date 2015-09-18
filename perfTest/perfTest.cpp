@@ -18,6 +18,8 @@
  * This module contains performance test console utility for calculator (CPU) and ray caster (CPU, GPU).
  */
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <cmath>
 
