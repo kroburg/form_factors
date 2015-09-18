@@ -432,8 +432,18 @@ namespace obj_import
         break;
       }
     }
-
     free(line);
+    
+    while (!feof(in))
+    {
+      char c = fgetc(in);
+      if (c != '\n' && c != '\d')
+      {
+        ungetc(c, in);
+        break;
+      }
+    }
+
     return n;
   }
 }
