@@ -23,10 +23,6 @@
 #include <stdio.h>
 #include <cmath>
 
-#ifdef _WIN32
-#include <tchar.h>
-#endif
-
 #include "../ray_caster/system.h"
 #include "../form_factors/system.h"
 #include "../math/operations.h"
