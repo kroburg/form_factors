@@ -382,7 +382,7 @@ namespace obj_import
     return getstr(lineptr, n, stream, '\n', 0);
   }
 
-  int task(FILE* in, thermal_solution::task_t* t)
+  int task(FILE* in, int n_meshes, thermal_solution::task_t* t)
   {
     char * line = NULL;
     size_t len = 0;
@@ -390,7 +390,7 @@ namespace obj_import
     size_t n = 0;
     size_t left = 0;
     
-    while ((read = getline(&line, &len, in)) != -1)
+    while (n_meshes > 0 && (read = getline(&line, &len, in)) != -1)
     {
       switch (line[0])
       {
@@ -421,6 +421,7 @@ namespace obj_import
           return -OBJ_IMPORT_FORMAT_ERROR;
         }
 
+        --n_meshes;
         --left;
       }
       break;

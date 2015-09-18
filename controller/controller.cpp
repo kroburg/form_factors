@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    r = obj_import::task(task_file, task);
+    r = obj_import::task(task_file, scene->n_meshes, task);
     fclose(task_file);
     if (r < 0)
     {

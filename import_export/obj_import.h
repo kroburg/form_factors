@@ -43,5 +43,5 @@ namespace obj_import
   /**
     @brief Load thermal solution task values from file of obj-like format.
   */
-  int task(FILE* in, thermal_solution::task_t* t);
+  int task(FILE* in, int n_meshes, thermal_solution::task_t* t);
 }
