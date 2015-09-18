@@ -1,5 +1,5 @@
-*Debug*
-*Release*
+/Debug/
+/Release/
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
@@ -13,6 +13,8 @@ cmake_install.cmake
 /ext/gtest/msvc/gtest-md
 /bin
 /template_vs2013.opensdf
-lib/
+/lib/
 .idea
 Makefile
+*.opensdf
+*.vcxproj.user

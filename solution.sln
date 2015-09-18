@@ -60,6 +60,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "thermal_equation", "thermal
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "subject", "subject\subject.vcxproj", "{1EE5DE7F-60F6-4BB0-A5A0-B1A0A4D2C990}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "runner", "runner\runner.vcxproj", "{22E80ED3-EB03-427D-8B95-0ACF06B1112A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -283,6 +285,18 @@ Global
 		{1EE5DE7F-60F6-4BB0-A5A0-B1A0A4D2C990}.Release|Win32.Build.0 = Release|Win32
 		{1EE5DE7F-60F6-4BB0-A5A0-B1A0A4D2C990}.Release|x64.ActiveCfg = Release|x64
 		{1EE5DE7F-60F6-4BB0-A5A0-B1A0A4D2C990}.Release|x64.Build.0 = Release|x64
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Debug|ARM.ActiveCfg = Debug|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Debug|Win32.Build.0 = Debug|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Debug|x64.ActiveCfg = Debug|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Release|ARM.ActiveCfg = Release|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Release|Win32.ActiveCfg = Release|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Release|Win32.Build.0 = Release|Win32
+		{22E80ED3-EB03-427D-8B95-0ACF06B1112A}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
