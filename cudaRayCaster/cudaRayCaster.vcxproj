@@ -96,7 +96,7 @@
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
-      <Include>./;../../../common/inc;../ext/bulk</Include>
+      <Include>./;$(NVCUDASAMPLES7_5_ROOT)/common/inc</Include>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <MaxRegCount>32</MaxRegCount>
     </CudaCompile>
@@ -120,7 +120,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <MaxRegCount>32</MaxRegCount>
-      <Include>./;../../../common/inc;../ext/bulk</Include>
+      <Include>./;$(NVCUDASAMPLES7_5_ROOT)/common/inc</Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -143,7 +143,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
-      <Include>./;../../../common/inc;../ext/bulk</Include>
+      <Include>./;$(NVCUDASAMPLES7_5_ROOT)/common/inc</Include>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <MaxRegCount>32</MaxRegCount>
     </CudaCompile>
@@ -171,7 +171,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <MaxRegCount>32</MaxRegCount>
-      <Include>./;../../../common/inc;../ext/bulk</Include>
+      <Include>./;$(NVCUDASAMPLES7_5_ROOT)/common/inc</Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
