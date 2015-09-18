@@ -92,7 +92,7 @@ int ModelRenderer::afterInit() {
             vert.push_back(b);
             vert.push_back(c);
             normals.push_back(cross(a - b, a - c));
-            normals.push_back(cross(b - a, b - c));
+            normals.push_back(cross(b - c, b - a));
             normals.push_back(cross(c - a, c - b));
         }
         model = new Model(vert, normals, indices);
