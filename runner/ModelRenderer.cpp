@@ -2,7 +2,7 @@
 
 using namespace utils;
 
-ModelRenderer::ModelRenderer(const char* name) : AppContainer(name), model(NULL), glContext(NULL) { }
+ModelRenderer::ModelRenderer(const char* name, subject::scene_t* scene) : AppContainer(name), model(NULL), glContext(NULL), scene(scene) { }
 
 ModelRenderer::~ModelRenderer() {
     if (model) {
@@ -55,32 +55,48 @@ int ModelRenderer::afterInit() {
         }
     }
 
-    TRACE("Shaders done, creating model");
-
-    model = cg.next();
-
-    cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(1, 0, 0)));
-    cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(-1, 0, 0)));
-    cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(0, 0, 1)));
-    cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(0, 0, -1)));
-    cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(0, 1, 0)));
-    cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(0, -1, 0)));
-
-    cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(3, 0, 0)));
-    cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(-3, 0, 0)));
-    cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(0, 0, 3)));
-    cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(0, 0, -3)));
-    cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(0, 3, 0)));
-    cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(0, -3, 0)));
-
-    cg.next(model, vec3(1, 0.125, 0.125), glm::translate(mat4(1.0f), vec3(2, 0, 0)));
-    cg.next(model, vec3(1, 0.125, 0.125), glm::translate(mat4(1.0f), vec3(-2, 0, 0)));
-    cg.next(model, vec3(0.125, 0.125, 1), glm::translate(mat4(1.0f), vec3(0, 0, 2)));
-    cg.next(model, vec3(0.125, 0.125, 1), glm::translate(mat4(1.0f), vec3(0, 0, -2)));
-    cg.next(model, vec3(0.125, 1, 0.125), glm::translate(mat4(1.0f), vec3(0, 2, 0)));
-    cg.next(model, vec3(0.125, 1, 0.125), glm::translate(mat4(1.0f), vec3(0, -2, 0)));
-
-    TRACE("Model created, preparing OpengGL arrays and buffers");
+    if (!scene) {
+        TRACE("Shaders done, creating model (no scene set)");
+        model = cg.next();
+        cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(1, 0, 0)));
+        cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(-1, 0, 0)));
+        cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(0, 0, 1)));
+        cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(0, 0, -1)));
+        cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(0, 1, 0)));
+        cg.next(model, vec3(0.5), glm::translate(mat4(1.0f), vec3(0, -1, 0)));
+        cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(3, 0, 0)));
+        cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(-3, 0, 0)));
+        cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(0, 0, 3)));
+        cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(0, 0, -3)));
+        cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(0, 3, 0)));
+        cg.next(model, vec3(0.25), glm::translate(mat4(1.0f), vec3(0, -3, 0)));
+        cg.next(model, vec3(1, 0.125, 0.125), glm::translate(mat4(1.0f), vec3(2, 0, 0)));
+        cg.next(model, vec3(1, 0.125, 0.125), glm::translate(mat4(1.0f), vec3(-2, 0, 0)));
+        cg.next(model, vec3(0.125, 0.125, 1), glm::translate(mat4(1.0f), vec3(0, 0, 2)));
+        cg.next(model, vec3(0.125, 0.125, 1), glm::translate(mat4(1.0f), vec3(0, 0, -2)));
+        cg.next(model, vec3(0.125, 1, 0.125), glm::translate(mat4(1.0f), vec3(0, 2, 0)));
+        cg.next(model, vec3(0.125, 1, 0.125), glm::translate(mat4(1.0f), vec3(0, -2, 0)));
+        TRACE("Model created, preparing OpengGL arrays and buffers");
+    }
+    else {
+        TRACE("Extracting model from scene");
+        std::vector<vec3> vert;
+        std::vector<vec3> normals;
+        std::vector<int> indices(scene->n_faces);
+        std::iota(indices.begin(), indices.end(), 0);
+        for (int i = 0; i < scene->n_faces; ++i) {
+            vec3 a = vec3(scene->faces[i].points[0].x, scene->faces[i].points[0].y, scene->faces[i].points[0].z);
+            vec3 b = vec3(scene->faces[i].points[1].x, scene->faces[i].points[1].y, scene->faces[i].points[1].z);
+            vec3 c = vec3(scene->faces[i].points[2].x, scene->faces[i].points[2].y, scene->faces[i].points[2].z);
+            vert.push_back(a);
+            vert.push_back(b);
+            vert.push_back(c);
+            normals.push_back(cross(a - b, a - c));
+            normals.push_back(cross(b - a, b - c));
+            normals.push_back(cross(c - a, c - b));
+        }
+        model = new Model(vert, normals, indices);
+    }
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);

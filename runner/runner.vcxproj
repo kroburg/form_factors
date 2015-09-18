@@ -116,6 +116,17 @@ copy "..\ext\sdl\lib\x86\SDL2.dll" "$(TargetDir)"</Command>
     <None Include="..\shaders\mvp.vert" />
     <None Include="..\shaders\simple.frag" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\import_export\import_export.vcxproj">
+      <Project>{01b5d59c-ad62-424b-8b03-727fb9118b82}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\math\math.vcxproj">
+      <Project>{4de00af7-2632-4a7b-981a-9411663d4048}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\subject\subject.vcxproj">
+      <Project>{1ee5de7f-60f6-4bb0-a5a0-b1a0a4d2c990}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,12 +1,15 @@
 #pragma once;
 
+#include <glm\\glm.hpp>
+#include <glm\gtc\matrix_inverse.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <numeric>
 #include "proj_defs.h"
 #include "AppContainer.h"
 #include "OpenGLShaderProgram.h"
 #include "CubeGenerator.h"
-#include <glm\\glm.hpp>
-#include <glm\gtc\matrix_inverse.hpp>
-#include <glm\gtc\matrix_transform.hpp>
+#include "../import_export/obj_import.h";
+#include "../subject/system.h";
 
 class ModelRenderer: public AppContainer {
 private:
@@ -28,6 +31,8 @@ private:
     Model* model;
     CubeGenerator cg;
 
+    subject::scene_t* scene;
+
 public:
     virtual void onEvent(SDL_Event& event) override;
     virtual void onTick(float update) override;
@@ -35,7 +40,7 @@ public:
     virtual int afterInit() override;
     virtual void onResize(int newWidth, int newHeight) override;
 
-    ModelRenderer(const char* name);
+    ModelRenderer(const char* name, subject::scene_t* scene = NULL);
     ~ModelRenderer();
 
     void logProgramParams() const;
