@@ -437,7 +437,7 @@ namespace obj_import
     while (!feof(in))
     {
       char c = fgetc(in);
-      if (c != '\n' && c != '\d')
+      if (c != '\n' && c != '\r')
       {
         ungetc(c, in);
         break;
