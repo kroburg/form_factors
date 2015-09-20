@@ -156,8 +156,8 @@ int main(int argc, char* argv[])
   {
     int n_faces = 2000;
     int n_rays = 100 * n_faces;
-    bool no_cpu = true;
-    bool no_form_factors = true;
+    bool no_cpu = false;
+    bool no_form_factors = false;
     bool no_radiance = false;
 
     float radius = 20;
