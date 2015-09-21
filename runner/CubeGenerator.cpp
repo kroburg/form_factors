@@ -118,7 +118,9 @@ Model* CubeGenerator::next(const vec3& scaleVec, const mat4& transform) {
     for (int i = 0; i < 36; ++i) {
         indices.push_back(i);
     }
-    return new Model(vertices, normals, indices);
+    vector<float> temps(vertices.size());
+    fill(temps.begin(), temps.end(), 273.0f);
+    return new Model(vertices, normals, indices, temps);
 }
 
 Model* CubeGenerator::next(Model* toMergeWith, const vec3& scaleVec, const mat4& transform) {
@@ -135,6 +137,7 @@ Model* CubeGenerator::next(Model* toMergeWith, const vec3& scaleVec, const mat4&
     for (int i = 0; i < 36; ++i) {
         auto vec = vec3(A * vec4(gvertices[i], 1.0));
         toMergeWith->vertices.push_back(vec);
+        toMergeWith->temps.push_back(273.0f);
     }
     for (int i = 0; i < 36; ++i) {
         auto vec = B * gnormals[i];
