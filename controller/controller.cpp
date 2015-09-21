@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
   
   sdkStopTimer(&hTimer);
   double cpuTime = 1.0e-3 * sdkGetTimerValue(&hTimer);
-  printf("#Done in %fs.\n", cpuTime);  
+  printf("#Done in %fs.\n\n", cpuTime);  
 
   if (result_name[0] != '-')
     fclose(result_file);
