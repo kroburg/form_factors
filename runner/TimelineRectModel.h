@@ -14,26 +14,42 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include <vector>
+#include <stdlib.h>
 #include <array>
-#include <GL\glew.h>
-#include <glm\glm.hpp>
-#include <glm\gtc\type_ptr.hpp>
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\gtx\matrix_operation.hpp>
-#include "Model.h"
+#include <stdexcept>
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
-using namespace std;
+#include "OpenGLShaderProgram.h"
+
 using namespace glm;
 
-class CubeGenerator {
+class TimelineRectModel {
 private:
-    static const vec3 gvertices[36];
-    static const vec3 gnormals[36];
+    int screenWidth;
+    int screenHeight;
+    int width;
+    int height;
+    int x;
+    int y;
+
+    GLuint vao;
+    GLuint vbo;
+    std::array<GLfloat, 12> vertices;
+    OpenGLShaderProgram shader;
+    mat4 projection;
+
+    float pos;
 
 public:
-    Model* next(const vec3& scaleVec = vec3(1.0f), const mat4& transform = mat4(1.0f));
-    Model* next(Model* toMergeWith, const vec3& scaleVec = vec3(1.0f), const mat4& transform = mat4(1.0f));
+    TimelineRectModel();
+    ~TimelineRectModel();
+
+    void init(int width, int height, int screenWidth, int screenHeight, const char* vertexShaderPath, const char* fragmentShaderPath);
+    void draw(int x, int y);
+    void setSize(int width, int height, int screenWidth, int screenHeight);
+    void setPos(float pos);
+
+    float getPosBy(int x, int y);
 };

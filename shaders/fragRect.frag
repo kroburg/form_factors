@@ -14,26 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
+#version 150
 
-#include <vector>
-#include <array>
-#include <GL\glew.h>
-#include <glm\glm.hpp>
-#include <glm\gtc\type_ptr.hpp>
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\gtx\matrix_operation.hpp>
-#include "Model.h"
+in highp vec2 vert;
 
-using namespace std;
-using namespace glm;
+out highp vec4 fragColor;
 
-class CubeGenerator {
-private:
-    static const vec3 gvertices[36];
-    static const vec3 gnormals[36];
-
-public:
-    Model* next(const vec3& scaleVec = vec3(1.0f), const mat4& transform = mat4(1.0f));
-    Model* next(Model* toMergeWith, const vec3& scaleVec = vec3(1.0f), const mat4& transform = mat4(1.0f));
-};
+void main() {
+    vec3 lc = vec3(0, 0, 1);
+    vec3 mc = vec3(0, 1, 0);
+    vec3 hc = vec3(1, 0, 0);
+    float coord = 1 - vert.y;
+    if (coord < 0.5) {
+        fragColor = vec4(mix(lc, mc, coord * 2), 1.0);
+    } else {
+        fragColor = vec4(mix(mc, hc, (coord - 0.5) * 2), 1.0);
+    }
+}

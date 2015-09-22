@@ -36,6 +36,15 @@
     <ClCompile Include="sdl_logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TaskParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TempScaleRectModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimelineRectModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppContainer.h">
@@ -59,12 +68,30 @@
     <ClInclude Include="sdl_logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TaskParser.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TempScaleRectModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TimelineRectModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\mvp.vert">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\shaders\simple.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\shaders\fragRect.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\shaders\mvpRect.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\shaders\fragRectPos.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

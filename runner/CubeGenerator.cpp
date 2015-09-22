@@ -1,3 +1,19 @@
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
+// This file is part of form_factors.
+//
+// form_factors is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// form_factors is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
+
 #include "CubeGenerator.h"
 
 const vec3 CubeGenerator::gvertices[] = {
@@ -118,7 +134,9 @@ Model* CubeGenerator::next(const vec3& scaleVec, const mat4& transform) {
     for (int i = 0; i < 36; ++i) {
         indices.push_back(i);
     }
-    return new Model(vertices, normals, indices);
+    vector<float> temps(vertices.size());
+    fill(temps.begin(), temps.end(), 273.0f);
+    return new Model(vertices, normals, indices, temps);
 }
 
 Model* CubeGenerator::next(Model* toMergeWith, const vec3& scaleVec, const mat4& transform) {
@@ -135,6 +153,7 @@ Model* CubeGenerator::next(Model* toMergeWith, const vec3& scaleVec, const mat4&
     for (int i = 0; i < 36; ++i) {
         auto vec = vec3(A * vec4(gvertices[i], 1.0));
         toMergeWith->vertices.push_back(vec);
+        toMergeWith->temps.push_back(273.0f);
     }
     for (int i = 0; i < 36; ++i) {
         auto vec = B * gnormals[i];

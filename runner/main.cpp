@@ -1,10 +1,63 @@
+// Copyright (c) 2015 Contributors as noted in the AUTHORS file.
+// This file is part of form_factors.
+//
+// form_factors is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// form_factors is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
+
 #include <iostream>
-#include <conio.h>
 #include "proj_defs.h"
 #include "AppContainer.h"
 #include "ModelRenderer.h"
 #include "../import_export/obj_import.h"
 #include "../subject/system.h"
+#include "TaskParser.h"
+
+#include <thread>
+
+void consumeStdin() {
+    float curTime = 0.0f;
+    auto onend =   [](int s, int t) {
+        if (s == 0) {
+            LOG("Parsing input done for " << t << " frame(s).");
+        } else {
+            ERROR("Parsing input failed.");
+        }
+        SDL_Event ev;
+        ev.type = SDL_USEREVENT;
+        ev.user.code = ModelRenderer::EV_PARSEDONE;
+        ev.user.data1 = (void *)s;
+        ev.user.data2 = NULL;
+        SDL_PushEvent(&ev);
+    };
+    auto onframe = [](int cf, int tf, float step, vector<float>& temps) {
+        TRACE("Frame " << cf << " done");
+        SDL_Event ev;
+        ev.type = SDL_USEREVENT;
+        ev.user.code = ModelRenderer::EV_NEWFRAME;
+        ev.user.data1 = new frame_t(step, temps.data(), temps.size());
+        ev.user.data2 = NULL;
+        SDL_PushEvent(&ev);
+    };
+    TaskParser parser(onend, onframe);
+    string line;
+    TRACE("Consuming from stdin started.");
+    while (getline(cin, line)) {
+        if (parser.onLine(line) != 0) {
+            break;
+        }
+    }
+    TRACE("Consuming from stdin finished.");
+}
 
 int main(int argc, char** argv) {
     if (argc <= 1) {
@@ -13,6 +66,7 @@ int main(int argc, char** argv) {
     }
     subject::scene_t* scene = NULL;
     if (obj_import::scene(argv[1], &scene) != OBJ_IMPORT_OK) {
+        ERROR("Can not load file " << argv[1]);
         return 1;
     }
     TRACE("Scene loaded (" << scene->n_faces << " face(s), " << scene->n_meshes << " mesh(es)");
@@ -25,6 +79,9 @@ int main(int argc, char** argv) {
         delete container;
         return result;
     }
+
+    std::thread t(consumeStdin);
+    t.detach();
 
     container->run();
 

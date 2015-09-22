@@ -14,26 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
+#version 330
 
-#include <vector>
-#include <array>
-#include <GL\glew.h>
-#include <glm\glm.hpp>
-#include <glm\gtc\type_ptr.hpp>
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\gtx\matrix_operation.hpp>
-#include "Model.h"
+layout (location = 0) in vec2 vertex;
 
-using namespace std;
-using namespace glm;
+uniform mat4 projMatrix;
+uniform mat4 mvMatrix;
 
-class CubeGenerator {
-private:
-    static const vec3 gvertices[36];
-    static const vec3 gnormals[36];
+out highp vec2 vert;
 
-public:
-    Model* next(const vec3& scaleVec = vec3(1.0f), const mat4& transform = mat4(1.0f));
-    Model* next(Model* toMergeWith, const vec3& scaleVec = vec3(1.0f), const mat4& transform = mat4(1.0f));
-};
+void main() {
+    vert = vertex;
+    gl_Position = projMatrix * mvMatrix * vec4(vertex, 0.0, 1.0);;
+}

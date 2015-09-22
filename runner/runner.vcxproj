@@ -101,7 +101,10 @@ copy "..\ext\sdl\lib\x86\SDL2.dll" "$(TargetDir)"</Command>
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="OpenGLShaderProgram.cpp" />
+    <ClCompile Include="TempScaleRectModel.cpp" />
     <ClCompile Include="sdl_logger.cpp" />
+    <ClCompile Include="TaskParser.cpp" />
+    <ClCompile Include="TimelineRectModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppContainer.h" />
@@ -110,10 +113,16 @@ copy "..\ext\sdl\lib\x86\SDL2.dll" "$(TargetDir)"</Command>
     <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="OpenGLShaderProgram.h" />
     <ClInclude Include="proj_defs.h" />
+    <ClInclude Include="TempScaleRectModel.h" />
     <ClInclude Include="sdl_logger.h" />
+    <ClInclude Include="TaskParser.h" />
+    <ClInclude Include="TimelineRectModel.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\shaders\fragRect.frag" />
+    <None Include="..\shaders\fragRectPos.frag" />
     <None Include="..\shaders\mvp.vert" />
+    <None Include="..\shaders\mvpRect.vert" />
     <None Include="..\shaders\simple.frag" />
   </ItemGroup>
   <ItemGroup>
