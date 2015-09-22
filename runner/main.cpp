@@ -21,6 +21,7 @@
 #include "../import_export/obj_import.h"
 #include "../subject/system.h"
 #include "TaskParser.h"
+#include "Timeline.h"
 
 #include <thread>
 
@@ -44,7 +45,7 @@ void consumeStdin() {
         SDL_Event ev;
         ev.type = SDL_USEREVENT;
         ev.user.code = ModelRenderer::EV_NEWFRAME;
-        ev.user.data1 = new frame_t(step, temps.data(), temps.size());
+        ev.user.data1 = new Timeline::frame_t(step, temps);
         ev.user.data2 = NULL;
         SDL_PushEvent(&ev);
     };

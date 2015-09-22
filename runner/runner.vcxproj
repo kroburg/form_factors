@@ -104,6 +104,7 @@ copy "..\ext\sdl\lib\x86\SDL2.dll" "$(TargetDir)"</Command>
     <ClCompile Include="TempScaleRectModel.cpp" />
     <ClCompile Include="sdl_logger.cpp" />
     <ClCompile Include="TaskParser.cpp" />
+    <ClCompile Include="Timeline.cpp" />
     <ClCompile Include="TimelineRectModel.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +117,7 @@ copy "..\ext\sdl\lib\x86\SDL2.dll" "$(TargetDir)"</Command>
     <ClInclude Include="TempScaleRectModel.h" />
     <ClInclude Include="sdl_logger.h" />
     <ClInclude Include="TaskParser.h" />
+    <ClInclude Include="Timeline.h" />
     <ClInclude Include="TimelineRectModel.h" />
   </ItemGroup>
   <ItemGroup>

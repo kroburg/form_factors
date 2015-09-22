@@ -22,17 +22,9 @@ ModelRenderer::ModelRenderer(const char* name, subject::scene_t* scene) :
     AppContainer(name),
     model(NULL),
     glContext(NULL),
-    scene(scene),
-    totalFramesTime(0.0f),
-    joy(NULL),
-    joyX(0),
-    joyY(0) { }
+    scene(scene) { }
 
 ModelRenderer::~ModelRenderer() {
-    if (joy) {
-        SDL_JoystickClose(joy);
-        joy = NULL;
-    }
     if (model) {
         delete model;
         model = NULL;
@@ -44,10 +36,6 @@ ModelRenderer::~ModelRenderer() {
 }
 
 int ModelRenderer::afterInit() {
-    if (SDL_NumJoysticks() > 0) {
-        joy = SDL_JoystickOpen(0);
-    }
-
     // Init GL context
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -119,9 +107,9 @@ int ModelRenderer::afterInit() {
     glBufferData(GL_ARRAY_BUFFER, model->vSize() + model->nSize() + model->tSize(), model->getVertices(), GL_DYNAMIC_COPY);
     glBufferSubData(GL_ARRAY_BUFFER, model->vSize(), model->nSize(), model->getNormals());
     glBufferSubData(GL_ARRAY_BUFFER, model->vSize() + model->nSize(), model->tSize(), model->getTemps());
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<const void *>(model->vSize()));
-    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), reinterpret_cast<const void *>(model->vSize() + model->nSize()));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const void *>(model->vSize()));
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const void *>(model->vSize() + model->nSize()));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->iSize(), model->getIndices(), GL_STATIC_DRAW);
 
@@ -145,11 +133,7 @@ int ModelRenderer::afterInit() {
     // Fragment shader uniforms
     lightPos = glm::vec3(0, 5, 10);
     cameraPos = -glm::vec3(cameraMatrix[3]) * glm::mat3(cameraMatrix);
-    frontColor = glm::vec3(1, 0, 0);
-    backColor = glm::vec3(0, 0, 1);
     sprogram.setUniform("lightPos", lightPos);
-    sprogram.setUniform("frontColor", frontColor);
-    sprogram.setUniform("backColor", backColor);
     sprogram.setUniform("cameraPos", cameraPos);
     // Temperatures
     sprogram.setUniform("maxTemp", 300.0f);
@@ -182,9 +166,7 @@ void ModelRenderer::onRender() {
 }
 
 void ModelRenderer::onTick(float update) {
-    auto q = quat(vec3(joyY * 0.1f, joyX * 0.1f, 0));
-    mvMatrix = glm::toMat4(q) * mvMatrix;
-    //mvMatrix = glm::rotate(mvMatrix, joyY * 0.1f, glm::vec3(0, 1, 0));
+    mvMatrix = glm::rotate(mvMatrix, radians(update / 16.0f), glm::vec3(0, 1, 0));
     normalMatrix = glm::inverseTranspose(glm::mat3(mvMatrix));
 }
 
@@ -198,53 +180,24 @@ void ModelRenderer::onResize(int newWidth, int newHeight) {
 }
 
 void ModelRenderer::onEvent(SDL_Event &event) {
-    static float curTime = 0.0f;
     switch (event.type) {
         case (SDL_USEREVENT): {
             switch (event.user.code) {
                 case (EV_NEWFRAME) : {
-                    frame_t* frame = (frame_t *)event.user.data1;
+                    Timeline::frame_t* frame = (Timeline::frame_t *)event.user.data1;
                     assert(frame);
-                    curTime += frame->step;
-                    // TODO smth with complexity
-                    for (auto i = 0; i < std::min(frame->n_temps, scene->n_meshes); ++i) {
-                        auto mesh = scene->meshes[i];
-                        float curTemp = frame->temps[i];
-                        for (auto j = mesh.first_idx; j < std::min(mesh.first_idx + mesh.n_faces, scene->n_faces); ++j) {
-                            auto face = scene->faces[j];
-                            for (int m = 0; m < 3; ++m) {
-                                math::vec3 facevec = face.points[m];
-                                for (int k = 0; k < model->vertices.size(); ++k) {
-                                    vec3 vertex = model->vertices[k];
-                                    if (fabsf(vertex.x - facevec.x) && fabsf(vertex.y - facevec.y) < EPS && fabsf(vertex.z - facevec.z) < EPS) {
-                                        model->temps[k] = curTemp;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    glBufferSubData(GL_ARRAY_BUFFER, model->vSize() + model->nSize(), model->tSize(), model->getTemps());
+                    tl.addFrame(*frame);
+                    timeLine.setPos(1.0);
+                    colorModelForTemps(frame->temps);
                     delete frame;
                     break;
                 }
                 case (EV_PARSEDONE) : {
-                    int result = (int)event.user.data1;
-                    totalFramesTime = curTime;
-                    curTime = 0.0f;
-                    // TODO smth
                     break;
                 }
                 default:
                     break;
             }
-        }
-        case (SDL_JOYAXISMOTION): {
-            if (event.jaxis.axis == 0) {
-                joyX = abs((int)event.jaxis.value) < JOY_DEAD_ZONE ? 0.0 : (float)event.jaxis.value / 32768.0f;
-            } else if (event.jaxis.axis == 1) {
-                joyY = abs((int)event.jaxis.value) < JOY_DEAD_ZONE ? 0.0 : -(float)event.jaxis.value / 32768.0f;
-            }
-            break;
         }
         case (SDL_MOUSEBUTTONDOWN): {
             int x = event.button.x;
@@ -252,6 +205,10 @@ void ModelRenderer::onEvent(SDL_Event &event) {
             if (event.button.button == SDL_BUTTON_LEFT) {
                 auto p = timeLine.getPosBy(x, y);
                 if (p >= 0) {
+                    vector<float> temps;
+                    if (tl.findTempForPos(p, temps) == 0) {
+                        colorModelForTemps(temps);
+                    }
                     timeLine.setPos(p);
                 }
             }
@@ -259,4 +216,26 @@ void ModelRenderer::onEvent(SDL_Event &event) {
         default:
             break;
     }
+}
+
+void ModelRenderer::colorModelForTemps(vector<float>& temps) {
+    // TODO smth with complexity
+    for (int i = 0; i < temps.size(); ++i) {
+        float temp = temps[i];
+        subject::mesh_t mesh = scene->meshes[i];
+        for (int j = mesh.first_idx; j < mesh.first_idx + mesh.n_faces; ++j) {
+            for (int pos = 0; pos < 3; ++pos) {
+                vec3 sceneVert = vec3(scene->faces[j].points[pos].x, scene->faces[j].points[pos].y, scene->faces[j].points[pos].z);
+                for (int k = 0; k < model->vertices.size(); ++k) {
+                    vec3 modelVert = model->vertices[k];
+                    if (fabsf(modelVert.x - sceneVert.x) < EPS && fabsf(modelVert.y - sceneVert.y) < EPS && fabsf(modelVert.z - sceneVert.z) < EPS) {
+                        model->temps[k] = temp;
+                    }
+                }
+            }
+        }
+    }
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, model->vSize() + model->nSize(), model->tSize(), model->getTemps());
 }
