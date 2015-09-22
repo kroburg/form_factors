@@ -62,6 +62,8 @@ private:
     bool playing;
     float pos;
 
+    vec3 cameraVec;
+
 public:
     virtual void onEvent(SDL_Event& event) override;
     virtual void onTick(float update) override;

@@ -24,7 +24,8 @@ ModelRenderer::ModelRenderer(const char* name, subject::scene_t* scene) :
     glContext(NULL),
     scene(scene),
     playing(false),
-    pos(0) {}
+    pos(0),
+    cameraVec(vec3(0, 2, 5)) {}
 
 ModelRenderer::~ModelRenderer() {
     if (model) {
@@ -125,7 +126,7 @@ int ModelRenderer::afterInit() {
     sprogram.bind();
     // Vertex shader uniforms
     mvMatrix = glm::mat4(1.0);
-    cameraMatrix = glm::lookAt(glm::vec3(0, 2, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    cameraMatrix = glm::lookAt(cameraVec, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     projectionMatrix = glm::perspective(glm::radians(45.0f), 1.0f * width / height, 0.01f, 100.0f);
     normalMatrix = glm::inverseTranspose(glm::mat3(mvMatrix));
     sprogram.setUniform("mvMatrix", mvMatrix);
@@ -168,7 +169,7 @@ void ModelRenderer::onRender() {
 }
 
 void ModelRenderer::onTick(float update) {
-    mvMatrix = glm::rotate(mvMatrix, radians(update / 16.0f), glm::vec3(0, 1, 0));
+    mvMatrix = glm::rotate(mvMatrix, radians(60.0f * update), glm::vec3(0, 1, 0));
     normalMatrix = glm::inverseTranspose(glm::mat3(mvMatrix));
 
     if (playing) {
@@ -213,6 +214,15 @@ void ModelRenderer::onEvent(SDL_Event &event) {
                     break;
             }
         }
+        case (SDL_MOUSEWHEEL) : {
+            if (event.wheel.y) {
+                cameraVec += cameraVec * ((float)event.wheel.y / cameraVec.length() / cameraVec.length());
+                cameraMatrix = glm::lookAt(cameraVec, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+                sprogram.bind();
+                sprogram.setUniform("cameraMatrix", cameraMatrix);
+            }
+            break;
+        }
         case (SDL_MOUSEBUTTONDOWN): {
             int x = event.button.x;
             int y = event.button.y;
@@ -227,12 +237,14 @@ void ModelRenderer::onEvent(SDL_Event &event) {
                     timeLine.setPos(p);
                 }
             }
+            break;
         }
         case (SDL_KEYDOWN) : {
             SDL_KeyboardEvent kev = event.key;
             if (kev.keysym.sym == SDLK_SPACE) {
                 playing = !playing;
             }
+            break;
         }
         default:
             break;
