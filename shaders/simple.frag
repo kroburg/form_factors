@@ -21,8 +21,6 @@ in highp vec3 vertNormal;
 in highp float vertTemp;
 
 uniform highp vec3 lightPos;
-uniform highp vec3 frontColor;
-uniform highp vec3 backColor;
 uniform highp vec3 cameraPos;
 uniform highp float maxTemp;
 

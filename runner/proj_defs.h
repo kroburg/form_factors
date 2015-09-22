@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
+#pragma once
+
+#include <iostream>
+
 #define EPS 0.000001
 
 #ifdef _DEBUG
