@@ -59,6 +59,9 @@ private:
 
     void colorModelForTemps(vector<float>& temps);
 
+    bool playing;
+    float pos;
+
 public:
     virtual void onEvent(SDL_Event& event) override;
     virtual void onTick(float update) override;

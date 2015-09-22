@@ -22,7 +22,9 @@ ModelRenderer::ModelRenderer(const char* name, subject::scene_t* scene) :
     AppContainer(name),
     model(NULL),
     glContext(NULL),
-    scene(scene) { }
+    scene(scene),
+    playing(false),
+    pos(0) {}
 
 ModelRenderer::~ModelRenderer() {
     if (model) {
@@ -168,6 +170,18 @@ void ModelRenderer::onRender() {
 void ModelRenderer::onTick(float update) {
     mvMatrix = glm::rotate(mvMatrix, radians(update / 16.0f), glm::vec3(0, 1, 0));
     normalMatrix = glm::inverseTranspose(glm::mat3(mvMatrix));
+
+    if (playing) {
+        pos += update / tl.getCurTime();
+        if (pos > 1.0f) {
+            playing = false;
+            pos = 1.0f;
+        }
+        vector<float> temps;
+        tl.findTempForPos(pos, temps);
+        colorModelForTemps(temps);
+        timeLine.setPos(pos);
+    }
 }
 
 void ModelRenderer::onResize(int newWidth, int newHeight) {
@@ -205,12 +219,19 @@ void ModelRenderer::onEvent(SDL_Event &event) {
             if (event.button.button == SDL_BUTTON_LEFT) {
                 auto p = timeLine.getPosBy(x, y);
                 if (p >= 0) {
+                    pos = p;
                     vector<float> temps;
                     if (tl.findTempForPos(p, temps) == 0) {
                         colorModelForTemps(temps);
                     }
                     timeLine.setPos(p);
                 }
+            }
+        }
+        case (SDL_KEYDOWN) : {
+            SDL_KeyboardEvent kev = event.key;
+            if (kev.keysym.sym == SDLK_SPACE) {
+                playing = !playing;
             }
         }
         default:
