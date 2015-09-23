@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <iostream>
+
 #include "proj_defs.h"
 #include "AppContainer.h"
 #include "ModelRenderer.h"
@@ -23,9 +23,11 @@
 #include "TaskParser.h"
 #include "Timeline.h"
 
+#include <iostream>
 #include <thread>
+#include <fstream>
 
-void consumeStdin() {
+void consumeStdin(std::istream& in) {
     float curTime = 0.0f;
     auto onend =   [](int s, int t) {
         if (s == 0) {
@@ -52,7 +54,7 @@ void consumeStdin() {
     TaskParser parser(onend, onframe);
     string line;
     TRACE("Consuming from stdin started.");
-    while (getline(cin, line)) {
+    while (getline(in, line)) {
         if (parser.onLine(line) != 0) {
             break;
         }
@@ -61,8 +63,8 @@ void consumeStdin() {
 }
 
 int main(int argc, char** argv) {
-    if (argc <= 1) {
-        ERROR("Please set 1st argument as model file (*.obj).");
+    if (argc < 2) {
+        ERROR("Usage: runner <scene file (.obj)> <frame source [- for stdin] (.task)");
         return 1;
     }
     subject::scene_t* scene = NULL;
@@ -81,7 +83,19 @@ int main(int argc, char** argv) {
         return result;
     }
 
-    std::thread t(consumeStdin);
+    std::ifstream* frameFile = 0;
+    std::istream* frameInput = &std::cin;
+    if (argc > 2)
+    {
+      frameFile = new std::ifstream(argv[2]);
+       if (!frameFile->is_open())
+      {
+        ERROR("Can not open frames file " << argv[2]);
+        return 1;
+      }
+       frameInput = frameFile;
+    }
+    std::thread t(std::bind(consumeStdin, std::ref(*frameInput)));
 
     container->run();
     t.detach();
