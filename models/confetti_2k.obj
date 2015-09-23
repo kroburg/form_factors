@@ -6001,7 +6001,7 @@ v 11.876933 13.669950 5.603242
 
 newmtl black_body
 shell.density 1.000000
-shell.heat_capacity 1.000000
+shell.heat_capacity 20
 shell.thermal_conductivity 1.000000
 shell.thickness 1.000000
 front.specular_reflectance 0.000000
