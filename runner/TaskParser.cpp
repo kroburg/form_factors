@@ -49,8 +49,7 @@ int TaskParser::onLine(string line) {
         return 0;
     case(RUNNING):
         if (line.empty()) {
-            onEnd(0, totalFrames);
-            return 1;
+            return 0;
         } else {
             if (regex_search(line, match, newFrame_re) && match.size() > 1) {
                 curFrame = stoi(match.str(1), NULL);
@@ -59,9 +58,7 @@ int TaskParser::onLine(string line) {
                 faceTemps.clear();
                 return 0;
             } else {
-                curState = ERROR;
-                onEnd(-1, totalFrames);
-                return -1;
+                return 0;
             }
         }
     case (FRAME):
