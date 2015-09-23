@@ -6002,6 +6002,10 @@ v -30 -30 -30
 v -30 30 -30
 v 30 -30 -30
 v 30 30 -30
+v -30 -30 30
+v -30 30 30
+v 30 -30 30
+v 30 30 30
 
 newmtl black_body
 shell.density 1.000000
@@ -14037,6 +14041,10 @@ f 5998 5999 6000
 
 g mesh_heater
 usemtl heat_body
-f 5998 5999 6000
 f 6003 6002 6001
 f 6004 6002 6003
+
+g mesh_cooler
+usemtl heat_body
+f 6005 6006 6007
+f 6007 6006 6008
