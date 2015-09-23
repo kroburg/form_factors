@@ -70,7 +70,7 @@ int AppContainer::init(int width, int height, bool onlyOpenGL) {
 
     prevUpdate = 0;
     ticks = 0;
-    countsPerSecond = (float)SDL_GetPerformanceFrequency() / 1000;
+    countsPerSecond = (float)SDL_GetPerformanceFrequency();
 
     return afterInit();
 }
@@ -144,5 +144,5 @@ int AppContainer::run() {
 }
 
 float AppContainer::getFPS() {
-    return fabs(prevUpdate) < EPS ? 0 : (1000 / prevUpdate);
+    return fabs(prevUpdate) < EPS ? 0 : (1 / prevUpdate);
 }
