@@ -253,19 +253,16 @@ void ModelRenderer::onEvent(SDL_Event &event) {
 
 void ModelRenderer::colorModelForTemps(vector<float>& temps) {
     // TODO smth with complexity
-    for (int i = 0; i < temps.size(); ++i) {
+    for (std::size_t i = 0; i < temps.size(); ++i)
+    {
         float temp = temps[i];
         subject::mesh_t mesh = scene->meshes[i];
-        for (int j = mesh.first_idx; j < mesh.first_idx + mesh.n_faces; ++j) {
-            for (int pos = 0; pos < 3; ++pos) {
-                vec3 sceneVert = vec3(scene->faces[j].points[pos].x, scene->faces[j].points[pos].y, scene->faces[j].points[pos].z);
-                for (int k = 0; k < model->vertices.size(); ++k) {
-                    vec3 modelVert = model->vertices[k];
-                    if (fabsf(modelVert.x - sceneVert.x) < EPS && fabsf(modelVert.y - sceneVert.y) < EPS && fabsf(modelVert.z - sceneVert.z) < EPS) {
-                        model->temps[k] = temp;
-                    }
-                }
-            }
+        for (int j = mesh.first_idx; j < mesh.first_idx + mesh.n_faces; ++j)
+        {
+          int k = j * 3;
+          model->temps[k] = temp;
+          model->temps[k + 1] = temp;
+          model->temps[k + 2] = temp;
         }
     }
     glBindVertexArray(vao);
