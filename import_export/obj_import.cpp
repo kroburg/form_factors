@@ -184,7 +184,7 @@ namespace obj_import
         typedef std::set<std::string> StringSet;
         StringSet parsedParameters;
 
-        while (getline(file, str))
+        while (getline(file, str) && parsedParameters.size() != materialProperties.size())
         {
           ++line;
           if (str == "" || str[0] == '#')
