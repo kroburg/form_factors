@@ -41,7 +41,7 @@ void consumeStdin() {
         SDL_PushEvent(&ev);
     };
     auto onframe = [](int cf, int tf, float step, vector<float>& temps) {
-        TRACE("Frame " << cf << " done");
+        LOG("Frame " << cf << " done");
         SDL_Event ev;
         ev.type = SDL_USEREVENT;
         ev.user.code = ModelRenderer::EV_NEWFRAME;
@@ -82,9 +82,9 @@ int main(int argc, char** argv) {
     }
 
     std::thread t(consumeStdin);
-    t.detach();
 
     container->run();
+    t.detach();
 
     delete container;
     return result;
