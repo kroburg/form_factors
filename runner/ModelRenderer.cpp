@@ -100,6 +100,7 @@ int ModelRenderer::afterInit() {
     std::fill(temps.begin(), temps.end(), 0.0f);
     model = new Model(vert, normals, indices, temps);
 
+    TRACE("Init OpenGL buffers");
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glGenBuffers(2, vbo);
@@ -107,7 +108,8 @@ int ModelRenderer::afterInit() {
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
-    glBufferData(GL_ARRAY_BUFFER, model->vSize() + model->nSize() + model->tSize(), model->getVertices(), GL_DYNAMIC_COPY);
+    glBufferData(GL_ARRAY_BUFFER, model->vSize() + model->nSize() + model->tSize(), 0, GL_DYNAMIC_COPY);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, model->vSize(), model->getVertices());
     glBufferSubData(GL_ARRAY_BUFFER, model->vSize(), model->nSize(), model->getNormals());
     glBufferSubData(GL_ARRAY_BUFFER, model->vSize() + model->nSize(), model->tSize(), model->getTemps());
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
