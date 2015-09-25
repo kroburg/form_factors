@@ -111,6 +111,11 @@ namespace math
     return make_vec3(a.x / b, a.y / b, a.z / b);
   }
 
+  inline vec3 operator/(vec3 a, vec3 b)
+  {
+    return make_vec3(a.x / b.x, a.y / b.y, a.z / b.z);
+  }
+
   /// @brief Division-and-assign operation of 3d vector and scalar.
   inline void operator/=(vec3& a, point_t b)
   {
@@ -159,4 +164,16 @@ namespace math
   {
     l = l + r;
   }
+
+  inline float distance(vec3 a, vec3 b)
+  {
+    vec3 diff = a - b;
+    return sqrtf(dot(diff, diff));
+  }
+
+  inline vec3 abs(vec3 a)
+  {
+    return make_vec3(fabsf(a.x), fabsf(a.y), fabsf(a.z));
+  }
 }
+
