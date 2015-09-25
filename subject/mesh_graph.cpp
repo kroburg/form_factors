@@ -19,7 +19,9 @@
 */
 
 #include "system.h"
+#include "../math/operations.h"
 #include "../math/triangle.h"
+#include <cmath>
 
 namespace subject
 {
@@ -53,6 +55,35 @@ namespace subject
         return r;
     }
 
+    return 0;
+  }
+
+  struct buffered_face_point
+  {
+    math::vec3 point;
+
+    bool operator < (const buffered_face_point& r) const
+    {
+      const math::vec3 size = max(abs(point), abs(r.point));
+      math::vec3 diff = (point - r.point) / size;
+      if (diff.x < -FLT_EPSILON)
+        return true;
+      else if (diff.x > FLT_EPSILON)
+        return false;
+      else if (diff.y < -FLT_EPSILON)
+        return true;
+      else if (diff.y > FLT_EPSILON)
+        return false;
+      else if (diff.z < -FLT_EPSILON)
+        return true;
+      else
+        return false;
+    }
+  };
+
+
+  int face_walk_graph_nlgn(const face_t* faces, int n_faces, face_graph_walker walker, void* param)
+  {
     return 0;
   }
 }
