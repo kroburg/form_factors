@@ -175,5 +175,7 @@ namespace math
   {
     return make_vec3(fabsf(a.x), fabsf(a.y), fabsf(a.z));
   }
+
+  bool operator < (const vec3& l, const vec3& r);
 }
 

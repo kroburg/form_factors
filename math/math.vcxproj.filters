@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClCompile Include="triangle.cpp" />
     <ClCompile Include="mat.cpp" />
+    <ClCompile Include="operations.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="operations.h" />
