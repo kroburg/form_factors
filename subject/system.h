@@ -107,6 +107,7 @@ namespace subject
     @brief Face graph walker callback.
     @param current_idx Zero-based face index.
     @param leaf_idx Zero-based face adjacent to current face. -1 if there are no adjacent faces to current face.
+    @param vertex_mapping Mapping of adjacent verticies (see math::triangle_find_adjacent_vertices()) . Current face is 'left'.
     @param have_more Signal if there are more adjacent faces.
     @param param Data passed to initial walk() function.
     @return 0 to continue, >0 to stop iteration, <0 for error.
