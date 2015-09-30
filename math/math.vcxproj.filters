@@ -4,11 +4,13 @@
     <ClCompile Include="triangle.cpp" />
     <ClCompile Include="mat.cpp" />
     <ClCompile Include="operations.cpp" />
+    <ClCompile Include="three_way_compare.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="operations.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="triangle.h" />
     <ClInclude Include="mat.h" />
+    <ClInclude Include="three_way_compare.h" />
   </ItemGroup>
 </Project>
