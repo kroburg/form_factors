@@ -120,6 +120,14 @@ namespace subject
   */
   int face_walk_graph_n2c(const face_t* faces, int n_faces, face_graph_walker walker, void* param);
 
+  struct face_graph_index_t
+  {
+  };
+
+  face_graph_index_t* face_graph_index_create(const face_t* faces, int n_faces);
+  void face_graph_index_free(face_graph_index_t* index);
+  int face_graph_walk_index(const face_graph_index_t* index, face_graph_walker walker, void* param);
+
   /**
     @brief Walk face graph.
     @note Use face points index to avoid linear scan.

@@ -65,7 +65,7 @@ namespace subject
     return 0;
   }
 
-  class indexed_walker_t
+  class indexed_walker_t : face_graph_index_t
   {
   public:
     indexed_walker_t(const face_t* faces, int n_faces)
@@ -73,7 +73,7 @@ namespace subject
       build_index(faces, n_faces);
     }
 
-    int walk(face_graph_walker walker, void* param)
+    int walk(face_graph_walker walker, void* param) const
     {
       for (int f = 0; f != (int)indexed_faces.size(); ++f)
       {
@@ -110,16 +110,17 @@ namespace subject
       return r.first->second;
     }
 
-    int collect_adjacents(int f0, face_graph_walker walker, void* param)
+    int collect_adjacents(int f0, face_graph_walker walker, void* param) const
     {
       const indexed_face_t& face = indexed_faces[f0];
       int p1 = face.points[0];
       int p2 = face.points[1];
       int p3 = face.points[2];
 
-      const united_faces_t& f1 = p2f[p1];
-      const united_faces_t& f2 = p2f[p2];
-      const united_faces_t& f3 = p2f[p3];
+      // @note Don't check for iterator validity
+      const united_faces_t& f1 = p2f.find(p1)->second;
+      const united_faces_t& f2 = p2f.find(p2)->second;
+      const united_faces_t& f3 = p2f.find(p3)->second;
 
       united_faces_t::const_iterator fi1 = f1.begin();
       united_faces_t::const_iterator fe1 = f1.end();
@@ -291,6 +292,24 @@ namespace subject
     std::vector<indexed_face_t> indexed_faces;
     point_face_index p2f;
   };
+
+  face_graph_index_t* face_graph_index_create(const face_t* faces, int n_faces)
+  {
+    face_graph_index_t* index = (face_graph_index_t*)malloc(sizeof(indexed_walker_t));
+    new(index)indexed_walker_t(faces, n_faces);
+    return index;
+  }
+
+  void face_graph_index_free(face_graph_index_t* index)
+  {
+    ((indexed_walker_t*)index)->~indexed_walker_t();
+    free(index);
+  }
+
+  int face_graph_walk_index(const face_graph_index_t* index, face_graph_walker walker, void* param)
+  {
+    return ((const indexed_walker_t*)index)->walk(walker, param);
+  }
 
   int face_walk_graph_indexed(const face_t* faces, int n_faces, face_graph_walker walker, void* param)
   {

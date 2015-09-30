@@ -40,7 +40,10 @@ struct IndexedSearch
 {
   int walk(const face_t* faces, int n_faces, face_graph_walker walker, void* param)
   {
-    return face_walk_graph_indexed(faces, n_faces, walker, param);
+    face_graph_index_t* index = face_graph_index_create(faces, n_faces);
+    int r = face_graph_walk_index(index, walker, param);
+    face_graph_index_free(index);
+    return r;
   }
 };
 
