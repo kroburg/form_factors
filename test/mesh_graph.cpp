@@ -28,6 +28,32 @@ const math::vec3 C = { 0.f, 1.f, 0.f };
 const math::vec3 D = { 1.f, 1.f, 0.f };
 const math::vec3 E = { 0.f, -1.f, 0.f };
 
+struct LinearSearch
+{
+  int walk(const face_t* faces, int n_faces, face_graph_walker walker, void* param)
+  {
+    return face_walk_graph_n2c(faces, n_faces, walker, param);
+  }
+};
+
+struct IndexedSearch
+{
+  int walk(const face_t* faces, int n_faces, face_graph_walker walker, void* param)
+  {
+    return face_walk_graph_indexed(faces, n_faces, walker, param);
+  }
+};
+
+template <typename EngineType>
+class MeshGraph
+   : public Test
+   , public EngineType
+{
+};
+
+typedef ::testing::Types<LinearSearch, IndexedSearch> SearchEngineTypes;
+TYPED_TEST_CASE(MeshGraph, SearchEngineTypes);
+
 int ReportSingleFaceCheck(int current_idx, int leaf_idx, int mapping, bool have_more, void* param)
 {
   EXPECT_TRUE(param != 0);
@@ -40,12 +66,12 @@ int ReportSingleFaceCheck(int current_idx, int leaf_idx, int mapping, bool have_
   return 0;
 }
 
-TEST(MeshGraph, ReportSingleFace)
+TYPED_TEST(MeshGraph, ReportSingleFace)
 {
   face_t faces[1] = { make_face(A, B, C) };
 
   int invoke_counter = 0;
-  face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), ReportSingleFaceCheck, &invoke_counter);
+  this->walk(faces, sizeof(faces) / sizeof(face_t), ReportSingleFaceCheck, &invoke_counter);
   ASSERT_EQ(1, invoke_counter);
 };
 
@@ -77,12 +103,12 @@ int ReportSecondFaceCheck(int current_idx, int leaf_idx, int mapping, bool have_
   return 0;
 }
 
-TEST(MeshGraph, ReportSecondFace)
+TYPED_TEST(MeshGraph, ReportSecondFace)
 {
   face_t faces[2] = { make_face(A, B, C), make_face(B, C, D) };
  
   int invoke_counter = 0;
-  face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), ReportSecondFaceCheck, &invoke_counter);
+  this->walk(faces, sizeof(faces) / sizeof(face_t), ReportSecondFaceCheck, &invoke_counter);
   ASSERT_EQ(2, invoke_counter);
 };
 
@@ -130,12 +156,12 @@ int SignalHaveMoreForMultipleFacesCheck(int current_idx, int leaf_idx, int mappi
   return 0;
 }
 
-TEST(MeshGraph, SignalHaveMoreForMultipleFaces)
+TYPED_TEST(MeshGraph, SignalHaveMoreForMultipleFaces)
 {
   face_t faces[3] = { make_face(A, B, C), make_face(B, C, D), make_face(A, B, E) };
 
   int invoke_counter = 0;
-  face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), SignalHaveMoreForMultipleFacesCheck, &invoke_counter);
+  this->walk(faces, sizeof(faces) / sizeof(face_t), SignalHaveMoreForMultipleFacesCheck, &invoke_counter);
   ASSERT_EQ(4, invoke_counter);
 };
 
@@ -167,12 +193,12 @@ int ReportDisconnectedFacesCheck(int current_idx, int leaf_idx, int mapping, boo
   return 0;
 }
 
-TEST(MeshGraph, ReportDisconnectedFaces)
+TYPED_TEST(MeshGraph, ReportDisconnectedFaces)
 {
   face_t faces[2] = { make_face(B, C, D), make_face(A, B, E) };
 
   int invoke_counter = 0;
-  face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), ReportDisconnectedFacesCheck, &invoke_counter);
+  this->walk(faces, sizeof(faces) / sizeof(face_t), ReportDisconnectedFacesCheck, &invoke_counter);
   ASSERT_EQ(2, invoke_counter);
 };
 
@@ -187,12 +213,12 @@ int StopOnDemandCheck(int current_idx, int leaf_idx, int mapping, bool have_more
   return 42;
 }
 
-TEST(MeshGraph, StopOnDemand)
+TYPED_TEST(MeshGraph, StopOnDemand)
 {
   face_t faces[2] = { make_face(B, C, D), make_face(A, B, E) };
 
   int invoke_counter = 0;
-  int return_code = face_walk_graph_n2c(faces, sizeof(faces) / sizeof(face_t), StopOnDemandCheck, &invoke_counter);
+  int return_code = this->walk(faces, sizeof(faces) / sizeof(face_t), StopOnDemandCheck, &invoke_counter);
   ASSERT_EQ(1, invoke_counter);
   ASSERT_EQ(42, return_code);
 };
