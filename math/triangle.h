@@ -76,6 +76,15 @@ namespace math
   int triangle_find_adjacent_vertex(const triangle_t& t, const vec3& p, float triangle_scale);
 
   /**
+  @brief Make vertex mapping for adjacent vertices.
+  @param p1 adjacent face vertex index which is mapped to first face vertex.
+  */
+  int make_vertex_mapping_123(char p1, char p2, char p3);
+  int make_vertex_mapping_13(char p1, char p3);
+  int make_vertex_mapping_12(char p1, char p2);
+  int make_vertex_mapping_23(char p2, char p3);
+
+  /**
     @brief Find adjacent vertices of two triangles.
     @return Bitmap of adjacent vertices (l[2]?r[2], l[2]?r[1], l[2]?r[0], l[1]?r[2], l[1]?r[1], l[1]?r[0], l[0]?r[2], l[0]?r[1], l[0]?r[0]).
   */

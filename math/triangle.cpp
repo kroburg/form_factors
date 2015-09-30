@@ -142,6 +142,26 @@ namespace math
     }
   }
 
+  int make_vertex_mapping_123(char p1, char p2, char p3)
+  {
+    return 1 << p1 | 1 << (p2 + 3) | 1 << (p3 + 6);
+  }
+
+  int make_vertex_mapping_13(char p1, char p3)
+  {
+    return 1 << p1 | 1 << (p3 + 6);
+  }
+
+  int make_vertex_mapping_12(char p1, char p2)
+  {
+    return 1 << p1 | 1 << (p2 + 3);
+  }
+
+  int make_vertex_mapping_23(char p2, char p3)
+  {
+    return 1 << (p2 + 3) | 1 << (p3 + 6);
+  }
+
   int triangle_find_adjacent_vertex(const triangle_t& t, const vec3& p)
   {
     float scale = 1.f / triangle_least_side_square(t);
@@ -150,6 +170,7 @@ namespace math
 
   int triangle_find_adjacent_vertex(const triangle_t& t, const vec3& p, float triangle_scale)
   {
+    // @todo Incorrect algorithm. It must use max(abs()) of coordinate.
     vec3 v0 = t.points[0] - p;
     float d0 = dot(v0, v0);
     if (d0 * triangle_scale < FLT_EPSILON)
