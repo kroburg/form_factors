@@ -77,7 +77,10 @@ namespace math
 
   /**
   @brief Make vertex mapping for adjacent vertices.
-  @param p1 adjacent face vertex index which is mapped to first face vertex.
+  @param p1 vertex index which is mapped to first vertex of (left) face.
+  @param p2 vertex index which is mapped to second vertex of (left) face.
+  @param p3 vertex index which is mapped to third vertex of (left) face.
+  @detail Bitmap format (l[2]?r[2], l[2]?r[1], l[2]?r[0], l[1]?r[2], l[1]?r[1], l[1]?r[0], l[0]?r[2], l[0]?r[1], l[0]?r[0]).
   */
   int make_vertex_mapping_123(char p1, char p2, char p3);
   int make_vertex_mapping_13(char p1, char p3);
@@ -85,8 +88,15 @@ namespace math
   int make_vertex_mapping_23(char p2, char p3);
 
   /**
+    @brief Decode verticies mapping.
+    @return Count of encoded verticies.
+    @todo Support mapping of single vertex.
+  */
+  int decode_vertex_mapping(int vertex_mapping, char*lp, char* rp);
+
+  /**
     @brief Find adjacent vertices of two triangles.
-    @return Bitmap of adjacent vertices (l[2]?r[2], l[2]?r[1], l[2]?r[0], l[1]?r[2], l[1]?r[1], l[1]?r[0], l[0]?r[2], l[0]?r[1], l[0]?r[0]).
+    @return Bitmap of adjacent vertices.
   */
   int triangle_find_adjacent_vertices(const triangle_t& l, const triangle_t& r);
 

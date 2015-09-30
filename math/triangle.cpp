@@ -239,6 +239,101 @@ namespace math
     }
   }
 
+#define DECODE_VERTEX_MAPPING2(l1, l2, r1, r2) lp[0] = l1, lp[1] = l2, rp[0] = r1, rp[1] = r2; return 2; break;
+#define DECODE_VERTEX_MAPPING3(r1, r2, r3) lp[0] = 0, lp[1] = 1, lp[2] = 2, rp[0] = r1, rp[1] = r2, rp[2] = r3; return 3; break;
+
+  int decode_vertex_mapping(int vertex_mapping, char*lp, char* rp)
+  {
+    switch (vertex_mapping)
+    {
+    case MAKE_VERTEX_MAPPING2(0, 1, 0, 1):
+      DECODE_VERTEX_MAPPING2(0, 1, 0, 1);
+    case MAKE_VERTEX_MAPPING2(0, 1, 1, 0):
+      DECODE_VERTEX_MAPPING2(0, 1, 1, 0);
+
+    case MAKE_VERTEX_MAPPING2(0, 1, 1, 2):
+      DECODE_VERTEX_MAPPING2(0, 1, 1, 2);
+    case MAKE_VERTEX_MAPPING2(0, 1, 2, 1):
+      DECODE_VERTEX_MAPPING2(0, 1, 2, 1);
+
+    case MAKE_VERTEX_MAPPING2(0, 1, 0, 2):
+      DECODE_VERTEX_MAPPING2(0, 1, 0, 2);
+    case MAKE_VERTEX_MAPPING2(0, 1, 2, 0):
+      DECODE_VERTEX_MAPPING2(0, 1, 2, 0);
+
+    case MAKE_VERTEX_MAPPING2(1, 2, 0, 1):
+      DECODE_VERTEX_MAPPING2(1, 2, 0, 1);
+    case MAKE_VERTEX_MAPPING2(1, 2, 1, 0):
+      DECODE_VERTEX_MAPPING2(1, 2, 1, 0);
+
+    case MAKE_VERTEX_MAPPING2(1, 2, 1, 2):
+      DECODE_VERTEX_MAPPING2(1, 2, 1, 2);
+    case MAKE_VERTEX_MAPPING2(1, 2, 2, 1):
+      DECODE_VERTEX_MAPPING2(1, 2, 2, 1);
+
+    case MAKE_VERTEX_MAPPING2(1, 2, 0, 2):
+      DECODE_VERTEX_MAPPING2(1, 2, 0, 2);
+    case MAKE_VERTEX_MAPPING2(1, 2, 2, 0):
+      DECODE_VERTEX_MAPPING2(1, 2, 2, 0);
+
+    case MAKE_VERTEX_MAPPING2(0, 2, 0, 1):
+      DECODE_VERTEX_MAPPING2(0, 2, 0, 1);
+    case MAKE_VERTEX_MAPPING2(0, 2, 1, 0):
+      DECODE_VERTEX_MAPPING2(0, 2, 1, 0);
+
+    case MAKE_VERTEX_MAPPING2(0, 2, 1, 2):
+      DECODE_VERTEX_MAPPING2(0, 2, 1, 2);
+    case MAKE_VERTEX_MAPPING2(0, 2, 2, 1):
+      DECODE_VERTEX_MAPPING2(0, 2, 2, 1);
+
+    case MAKE_VERTEX_MAPPING2(0, 2, 0, 2):
+      DECODE_VERTEX_MAPPING2(0, 2, 0, 2);
+    case MAKE_VERTEX_MAPPING2(0, 2, 2, 0):
+      DECODE_VERTEX_MAPPING2(0, 2, 2, 0);
+
+    case MAKE_VERTEX_MAPPING3(0, 1, 2):
+      DECODE_VERTEX_MAPPING3(0, 1, 2);
+    case MAKE_VERTEX_MAPPING3(0, 2, 1):
+      DECODE_VERTEX_MAPPING3(0, 2, 1);
+
+    case MAKE_VERTEX_MAPPING3(1, 0, 2):
+      DECODE_VERTEX_MAPPING3(1, 0, 2);
+    case MAKE_VERTEX_MAPPING3(1, 2, 0):
+      DECODE_VERTEX_MAPPING3(1, 2, 0);
+
+    case MAKE_VERTEX_MAPPING3(2, 0, 1):
+      DECODE_VERTEX_MAPPING3(2, 0, 1);
+    case MAKE_VERTEX_MAPPING3(2, 1, 0):
+      DECODE_VERTEX_MAPPING3(2, 1, 0);
+
+    // 0, 1 or invalid format
+    default:
+      return 0;
+    }
+  }
+
+  int decode_vertex_mapping_cyclic(int vertex_mapping, char*lp, char* rp)
+  {
+    int mask = 1;
+    int count = 0;
+    for (int l = 0; l != 3; ++l)
+    {
+      for (int r = 0; r != 3 && count != 3; ++r, mask << 1)
+      {
+        if (vertex_mapping & mask == 0)
+          continue;
+
+        *lp++ = l;
+        *rp++ = r;
+        ++count;
+        mask << (3 - r);
+        break;
+      }
+    }
+
+    return count;
+  }
+
   bool triangle_has_adjacent_edge(const triangle_t& l, const triangle_t& r)
   {
     int m = triangle_find_adjacent_vertices(l, r);
