@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="adams_solution.cpp" />
+    <ClCompile Include="conductive_solution.cpp" />
     <ClCompile Include="export.cpp" />
     <ClCompile Include="form_factors.cpp" />
     <ClCompile Include="import.cpp" />

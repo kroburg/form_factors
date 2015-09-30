@@ -11,5 +11,6 @@
     <ClCompile Include="mesh_graph.cpp" />
     <ClCompile Include="math_matrix.cpp" />
     <ClCompile Include="radiance_solution.cpp" />
+    <ClCompile Include="conductive_solution.cpp" />
   </ItemGroup>
 </Project>
