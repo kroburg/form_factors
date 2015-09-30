@@ -4,11 +4,13 @@
     <ClInclude Include="system.h" />
     <ClInclude Include="radiance_cpu.h" />
     <ClInclude Include="form_factors.h" />
+    <ClInclude Include="conductive_cpu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system.cpp" />
     <ClCompile Include="factory.cpp" />
     <ClCompile Include="radiance_cpu.cpp" />
     <ClCompile Include="form_factors.cpp" />
+    <ClCompile Include="conductive_cpu.cpp" />
   </ItemGroup>
 </Project>

@@ -72,6 +72,7 @@ namespace thermal_equation
   /// @brief Stefan-Boltzman radiation equation spread by pre-calculated form factors.
   #define THERMAL_EQUATION_SB_FF_CPU 1
   #define THERMAL_EQUATION_RADIANCE_CPU 2
+  #define THERMAL_EQUATION_CONDUCTIVE_CPU 3
 
   /**
    * @brief Factory method for equation creation.
