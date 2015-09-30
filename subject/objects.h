@@ -18,8 +18,11 @@
 #pragma once
 
 #include "../math/types.h"
+#include "system.h"
 
 namespace subject
 {
-  const math::face_t* box(); // 12 faces
+  const math::face_t* box(); // 12 faces packed by two faces per box face.
+  
+  material_t material_Al(float thickness);
 }

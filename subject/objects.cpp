@@ -47,4 +47,45 @@ namespace subject
     static math::face_t* faces = unify_object_faces(raw_box_faces, 12);
     return faces;
   }
+
+  shell_properties_t default_shell_properties()
+  {
+    return{ 1.f, 1.f, 1.f, 1.f };
+  }
+
+  optical_properties_t black_material()
+  {
+    return{ 0.f, 0.f, 1.f, 0.f, 1.f };
+  }
+
+  shell_properties_t shell_Al()
+  {
+    shell_properties_t result = default_shell_properties();
+    result.density = 2.6989e3;
+    result.heat_capacity = 903;
+    result.thermal_conductivity = 237;
+    return result;
+  }
+
+  optical_properties_t optical_Al()
+  {
+    optical_properties_t result = black_material();
+    result.emissivity = 0.09;
+    
+    return result;
+  }
+
+  material_t black_body()
+  {
+    return{ default_shell_properties(), black_material(), black_material(), "black_body" };
+  }
+
+  material_t material_Al(float thickness)
+  {
+    material_t result = { shell_Al(), optical_Al(), optical_Al(), "alliminuim" };
+    
+    result.shell.thickness = thickness;
+
+    return result;
+  }
 }

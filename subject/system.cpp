@@ -24,21 +24,6 @@
 
 namespace subject
 {
-  shell_properties_t default_shell_properties()
-  {
-    return { 1.f, 1.f, 1.f, 1.f };
-  }
-
-  optical_properties_t black_material()
-  {
-    return{ 0.f, 0.f, 1.f, 0.f, 1.f };
-  }
-
-  material_t black_body()
-  {
-    return { default_shell_properties(), black_material(), black_material(), "black_body" };
-  }
-
   scene_t* scene_create()
   {
     scene_t* s = (scene_t*)malloc(sizeof(scene_t));
