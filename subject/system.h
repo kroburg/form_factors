@@ -121,6 +121,12 @@ namespace subject
   int face_walk_graph_n2c(const face_t* faces, int n_faces, face_graph_walker walker, void* param);
 
   /**
+    @brief Walk face graph.
+    @note Use face points index to avoid linear scan.
+  */
+  int face_walk_graph_indexed(const face_t* faces, int n_faces, face_graph_walker walker, void* param);
+
+  /**
     @brief Try to unify face graph normals direction.
     @note It may be impossible to to unify normals for not closed mesh (consider Mobius strip).
     @return Count of flipped faces.

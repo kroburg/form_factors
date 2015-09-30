@@ -21,6 +21,7 @@
 #include "system.h"
 #include "../math/operations.h"
 #include "../math/triangle.h"
+#include "../math/three_way_compare.h"
 #include <cmath>
 #include <algorithm>
 #include <iterator>
@@ -64,30 +65,41 @@ namespace subject
     return 0;
   }
 
-  struct indexed_walker
+  class indexed_walker_t
   {
-    struct face_point
+  public:
+    indexed_walker_t(const face_t* faces, int n_faces)
     {
-      int point;
-      char index;
-      bool operator<(const face_point& r) const
+      build_index(faces, n_faces);
+    }
+
+    int walk(face_graph_walker walker, void* param)
+    {
+      for (int f = 0; f != (int)indexed_faces.size(); ++f)
       {
-        return point < r.point;
+        if (int r = collect_adjacents(f, walker, param))
+          return r;
       }
-    };
 
-    struct indexed_face_t
+      return 0;
+    }
+
+  private:
+    void build_index(const face_t* faces, int n_faces)
     {
-      int points[3];
-    };
+      indexed_faces.resize(n_faces);
 
-    typedef std::map<math::vec3, int> point_index;
-    typedef std::set<face_point> united_faces;
-    typedef std::map<int, united_faces> point_face_index;
-
-    point_index points;
-    std::vector<indexed_face_t> indexed_faces;
-    point_face_index p2f;
+      for (int f = 0; f != n_faces; ++f)
+      {
+        for (char p = 0; p != 3; ++p)
+        {
+          int point_idx = index_point(faces[f].points[p]);
+          indexed_faces[f].points[p] = point_idx;
+          face_point_t entry = { f, p };
+          p2f[point_idx].insert(entry);
+        }
+      }
+    }
 
     int index_point(math::vec3 p)
     {
@@ -98,75 +110,191 @@ namespace subject
       return r.first->second;
     }
 
-    int face_edge(int f_idx, int p1, int p2)
+    int collect_adjacents(int f0, face_graph_walker walker, void* param)
     {
-      const indexed_face_t&f = indexed_faces[f_idx];
-      if (f.points[0] == p1 || f.points[0] == p2)
+      const indexed_face_t& face = indexed_faces[f0];
+      int p1 = face.points[0];
+      int p2 = face.points[1];
+      int p3 = face.points[2];
+
+      const united_faces_t& f1 = p2f[p1];
+      const united_faces_t& f2 = p2f[p2];
+      const united_faces_t& f3 = p2f[p3];
+
+      united_faces_t::const_iterator fi1 = f1.begin();
+      united_faces_t::const_iterator fe1 = f1.end();
+      united_faces_t::const_iterator fi2 = f2.begin();
+      united_faces_t::const_iterator fe2 = f2.end();
+      united_faces_t::const_iterator fi3 = f3.begin();
+      united_faces_t::const_iterator fe3 = f3.end();
+
+      int adjacent_face = -1;
+      int mapping = 0;
+
+      while (fi1 != fe1 && fi2 != fe2 && fi3 != fe3)
       {
-        if (f.points[1] == p1 || f.points[1] == p2)
+        switch (math::three_way_less_t c = math::three_way_less(fi1->face, fi2->face, fi3->face))
         {
-          assert(!(f.points[2] == p1 || f.points[2] == p2));
-          return 1 << 0;
+        case math::l3w_equal:
+          if (f0 < fi1->face)
+          {
+            if (adjacent_face != -1)
+            {
+              if (int r = walker(f0, adjacent_face, mapping, true, param))
+                return r;
+            }
+
+            adjacent_face = fi1->face;
+            mapping = math::make_vertex_mapping_123(fi1->point_index, fi2->point_index, fi3->point_index);
+          }
+
+          ++fi1;
+          ++fi2;
+          ++fi3;
+          break;
+        case math::l3w_first_less:
+          ++fi1;
+          break;
+        case math::l3w_second_less:
+          ++fi2;
+          break;
+        case math::l3w_third_less:
+          ++fi3;
+          break;
+        case math::l3w_first_greater:
+          if (f0 < fi2->face)
+          {
+            if (adjacent_face != -1)
+            {
+              if (int r = walker(f0, adjacent_face, mapping, true, param))
+                return r;
+            }
+
+            adjacent_face = fi2->face;
+            mapping = math::make_vertex_mapping_23(fi2->point_index, fi3->point_index);
+          }
+
+          ++fi2;
+          ++fi3;
+          break;
+        case math::l3w_second_greater:
+          if (f0 < fi1->face)
+          {
+            if (adjacent_face != -1)
+            {
+              if (int r = walker(f0, adjacent_face, mapping, true, param))
+                return r;
+            }
+
+            adjacent_face = fi1->face;
+            mapping = math::make_vertex_mapping_13(fi1->point_index, fi3->point_index);
+          }
+
+          ++fi1;
+          ++fi3;
+          break;
+        case math::l3w_third_greater:
+          if (f0 < fi1->face)
+          {
+            if (adjacent_face != -1)
+            {
+              if (int r = walker(f0, adjacent_face, mapping, true, param))
+                return r;
+            }
+
+            adjacent_face = fi1->face;
+            mapping = math::make_vertex_mapping_12(fi1->point_index, fi2->point_index);
+          }
+
+          ++fi1;
+          ++fi2;
+          break;
         }
-        else if (f.points[2] == p1 || f.points[2] == p2)
+      }
+
+      int(*make_vertex_mapping)(char, char) = &math::make_vertex_mapping_12;
+      if (fi1 == fe1)
+      {
+        fi1 = fi2;
+        fe1 = fe2;
+        fi2 = fi3;
+        fe2 = fe3;
+        make_vertex_mapping = &math::make_vertex_mapping_23;
+      }
+      else if (fi2 == fe2)
+      {
+        fi2 = fi3;
+        fe2 = fe3;
+        make_vertex_mapping = &math::make_vertex_mapping_13;
+      }
+
+      while (fi1 != fe1 && fi2 != fe2)
+      {
+        switch (math::two_way_less_t c = math::two_way_less(fi1->face, fi2->face))
         {
-          assert(!(f.points[1] == p1 || f.points[1] == p2));
-          return 1 << 2;
+        case math::l2w_first_less:
+          ++fi1;
+          break;
+
+        case math::l2w_second_less:
+          ++fi2;
+          break;
+
+        case math::l2w_equal:
+          if (f0 < fi1->face)
+          {
+            if (adjacent_face != -1)
+            {
+              if (int r = walker(f0, adjacent_face, mapping, true, param))
+                return r;
+            }
+
+            adjacent_face = fi1->face;
+            mapping = make_vertex_mapping(fi1->point_index, fi2->point_index);
+          }
+
+          ++fi1;
+          ++fi2;
+          break;
         }
-        else
-        {
-          assert(!"Invalid face points");
-          return -1;
-        }
       }
-      else
-      {
-        assert(f.points[1] == p1 || f.points[1] == p2);
-        assert(f.points[2] == p1 || f.points[2] == p2);
-        return 1 << 1;
-      }
-    }
-
-    void collect_adjacents(int source, int p1, int p2)
-    {
-      const united_faces& f1 = p2f[p1];
-      const united_faces& f2 = p2f[p2];
-      std::vector<face_point> common;
-      std::set_intersection(f1.begin(), f1.end(), f2.begin(), f2.end(), std::back_inserter(common));
-      for (face_point f : common)
-      {
-        if (f.point != source);
-
-      }
-    }
-
-    int face_walk_graph_nlgn(const face_t* faces, int n_faces, face_graph_walker walker, void* param)
-    {
-      build_face_points_index(faces, n_faces);
-
-      for (int f = 0; f != n_faces; ++f)
-      {
 
 
-      }
+      if (int r = walker(f0, adjacent_face, mapping, false, param))
+        return r;
 
       return 0;
     }
 
-    void build_face_points_index(const face_t* faces, int n_faces)
+  private:
+    struct face_point_t
     {
-      indexed_faces.resize(n_faces);
+      int face;
+      char point_index;
 
-      for (int f = 0; f != n_faces; ++f)
+      bool operator<(const face_point_t& r) const
       {
-        for (char p = 0; p != 3; ++p)
-        {
-          int point_idx = index_point(faces[f].points[p]);
-          indexed_faces[f].points[p] = point_idx;
-          face_point entry = { f, p };
-          p2f[point_idx].insert(entry);
-        }
+        return face < r.face;
       }
-    }
+    };
+
+    struct indexed_face_t
+    {
+      int points[3];
+    };
+
+    typedef std::map<math::vec3, int> point_index;
+    typedef std::set<face_point_t> united_faces_t;
+    typedef std::map<int, united_faces_t> point_face_index;
+
+    point_index points;
+    std::vector<indexed_face_t> indexed_faces;
+    point_face_index p2f;
   };
+
+  int face_walk_graph_indexed(const face_t* faces, int n_faces, face_graph_walker walker, void* param)
+  {
+    indexed_walker_t indexed_walker(faces, n_faces);
+    return indexed_walker.walk(walker, param);
+  }
 }
