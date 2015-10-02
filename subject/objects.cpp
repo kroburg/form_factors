@@ -16,6 +16,7 @@
 
 #include "objects.h"
 #include "system.h"
+#include <cstdlib>
 
 namespace subject
 {
@@ -48,6 +49,34 @@ namespace subject
     return faces;
   }
 
+  math::face_t* plane_grid(float width, float height, int cells_x, int cells_y)
+  {
+    const int face_count = cells_x * cells_y * 2;
+    face_t* faces = (face_t*)malloc(sizeof(face_t) * face_count);
+
+    float step_x = width / cells_x;
+    float step_y = height / cells_y;
+    for (int i = 0; i != cells_x; ++i)
+    {
+      for (int j = 0; j != cells_y; ++j)
+      {
+        float x = step_x * i;
+        float y = step_y * j;
+
+        math::vec3 A = math::make_vec3(x, y, 0);
+        math::vec3 B = math::make_vec3(x + step_x, y, 0);
+        math::vec3 C = math::make_vec3(x + step_x, y + step_y, 0);
+        math::vec3 D = math::make_vec3(x, y + step_y, 0);
+
+        faces[(i * cells_x + j) * 2] = make_face(A, B, C);
+        faces[(i * cells_x + j) * 2 + 1] = make_face(A, C, D);
+      }
+    }
+
+    return faces;
+  }
+
+
   shell_properties_t default_shell_properties()
   {
     return{ 1.f, 1.f, 1.f, 1.f };
@@ -61,7 +90,7 @@ namespace subject
   shell_properties_t shell_Al()
   {
     shell_properties_t result = default_shell_properties();
-    result.density = 2.6989e3;
+    result.density = 2.6989e3f;
     result.heat_capacity = 903;
     result.thermal_conductivity = 237;
     return result;
@@ -70,7 +99,7 @@ namespace subject
   optical_properties_t optical_Al()
   {
     optical_properties_t result = black_material();
-    result.emissivity = 0.09;
+    result.emissivity = 0.09f;
     
     return result;
   }
