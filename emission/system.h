@@ -94,7 +94,7 @@ namespace emission
   struct system_methods_t
   { 
     /// @brief Initializes system with given ray caster after creation.
-    int(*init)(system_t* system, ray_caster::system_t* ray_caster);
+    int(*init)(system_t* system, ray_caster::system_t* ray_caster, void* params);
 
     /// @brief Shutdowns calculator system prior to free memory.
     int(*shutdown)(system_t* system);
@@ -107,6 +107,7 @@ namespace emission
   };
 
   #define EMISSION_MALLEY_CPU 1
+  #define EMISSION_PARALLEL_CPU 2
 
   /**
    * @brief Factory method for calculator creation.
@@ -115,13 +116,13 @@ namespace emission
    * @note Only CPU calculator type (type = 1) is supported, @see ../cpuEmission/.
    * @note init() system on creation.
    */
-  system_t* system_create(int type, ray_caster::system_t* ray_caster);
+  system_t* system_create(int type, ray_caster::system_t* ray_caster, void* params);
 
   /// Here go C-interface wrappers to call system_t's virtual methods.
 
   /// @note shutdown() system on destruction.
   void system_free(system_t* system);
-  int system_init(system_t* system, ray_caster::system_t* ray_caster);
+  int system_init(system_t* system, ray_caster::system_t* ray_caster, void* params);
   int system_shutdown(system_t* system);
   int system_set_scene(system_t* system, ray_caster::scene_t* scene);
   int system_calculate(system_t* system, task_t* task);

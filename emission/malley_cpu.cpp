@@ -51,7 +51,7 @@ namespace malley_cpu
   };
 
   /// @brief Initializes system with given ray caster after creation.
-  int init(cpu_system_t* system, ray_caster::system_t* ray_caster)
+  int init(cpu_system_t* system, ray_caster::system_t* ray_caster, void* params)
   {
     system->scene = 0;
     system->ray_caster = ray_caster;
@@ -207,7 +207,7 @@ namespace malley_cpu
   /// @brief Creates virtual methods table from local methods.
   const emission::system_methods_t methods =
   {
-    (int(*)(emission::system_t* system, ray_caster::system_t* ray_caster))&init,
+    (int(*)(emission::system_t* system, ray_caster::system_t* ray_caster, void* params))&init,
     (int(*)(emission::system_t* system))&shutdown,
     (int(*)(emission::system_t* system, ray_caster::scene_t* scene))&set_scene,
     (int(*)(emission::system_t* system, emission::task_t* task))&calculate,

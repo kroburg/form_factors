@@ -26,7 +26,7 @@
 
 namespace emission
 {
-  system_t* system_create(int type, ray_caster::system_t* ray_caster)
+  system_t* system_create(int type, ray_caster::system_t* ray_caster, void* params)
   {
     system_t* system = 0;
     switch (type)
@@ -39,7 +39,7 @@ namespace emission
       return 0;
     }
 
-    system_init(system, ray_caster);
+    system_init(system, ray_caster, params);
 
     return system;
   }
@@ -84,9 +84,9 @@ namespace emission
     }
   }
 
-  int system_init(system_t* system, ray_caster::system_t* ray_caster)
+  int system_init(system_t* system, ray_caster::system_t* ray_caster, void* params)
   {
-    return system->methods->init(system, ray_caster);
+    return system->methods->init(system, ray_caster, params);
   }
 
   int system_shutdown(system_t* system)
