@@ -68,6 +68,11 @@ namespace subject
     int material_idx;
   };
 
+  inline mesh_t make_mesh(int first_idx, int n_faces, int material_idx)
+  {
+    return{ first_idx, n_faces, material_idx };
+  }
+
   /// @brief Scene representation.
   struct scene_t
   {

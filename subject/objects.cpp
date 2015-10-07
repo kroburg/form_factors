@@ -49,7 +49,7 @@ namespace subject
     return faces;
   }
 
-  math::face_t* plane_grid(float width, float height, int cells_x, int cells_y)
+  math::face_t* plane_grid_faces(float width, float height, int cells_x, int cells_y)
   {
     const int face_count = cells_x * cells_y * 2;
     face_t* faces = (face_t*)malloc(sizeof(face_t) * face_count);
@@ -68,14 +68,30 @@ namespace subject
         math::vec3 C = math::make_vec3(x + step_x, y + step_y, 0);
         math::vec3 D = math::make_vec3(x, y + step_y, 0);
 
-        faces[(i * cells_x + j) * 2] = make_face(A, B, C);
-        faces[(i * cells_x + j) * 2 + 1] = make_face(A, C, D);
+        faces[(i * cells_x + j) * 2] = make_face(A, B, D);
+        faces[(i * cells_x + j) * 2 + 1] = make_face(C, B, D);
       }
     }
 
     return faces;
   }
 
+  mesh_t* plane_grid_meshes(int cells_x, int cells_y)
+  {
+    const int mesh_count = cells_x * cells_y;
+    mesh_t* meshes = (mesh_t*)malloc(sizeof(mesh_t) * mesh_count);
+
+    for (int i = 0; i != cells_x; ++i)
+    {
+      for (int j = 0; j != cells_y; ++j)
+      {
+        int idx = i * cells_x + j;
+        meshes[idx] = make_mesh(idx * 2, 2, 0);
+      }
+    }
+
+    return meshes;
+  }
 
   shell_properties_t default_shell_properties()
   {
