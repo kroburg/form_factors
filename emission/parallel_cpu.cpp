@@ -35,9 +35,7 @@ namespace parallel_emission_cpu
 {
   struct cpu_system_t : emission::system_t
   {
-    params_t params;
-    math::vec3 basis_x;
-    math::vec3 basis_y;
+    params_t* params;
     
     ray_caster::scene_t* scene;
     ray_caster::system_t* ray_caster;    
@@ -54,10 +52,7 @@ namespace parallel_emission_cpu
   /// @brief Initializes system with given ray caster after creation.
   int init(cpu_system_t* system, ray_caster::system_t* ray_caster, params_t* params)
   {
-    system->params = *params;
-    math::mat33 rotation = math::rotate_towards(math::make_vec3(0, 0, 1), params->direction);
-    system->basis_x = rotation * math::make_vec3(params->width, 0, 0);
-    system->basis_y = rotation * math::make_vec3(0, params->height, 0);
+    system->params = params;
 
     system->scene = 0;
     system->ray_caster = ray_caster;
@@ -107,22 +102,22 @@ namespace parallel_emission_cpu
     return result;
   }
 
-  /// @brief Generates uniformly distributed point on plane.
-  math::vec3 pick_point(cpu_system_t* system)
-  { 
-    return system->basis_x * system->Distr_X(system->TPGenX)
-      + system->basis_y * system->Distr_Y(system->TPGenY)
-      + system->params.origin;
-  }
-
   /// @brief Creates task with n_rays random generated rays.
   ray_caster::task_t* make_caster_task(cpu_system_t* system, emission::task_t* task)
   {
+    params_t* params = system->params;
+    math::mat33 rotation = math::rotate_towards(math::make_vec3(0, 0, 1), params->direction);
+    math::vec3 basis_x = rotation * math::make_vec3(params->width, 0, 0);
+    math::vec3 basis_y = rotation * math::make_vec3(0, params->height, 0);
+
     ray_caster::task_t* ray_caster_task = ray_caster::task_create(task->n_rays);
     for (int r = 0; r != task->n_rays; ++r)
     {
-      math::vec3 origin = pick_point(system);
-      math::vec3 direction = system->params.direction;
+      math::vec3 origin = basis_x * system->Distr_X(system->TPGenX)
+        + basis_y * system->Distr_Y(system->TPGenY)
+        + params->origin;
+      math::vec3 direction = params->direction;
+
       ray_caster_task->ray[r] = { origin, direction };
     }
 
