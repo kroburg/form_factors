@@ -94,7 +94,7 @@ public:
   thermal_solution::task_t* Task;
 };
 
-TEST_F(ConductiveSourceSink, DistributeAsTheory)
+TEST_F(ConductiveSourceSink, DISABLED_DistributeAsTheory)
 {
   using namespace thermal_solution;
 
