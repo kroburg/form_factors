@@ -69,7 +69,7 @@ namespace subject
         math::vec3 D = math::make_vec3(x, y + step_y, 0);
 
         faces[(i * cells_x + j) * 2] = make_face(A, B, D);
-        faces[(i * cells_x + j) * 2 + 1] = make_face(C, B, D);
+        faces[(i * cells_x + j) * 2 + 1] = make_face(C, D, B);
       }
     }
 
