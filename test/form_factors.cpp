@@ -41,7 +41,7 @@ public:
   {
     Scene = 0;
     RayCaster = ray_caster::system_create(RAY_CASTER_SYSTEM_CPU);
-    Emitter = emission::system_create(EMISSION_CPU, RayCaster);
+    Emitter = emission::system_create(EMISSION_MALLEY_CPU, RayCaster);
     Calculator = system_create(EngineType::ID, Emitter);
   }
 

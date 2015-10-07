@@ -23,7 +23,7 @@
 
 #include "../emission/system.h"
 
-namespace cpu_emission
+namespace malley_cpu
 { 
   /**
  *  @brief Factory method to create CPU emission calculator.

@@ -19,7 +19,7 @@
  * Module also contains base type (system_t) for form factor calculation with table of virtual methods.
  */
 
-#include "../cpu_emission/cpu_system.h"
+#include "malley_cpu.h"
 #include "system.h"
 #include <algorithm>
 #include <stdlib.h>
@@ -31,8 +31,8 @@ namespace emission
     system_t* system = 0;
     switch (type)
     {
-    case EMISSION_CPU:
-      system = cpu_emission::system_create();
+    case EMISSION_MALLEY_CPU:
+      system = malley_cpu::system_create();
       break;
 
     default:

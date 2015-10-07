@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="malley_cpu.cpp" />
     <ClCompile Include="system.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="malley_cpu.h" />
     <ClInclude Include="system.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

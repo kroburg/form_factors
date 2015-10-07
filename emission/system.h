@@ -106,7 +106,7 @@ namespace emission
     int(*calculate)(system_t* system, task_t* task);
   };
 
-  #define EMISSION_CPU 1
+  #define EMISSION_MALLEY_CPU 1
 
   /**
    * @brief Factory method for calculator creation.

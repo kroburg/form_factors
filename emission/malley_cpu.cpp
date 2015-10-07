@@ -19,7 +19,7 @@
 * Calculator is capable of work with CPU or GPU ray caster implementation.
 */
 
-#include "cpu_system.h"
+#include "malley_cpu.h"
 #include "../ray_caster/system.h"
 #include "../math/operations.h"
 #include "../math/triangle.h"
@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <cstring>
 
-namespace cpu_emission
+namespace malley_cpu
 {
   /// @brief Extended base system_t (C-style polymorphism)
   struct cpu_system_t : emission::system_t

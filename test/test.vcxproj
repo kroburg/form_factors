@@ -47,9 +47,6 @@
     <ProjectReference Include="..\cpuRayCaster\cpuRayCaster.vcxproj">
       <Project>{6db47603-9ce5-4255-99e5-29ac7a1e655c}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\cpu_emission\cpu_emission.vcxproj">
-      <Project>{923e9d7c-cc1a-4a8b-85d9-34841e91abfa}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\cudaRayCaster\cudaRayCaster.vcxproj">
       <Project>{2bc5721e-f870-4a8d-9160-4139cf0a516b}</Project>
       <Private>false</Private>
