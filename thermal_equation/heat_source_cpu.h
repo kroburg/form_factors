@@ -29,7 +29,6 @@ namespace heat_source_equation
   {
     int mesh_idx;
 
-
     /// @note Power value may be negative. Then heat source become a heat sink.
     float power;
   };
@@ -37,7 +36,7 @@ namespace heat_source_equation
   struct params_t
   {
     int n_sources;
-    const heat_source_t* sources;
+    heat_source_t* sources;
   };
 
   thermal_equation::system_t* system_create();
