@@ -106,7 +106,10 @@ namespace subject
       typedef std::pair<point_index::iterator, bool> point_insertion;
       point_insertion r = points.insert(point_index::value_type(p, 0));
       if (r.second)
-        r.first->second = (int)points.size();
+      {
+        r.first->second = (int)points.size() - 1;
+        p2f.resize(points.size());
+      }
       return r.first->second;
     }
 
@@ -118,9 +121,9 @@ namespace subject
       int p3 = face.points[2];
 
       // @note Don't check for iterator validity
-      const united_faces_t& f1 = p2f.find(p1)->second;
-      const united_faces_t& f2 = p2f.find(p2)->second;
-      const united_faces_t& f3 = p2f.find(p3)->second;
+      const united_faces_t& f1 = p2f[p1];
+      const united_faces_t& f2 = p2f[p2];
+      const united_faces_t& f3 = p2f[p3];
 
       united_faces_t::const_iterator fi1 = f1.begin();
       united_faces_t::const_iterator fe1 = f1.end();
@@ -286,7 +289,7 @@ namespace subject
 
     typedef std::map<math::vec3, int> point_index;
     typedef std::set<face_point_t> united_faces_t;
-    typedef std::map<int, united_faces_t> point_face_index;
+    typedef std::vector<united_faces_t> point_face_index;
 
     point_index points;
     std::vector<indexed_face_t> indexed_faces;
