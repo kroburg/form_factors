@@ -110,21 +110,18 @@ namespace conductive_equation
     math::vec3 r_center = mesh_center(scene, r_mesh_idx);
     float r_dist = norm(median - r_center);
 
-    float dist = l_dist + r_dist;
-
     const subject::material_t& l_matertial = mesh_material(scene, l_mesh_idx);
     const subject::material_t& r_matertial = mesh_material(scene, r_mesh_idx);
     
-    float average_conductivity = (l_dist * l_matertial.shell.thermal_conductivity + r_dist * r_matertial.shell.thermal_conductivity) / dist;
-
     float thickness = std::fminf(l_matertial.shell.thickness, r_matertial.shell.thickness);
     float area = thickness * edge_length;
+    float conductivity_resistance = (l_dist / l_matertial.shell.thermal_conductivity + r_dist / r_matertial.shell.thermal_conductivity) / area;
 
     float l_temp = param->task->temperatures[l_mesh_idx];
     float r_temp = param->task->temperatures[r_mesh_idx];
 
-    float flow = average_conductivity * area / r_dist * (r_temp - l_temp);
-    if (r_temp > l_temp)
+    float flow = (r_temp - l_temp) / conductivity_resistance;
+    if (flow > 0)
     {
       param->task->absorption[l_mesh_idx] += flow;
       param->task->emission[r_mesh_idx] += flow;
