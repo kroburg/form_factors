@@ -382,7 +382,7 @@ namespace obj_import
     return getstr(lineptr, n, stream, '\n', 0);
   }
 
-  int task(FILE* in, int n_meshes, thermal_solution::task_t* t)
+  int task(FILE* in, int n_meshes, thermal_solution::task_t* t, heat_source_equation::params_t* heat_source)
   {
     char * line = NULL;
     size_t len = 0;
@@ -423,6 +423,21 @@ namespace obj_import
 
         --n_meshes;
         --left;
+      }
+      break;
+
+      case 'h':
+      {
+        heat_source_equation::heat_source_t source;
+
+        if (sscanf(line, "htsrc %d %f", &source.mesh_idx, &source.power) != 2)
+        {
+          free(line);
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
+
+        heat_source->sources = (heat_source_equation::heat_source_t*)realloc(heat_source->sources, (1 + heat_source->n_sources) * sizeof(source));
+        heat_source->sources[heat_source->n_sources++] = source;
       }
       break;
 

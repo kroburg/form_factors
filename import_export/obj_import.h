@@ -22,6 +22,7 @@
 
 #include "../subject/system.h"
 #include "../thermal_solution/system.h"
+#include "../thermal_equation/heat_source_cpu.h"
 #include <cstdio>
 
 namespace obj_import
@@ -42,6 +43,7 @@ namespace obj_import
 
   /**
     @brief Load thermal solution task values from file of obj-like format.
+    @note heat_source parameter values must have valid (initialized) values before call.
   */
-  int task(FILE* in, int n_meshes, thermal_solution::task_t* t);
+  int task(FILE* in, int n_meshes, thermal_solution::task_t* t, heat_source_equation::params_t* heat_source);
 }
