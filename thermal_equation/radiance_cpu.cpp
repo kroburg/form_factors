@@ -143,6 +143,9 @@ namespace radiance_equation
     emission::task_t* emission_task = system->emission_task;
     const ray_caster::task_t* ray_caster_task = emission_task->rays;
 
+    if (ray_caster_task == 0)
+      return THERMAL_EQUATION_OK;
+
     int n_ray = 0;
     for (int m = 0; m != n_meshes; ++m)
     {

@@ -140,6 +140,8 @@ namespace malley_cpu
   ray_caster::task_t* make_caster_task(cpu_system_t* system, emission::task_t* task)
   { 
     int n_real_rays = calculate_n_rays(task, system->scene->n_faces);
+    if (n_real_rays == 0)
+      return 0;
     ray_caster::task_t* ray_caster_task = ray_caster::task_create(n_real_rays);
     ray_caster::scene_t* scene = system->scene;
     const float* weights = task->weights;
@@ -197,6 +199,8 @@ namespace malley_cpu
       task->rays = 0;
     }
     task->rays = make_caster_task(system, task);
+    if (task->rays == 0)
+      return EMISSION_OK;
     int r = 0;
     if ((r = ray_caster::system_cast(system->ray_caster, task->rays)) < 0)
       return r;
