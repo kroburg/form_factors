@@ -99,4 +99,15 @@ namespace obj_export
     fflush(out);
     return 0;
   }
+
+  int task_binary(FILE* out, int n_meshes, const thermal_solution::task_t* task)
+  {
+    fprintf(out, "newfrm frame_%d\n", task->n_step);
+    fprintf(out, "step %f\n", task->time_delta);
+    fprintf(out, "btmprt %d\n", n_meshes);
+    fwrite((const char*)task->temperatures, 1, sizeof(float) * n_meshes, out);
+    fprintf(out, "\n");
+    fflush(out);
+    return 0;
+  }
 }

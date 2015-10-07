@@ -33,7 +33,7 @@
 
 void PrintUsage()
 {
-  std::cout << "Usage: controller <input scene> <input task> <result output [-]> <rays_count [1000000]> <step count [100]> <ray_caster type:(cpu/cuda)[cpu]" << std::endl;
+  std::cout << "Usage: controller <input scene> <input task> <result output [-]> <rays_count [1000000]> <step count [100]> <ray_caster type:(cpu/cuda)[cpu]> <binary output [0]>" << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -50,6 +50,7 @@ int main(int argc, char* argv[])
   int n_rays = 1000 * 1000;
   int n_steps = 100;
   int type = RAY_CASTER_SYSTEM_CPU;
+  bool binary_output = false;
 
   for (int i = 1; i < argc; ++i)
   {
@@ -82,6 +83,10 @@ int main(int argc, char* argv[])
         type = RAY_CASTER_SYSTEM_CPU;
       else
         return -RAY_CASTER_NOT_SUPPORTED;
+
+    case 7:
+      binary_output = strcmp("1", argv[i]) == 0;
+      break;
     }
   }
 
@@ -172,7 +177,7 @@ int main(int argc, char* argv[])
 
   FILE* result_file = result_name[0] == '-' ? stdout : fopen(result_name, "w");
 
-  obj_export::task(result_file, scene->n_meshes, task);
+  binary_output ? obj_export::task_binary(result_file, scene->n_meshes, task) : obj_export::task(result_file, scene->n_meshes, task);
   
   StopWatchInterface *hTimer;
   sdkCreateTimer(&hTimer);
@@ -193,7 +198,7 @@ int main(int argc, char* argv[])
       return 1;
     }
 
-    obj_export::task(result_file, scene->n_meshes, task);
+    binary_output ? obj_export::task_binary(result_file, scene->n_meshes, task) : obj_export::task(result_file, scene->n_meshes, task);
   }
   
   sdkStopTimer(&hTimer);

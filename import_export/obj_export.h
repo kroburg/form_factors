@@ -31,4 +31,5 @@ namespace obj_export
 
   /// @brief Exports solution task in OBJ format.
   int task(FILE* out, int n_meshes, const thermal_solution::task_t* task);
+  int task_binary(FILE* out, int n_meshes, const thermal_solution::task_t* task);
 }
