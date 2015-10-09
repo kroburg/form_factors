@@ -31,7 +31,6 @@ namespace conductive_equation
     int* face_to_mesh_index;
   };
 
-  /// @brief Initializes system with given ray caster after creation.
   int init(cpu_system_t* system, params_t* params)
   {
     system->params = *params;
@@ -43,7 +42,6 @@ namespace conductive_equation
     return THERMAL_EQUATION_OK;
   }
 
-  /// @brief Shutdowns calculator system prior to free memory.
   int shutdown(cpu_system_t* system)
   {
     system->scene = 0;
@@ -125,9 +123,6 @@ namespace conductive_equation
     return 0;
   }
   
-  /**
-  *  @brief Calculates thermal flow for a given scene.
-  */
   int calculate(cpu_system_t* system, thermal_equation::task_t* task)
   {
     graph_walker_param_t param = { system, task };
@@ -135,7 +130,6 @@ namespace conductive_equation
     return r == 0 ? THERMAL_EQUATION_OK : THERMAL_EQUATION_ERROR;
   }
 
-  /// @brief Creates virtual methods table from local methods.
   const thermal_equation::system_methods_t methods =
   {
     (int(*)(thermal_equation::system_t* system, void* params))&init,
