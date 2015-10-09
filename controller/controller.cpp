@@ -228,9 +228,8 @@ int main(int argc, char* argv[])
 
   thermal_solution::task_free(task);
   thermal_solution::system_free(solution);
-  thermal_equation::system_free(equations[0]);
-  thermal_equation::system_free(equations[1]);
-  thermal_equation::system_free(equations[2]);
+  for (int i = 0; i != sizeof(equations) / sizeof(equations[0]); ++i)
+    thermal_equation::system_free(equations[i]);
   emission::system_free(interior_radiance_emitter);
   emission::system_free(exterior_radiance_emitter);
   ray_caster::system_free(caster);
