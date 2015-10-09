@@ -60008,12 +60008,12 @@ front.specular_reflectance 0.000000
 front.diffuse_reflectance 0.000000
 front.absorbance 1.000000
 front.transmittance 0.000000
-front.emissivity 0.090000
+front.emissivity 0
 rear.specular_reflectance 0.000000
 rear.diffuse_reflectance 0.000000
 rear.absorbance 1.000000
 rear.transmittance 0.000000
-rear.emissivity 0.090000
+rear.emissivity 0
 
 g mesh_0
 usemtl alliminuim
