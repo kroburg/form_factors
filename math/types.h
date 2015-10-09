@@ -53,6 +53,12 @@ namespace math
     vec3 points[3];
   };
 
+  struct sphere_t
+  {
+    vec3 center;
+    float raius;
+  };
+
   /// @brief Face type.
   typedef triangle_t face_t;
 
