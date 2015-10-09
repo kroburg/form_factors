@@ -28,9 +28,9 @@ namespace parallel_rays_emission_cpu
   struct task_t : emission::task_t
   { 
     math::vec3 direction; // in relative coordinates
+    math::vec3 center;
     float distance;
-    float height;
-    float width;
+    float radius;
   };
 
   /**
