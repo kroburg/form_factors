@@ -351,9 +351,26 @@ namespace math
 
   sphere_t triangles_bsphere(triangle_t* triangles, int n_triangles)
   {
-    aabb_t box = triangles_aabb(triangles, n_triangles);
-    vec3 center = (box.min + box.max) / 2.f;
-    float radius = norm(box.max - box.min) / 2.f;
-    return{ center, radius };
+  math:vec3 geom_center = make_vec3(0, 0, 0);
+
+    for (int i = 0; i != n_triangles; ++i)
+      geom_center += triangle_center(triangles[i]);
+    geom_center /= n_triangles;
+
+    float r = 0;
+    for (int i = 1; i != n_triangles; ++i)
+    {
+      float t = norm(geom_center - triangles[i].points[0]);
+      if (t > r)
+        r = t;
+      t = norm(geom_center - triangles[i].points[1]);
+      if (t > r)
+        r = t;
+      t = norm(geom_center - triangles[i].points[2]);
+      if (t > r)
+        r = t;
+    }
+
+    return{ geom_center, r };
   }
 }
