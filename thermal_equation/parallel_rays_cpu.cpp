@@ -110,14 +110,12 @@ namespace parallel_rays_cpu
     if (ray_caster_task == 0)
       return THERMAL_EQUATION_OK;
 
-    float ray_power = source.power * (M_PI * radius * radius) / system->params.n_rays;
+    float ray_power = source.power * (float(M_PI) * radius * radius) / system->params.n_rays;
 
-    int count = 0;
     for (int r = 0; r != ray_caster_task->n_tasks; ++r)
     {
       if (ray_caster_task->hit_face[r])
       {
-        ++count;
         math::vec3 normale = math::triangle_normal(*ray_caster_task->hit_face[r]);
         float side = dot(normale, source.direction);
         int mesh_idx = face2mesh(system, ray_caster_task->hit_face[r] - system->emission_scene.faces);
@@ -125,8 +123,6 @@ namespace parallel_rays_cpu
         task->absorption[mesh_idx] += (side < 0 ? material.front.absorbance : material.rear.absorbance) * ray_power;
       }
     }
-
-    fprintf(stderr, "Count: %d\n", count);
 
     ray_caster::task_free(system->emission_task.rays);
     system->emission_task.rays = 0;

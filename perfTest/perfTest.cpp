@@ -47,7 +47,7 @@ scene_t* MakeConfettiScene(int n_faces, float radius, subject::generator_t* gene
     face_t& f = faces[i];
     generator_surface_point(generator, 3, f.points);
     math::vec3 position;
-    generator_surface_point(generator, 1, &position);
+    generator_volume_point(generator, 1, &position);
     position *= radius;
     f.points[0] += position;
     f.points[1] += position;
@@ -156,13 +156,13 @@ int main(int argc, char* argv[])
   {
     int n_faces = 2000;
     int n_rays = 100 * n_faces;
-    bool no_cpu = true;
-    bool no_form_factors = true;
+    bool no_cpu = false;
+    bool no_form_factors = false;
     bool no_radiance = false;
 
     float radius = 20;
     
-    subject::generator_t* generator = subject::generator_create_cube();
+    subject::generator_t* generator = subject::generator_create_spherical();
     // Create systems for CPU and GPU.
     system_t* cuda_system = system_create(RAY_CASTER_SYSTEM_CUDA);
     system_t* cpu_system = system_create(RAY_CASTER_SYSTEM_CPU);
