@@ -35,18 +35,13 @@ namespace emission
    */
   struct task_t
   {
+    task_t(int n)
+      : n_rays(n)
+      , rays(0)
+    {}
+
     /// @brief Approximate amount of rays to be emitted.
     int n_rays;
-
-    /// @brief Total weight of all faces (requried to normalize).
-    /// @todo Pass total or 1/total (scale factor) (to use multiplication instead of division in emitted_xxx() functions)?
-    float total_weight;
-
-    /**
-      @brief Two weights per face: first one in normal direction (frontside), second in opposite (backside).
-      @note System will emit at least one ray per face with non zero weight.
-    */
-    float* weights;
 
     /**
       @brief Ray caster task contains calculation output.
@@ -58,18 +53,6 @@ namespace emission
       */
     ray_caster::task_t* rays; 
   };
-
-  /// @brief Rays count to be emitted from front side (weight-based).
-  int emitted_front(const task_t* task, int face_idx);
-
-  /// @brief Rays count to be emitted from rear side (weight-based).
-  int emitted_rear(const task_t* task, int face_idx);
-
-  /// @brief create task for given scene with n_rays rays.
-  task_t* task_create(int n_rays, int n_faces);
-
-  /// @brief Free memory for given task
-  void task_free(task_t* task);
 
   /**
    * @brief Form factors calculator type.
@@ -94,7 +77,7 @@ namespace emission
   struct system_methods_t
   { 
     /// @brief Initializes system with given ray caster after creation.
-    int(*init)(system_t* system, ray_caster::system_t* ray_caster, void* params);
+    int(*init)(system_t* system, ray_caster::system_t* ray_caster);
 
     /// @brief Shutdowns calculator system prior to free memory.
     int(*shutdown)(system_t* system);
@@ -116,13 +99,13 @@ namespace emission
    * @note Only CPU calculator type (type = 1) is supported, @see ../cpuEmission/.
    * @note init() system on creation.
    */
-  system_t* system_create(int type, ray_caster::system_t* ray_caster, void* params);
+  system_t* system_create(int type, ray_caster::system_t* ray_caster);
 
   /// Here go C-interface wrappers to call system_t's virtual methods.
 
   /// @note shutdown() system on destruction.
   void system_free(system_t* system);
-  int system_init(system_t* system, ray_caster::system_t* ray_caster, void* params);
+  int system_init(system_t* system, ray_caster::system_t* ray_caster);
   int system_shutdown(system_t* system);
   int system_set_scene(system_t* system, ray_caster::scene_t* scene);
   int system_calculate(system_t* system, task_t* task);

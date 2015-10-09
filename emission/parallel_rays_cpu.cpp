@@ -34,9 +34,7 @@
 namespace parallel_rays_emission_cpu
 {
   struct cpu_system_t : emission::system_t
-  {
-    params_t* params;
-    
+  { 
     ray_caster::scene_t* scene;
     ray_caster::system_t* ray_caster;    
 
@@ -50,10 +48,8 @@ namespace parallel_rays_emission_cpu
   };
 
   /// @brief Initializes system with given ray caster after creation.
-  int init(cpu_system_t* system, ray_caster::system_t* ray_caster, params_t* params)
+  int init(cpu_system_t* system, ray_caster::system_t* ray_caster)
   {
-    system->params = params;
-
     system->scene = 0;
     system->ray_caster = ray_caster;
 
@@ -89,34 +85,20 @@ namespace parallel_rays_emission_cpu
     return EMISSION_OK;
   }
 
-
-  int calculate_n_rays(emission::task_t* task, int n_faces)
+ /// @brief Creates task with n_rays random generated rays.
+  ray_caster::task_t* make_caster_task(cpu_system_t* system, task_t* task)
   {
-    int result = 0;
-    for (int f = 0; f != n_faces; ++f)
-    {
-      const int face_rays_front = emitted_front(task, f);
-      const int face_rays_rear = emitted_rear(task, f);
-      result += face_rays_front + face_rays_rear;
-    }
-    return result;
-  }
-
-  /// @brief Creates task with n_rays random generated rays.
-  ray_caster::task_t* make_caster_task(cpu_system_t* system, emission::task_t* task)
-  {
-    params_t* params = system->params;
-    math::mat33 rotation = math::rotate_towards(math::make_vec3(0, 0, 1), params->direction);
-    math::vec3 basis_x = rotation * math::make_vec3(params->width, 0, 0);
-    math::vec3 basis_y = rotation * math::make_vec3(0, params->height, 0);
+    math::mat33 rotation = math::rotate_towards(math::make_vec3(0, 0, 1), task->direction);
+    math::vec3 basis_x = rotation * math::make_vec3(task->width, 0, 0);
+    math::vec3 basis_y = rotation * math::make_vec3(0, task->height, 0);
 
     ray_caster::task_t* ray_caster_task = ray_caster::task_create(task->n_rays);
     for (int r = 0; r != task->n_rays; ++r)
     {
       math::vec3 origin = basis_x * system->Distr_X(system->TPGenX)
         + basis_y * system->Distr_Y(system->TPGenY)
-        + params->origin;
-      math::vec3 direction = params->direction;
+        + task->origin;
+      math::vec3 direction = task->direction;
 
       ray_caster_task->ray[r] = { origin, direction };
     }
@@ -124,7 +106,7 @@ namespace parallel_rays_emission_cpu
     return ray_caster_task;
   }
 
-  int calculate(cpu_system_t* system, emission::task_t* task)
+  int calculate(cpu_system_t* system, task_t* task)
   {
     if (task->rays)
     {
@@ -142,7 +124,7 @@ namespace parallel_rays_emission_cpu
 
   const emission::system_methods_t methods =
   {
-    (int(*)(emission::system_t* system, ray_caster::system_t* ray_caster, void* params))&init,
+    (int(*)(emission::system_t* system, ray_caster::system_t* ray_caster))&init,
     (int(*)(emission::system_t* system))&shutdown,
     (int(*)(emission::system_t* system, ray_caster::scene_t* scene))&set_scene,
     (int(*)(emission::system_t* system, emission::task_t* task))&calculate,

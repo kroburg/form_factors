@@ -16,6 +16,7 @@
 
 
 #include "radiance_cpu.h"
+#include "../emission/malley_emission.h"
 #include "../math/triangle.h"
 #include <float.h>
 #include <cmath>
@@ -39,7 +40,7 @@ namespace radiance_equation
     // @todo Move form factors calculation of process?
     emission::system_t* emission_calculator;
     ray_caster::scene_t emission_scene;
-    emission::task_t* emission_task;
+    malley_emission::task_t* emission_task;
   };
 
   /// @brief Initializes system with given ray caster after creation.
@@ -68,7 +69,7 @@ namespace radiance_equation
 
     system->emission_calculator = 0;
     // @todo Looks like it is better to move task ownership to base system to avoid such code.
-    emission::task_free(system->emission_task);
+    malley_emission::task_free(system->emission_task);
     system->emission_task = 0;
 
     return THERMAL_EQUATION_OK;
@@ -86,13 +87,13 @@ namespace radiance_equation
     build_faces_areas(system->scene, &system->face_areas);
     build_face_to_mesh_index(scene->n_faces, scene->n_meshes, scene->meshes, &system->face_to_mesh_index);
 
-    emission::task_free(system->emission_task);
-    system->emission_task = emission::task_create(system->params.n_rays, scene->n_faces);
+    malley_emission::task_free(system->emission_task);
+    system->emission_task = malley_emission::task_create(system->params.n_rays, scene->n_faces);
 
     return THERMAL_EQUATION_OK;
   }
 
-  void calculate_weights(const subject::scene_t* scene, const float* face_areas, const float* temperatures, emission::task_t* task)
+  void calculate_weights(const subject::scene_t* scene, const float* face_areas, const float* temperatures, malley_emission::task_t* task)
   {
     // Reset to zero. There may be faces not included in meshes.
     memset(task->weights, 0, scene->n_faces * 2 * sizeof(float));
@@ -140,7 +141,7 @@ namespace radiance_equation
     // calculate form factors between meshes
     const int n_meshes = system->scene->n_meshes;
     
-    emission::task_t* emission_task = system->emission_task;
+    malley_emission::task_t* emission_task = system->emission_task;
     const ray_caster::task_t* ray_caster_task = emission_task->rays;
 
     if (ray_caster_task == 0)

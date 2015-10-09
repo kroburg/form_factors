@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
     // Create systems for CPU and GPU.
     system_t* cuda_system = system_create(RAY_CASTER_SYSTEM_CUDA);
     system_t* cpu_system = system_create(RAY_CASTER_SYSTEM_CPU);
-    emission::system_t* emitter = emission::system_create(EMISSION_MALLEY_CPU, cuda_system, 0);
+    emission::system_t* emitter = emission::system_create(EMISSION_MALLEY_CPU, cuda_system);
     printf("Generating confetti scene with %d elements...\n", n_faces);
 
     // Create random scene for ray caster.

@@ -20,6 +20,7 @@
  */
 
 #include "cpu_system.h"
+#include "../emission/malley_emission.h"
 #include "../ray_caster/system.h"
 #include "../math/operations.h"
 #include "../math/triangle.h"
@@ -147,7 +148,7 @@ namespace cpu_form_factors
    */
   int calculate(cpu_system_t* system, form_factors::task_t* task)
   {
-    emission::task_t emission_task = { task->n_rays, system->total_area, system->face_weights, 0 };
+    malley_emission::task_t emission_task(task->n_rays, system->total_area, system->face_weights);
     
     int r = 0;
     if ((r = emission::system_calculate(system->emitter, &emission_task)) < 0)

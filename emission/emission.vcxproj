@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="malley_cpu.cpp" />
+    <ClCompile Include="malley_emission.cpp" />
     <ClCompile Include="parallel_rays_cpu.cpp" />
     <ClCompile Include="system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="malley_cpu.h" />
+    <ClInclude Include="malley_emission.h" />
     <ClInclude Include="parallel_rays_cpu.h" />
     <ClInclude Include="system.h" />
   </ItemGroup>

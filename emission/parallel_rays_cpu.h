@@ -25,7 +25,7 @@
 namespace parallel_rays_emission_cpu
 {
   /// @todo Provide a way to change origin and direction in time.
-  struct params_t
+  struct task_t : emission::task_t
   {
     math::vec3 origin;
     math::vec3 direction; // in relative coordinates

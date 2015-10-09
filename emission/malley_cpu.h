@@ -24,7 +24,7 @@
 #include "../emission/system.h"
 
 namespace malley_cpu
-{ 
+{
   /**
  *  @brief Factory method to create CPU emission calculator.
  *  @detail Implement emission calculator using Monte-Carlo algorithm.

@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  emission::system_t* emitter = emission::system_create(EMISSION_MALLEY_CPU, caster, 0);
+  emission::system_t* emitter = emission::system_create(EMISSION_MALLEY_CPU, caster);
   if (!emitter)
   {
     std::cerr << "Failed to create emitter" << std::endl;

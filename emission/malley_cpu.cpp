@@ -20,6 +20,7 @@
 */
 
 #include "malley_cpu.h"
+#include "malley_emission.h"
 #include "../ray_caster/system.h"
 #include "../math/operations.h"
 #include "../math/triangle.h"
@@ -51,7 +52,7 @@ namespace malley_cpu
   };
 
   /// @brief Initializes system with given ray caster after creation.
-  int init(cpu_system_t* system, ray_caster::system_t* ray_caster, void* params)
+  int init(cpu_system_t* system, ray_caster::system_t* ray_caster)
   {
     system->scene = 0;
     system->ray_caster = ray_caster;
@@ -90,8 +91,9 @@ namespace malley_cpu
     return EMISSION_OK;
   }
 
+  
 
-  int calculate_n_rays(emission::task_t* task, int n_faces)
+  int calculate_n_rays(malley_emission::task_t* task, int n_faces)
   {
     int result = 0;
     for (int f = 0; f != n_faces; ++f)
@@ -137,7 +139,7 @@ namespace malley_cpu
   }
 
   /// @brief Creates task with n_rays random generated rays.
-  ray_caster::task_t* make_caster_task(cpu_system_t* system, emission::task_t* task)
+  ray_caster::task_t* make_caster_task(cpu_system_t* system, malley_emission::task_t* task)
   { 
     int n_real_rays = calculate_n_rays(task, system->scene->n_faces);
     if (n_real_rays == 0)
@@ -190,7 +192,7 @@ namespace malley_cpu
    *  @brief Calculates emission for given system.
    *  @detail System uses ray caster (@see init()) and given task for N rays and scene's faces.
    */
-  int calculate(cpu_system_t* system, emission::task_t* task)
+  int calculate(cpu_system_t* system, malley_emission::task_t* task)
   {
     if (task->rays)
     {
@@ -211,7 +213,7 @@ namespace malley_cpu
   /// @brief Creates virtual methods table from local methods.
   const emission::system_methods_t methods =
   {
-    (int(*)(emission::system_t* system, ray_caster::system_t* ray_caster, void* params))&init,
+    (int(*)(emission::system_t* system, ray_caster::system_t* ray_caster))&init,
     (int(*)(emission::system_t* system))&shutdown,
     (int(*)(emission::system_t* system, ray_caster::scene_t* scene))&set_scene,
     (int(*)(emission::system_t* system, emission::task_t* task))&calculate,
