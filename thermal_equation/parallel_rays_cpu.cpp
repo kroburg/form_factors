@@ -90,9 +90,12 @@ namespace parallel_rays_cpu
   */
   int calculate(cpu_system_t* system, thermal_equation::task_t* task)
   {
+    if (system->params.source == 0)
+      return THERMAL_EQUATION_OK;
+
     source_t source = system->params.source(system->params.source_param);
     float radius = system->bsphere.radius * 1.1f;
-    system->emission_task.origin = system->bsphere.center - source.direction * (1.1 + radius);
+    system->emission_task.origin = system->bsphere.center - source.direction * (1.1f + radius);
     system->emission_task.direction = source.direction;
     system->emission_task.height = radius * 2;
     system->emission_task.width = radius * 2;
@@ -138,5 +141,4 @@ namespace parallel_rays_cpu
     s->methods = &methods;
     return s;
   }
-
 }
