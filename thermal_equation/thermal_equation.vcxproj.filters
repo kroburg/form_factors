@@ -6,6 +6,7 @@
     <ClInclude Include="form_factors.h" />
     <ClInclude Include="conductive_cpu.h" />
     <ClInclude Include="heat_source_cpu.h" />
+    <ClInclude Include="parallel_rays_cpu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="system.cpp" />
@@ -14,5 +15,6 @@
     <ClCompile Include="form_factors.cpp" />
     <ClCompile Include="conductive_cpu.cpp" />
     <ClCompile Include="heat_source_cpu.cpp" />
+    <ClCompile Include="parallel_rays_cpu.cpp" />
   </ItemGroup>
 </Project>
