@@ -55,8 +55,8 @@ namespace parallel_rays_emission_cpu
 
     system->TPGenX = std::mt19937(1);
     system->TPGenY = std::mt19937(2);
-    system->Distr_X = std::uniform_real_distribution<float>(0, 1);
-    system->Distr_Y = std::uniform_real_distribution<float>(0, 1);
+    system->Distr_X = std::uniform_real_distribution<float>(-1, 1);
+    system->Distr_Y = std::uniform_real_distribution<float>(-1, 1);
     return EMISSION_OK;
   }
 
@@ -89,15 +89,15 @@ namespace parallel_rays_emission_cpu
   ray_caster::task_t* make_caster_task(cpu_system_t* system, task_t* task)
   {
     math::mat33 rotation = math::rotate_towards(math::make_vec3(0, 0, 1), task->direction);
-    math::vec3 basis_x = rotation * math::make_vec3(task->width, 0, 0);
-    math::vec3 basis_y = rotation * math::make_vec3(0, task->height, 0);
+    math::vec3 basis_x = math::make_vec3(task->width / 2, 0, 0);
+    math::vec3 basis_y = math::make_vec3(0, task->height / 2, 0);
 
     ray_caster::task_t* ray_caster_task = ray_caster::task_create(task->n_rays);
     for (int r = 0; r != task->n_rays; ++r)
     {
-      math::vec3 origin = basis_x * system->Distr_X(system->TPGenX)
+      math::vec3 origin = rotation * (basis_x * system->Distr_X(system->TPGenX)
         + basis_y * system->Distr_Y(system->TPGenY)
-        + task->origin;
+        + math::make_vec3(0, 0, -task->distance));
       math::vec3 direction = task->direction;
 
       ray_caster_task->ray[r] = { origin, direction };
