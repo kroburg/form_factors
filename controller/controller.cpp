@@ -26,6 +26,7 @@
 #include "../thermal_equation/radiance_cpu.h"
 #include "../thermal_equation/conductive_cpu.h"
 #include "../thermal_equation/heat_source_cpu.h"
+#include "../thermal_equation/parallel_rays_cpu.h"
 #include "../import_export/obj_export.h"
 #include <helper_timer.h>
 #include <iostream>
@@ -90,6 +91,27 @@ int main(int argc, char* argv[])
     }
   }
 
+  ray_caster::system_t* caster = ray_caster::system_create(type);
+  if (!caster)
+  {
+    std::cerr << "Failed to create ray caster" << std::endl;
+    return 1;
+  }
+
+  emission::system_t* interior_radiance_emitter = emission::system_create(EMISSION_MALLEY_CPU, caster);
+  if (!interior_radiance_emitter)
+  {
+    std::cerr << "Failed to create interior emitter" << std::endl;
+    return 1;
+  }
+
+  emission::system_t* exterior_radiance_emitter = emission::system_create(EMISSION_PARALLEL_RAYS_CPU, caster);
+  if (!exterior_radiance_emitter)
+  {
+    std::cerr << "Failed to create exterior emitter" << std::endl;
+    return 1;
+  }
+
   int r = 0;
   subject::scene_t* scene = 0;
   if ((r = obj_import::scene(input_scene, &scene)) != OBJ_IMPORT_OK)
@@ -99,6 +121,7 @@ int main(int argc, char* argv[])
   }
 
   heat_source_equation::params_t heatSourceParams = { 0, 0 };
+  parallel_rays_cpu::params_t distantSourceParams = { 10000, exterior_radiance_emitter, 0, 0 };
   thermal_solution::task_t* task = thermal_solution::task_create(0);
   task->time_delta = 0.1f;
   FILE* task_file = fopen(input_task, "r");
@@ -109,7 +132,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    r = obj_import::task(task_file, scene->n_meshes, task, &heatSourceParams);
+    r = obj_import::task(task_file, scene->n_meshes, task, &heatSourceParams, &distantSourceParams);
     fclose(task_file);
     if (r < 0)
     {
@@ -126,24 +149,12 @@ int main(int argc, char* argv[])
       task->temperatures[r] = 300;
   }
 
-  ray_caster::system_t* caster = ray_caster::system_create(type);
-  if (!caster)
-  {
-    std::cerr << "Failed to create ray caster" << std::endl;
-    return 1;
-  }
+  
 
-  emission::system_t* emitter = emission::system_create(EMISSION_MALLEY_CPU, caster);
-  if (!emitter)
-  {
-    std::cerr << "Failed to create emitter" << std::endl;
-    return 1;
-  }
-
-  thermal_equation::system_t* equations[3];
+  thermal_equation::system_t* equations[4];
 
   radiance_equation::params_t radianceParams;
-  radianceParams.emitter = emitter;
+  radianceParams.emitter = interior_radiance_emitter;
   radianceParams.n_rays = n_rays;
   equations[0] = thermal_equation::system_create(THERMAL_EQUATION_RADIANCE_CPU, &radianceParams);
   if (!equations[0])
@@ -164,6 +175,13 @@ int main(int argc, char* argv[])
   if (!equations[2])
   {
     std::cerr << "Failed to create heat sources equation" << std::endl;
+    return 1;
+  }
+
+  equations[3] = thermal_equation::system_create(THERMAL_EQUATION_DISNTANT_SOURCE_CPU, &distantSourceParams);
+  if (!equations[3])
+  {
+    std::cerr << "Failed to create distant source equation" << std::endl;
     return 1;
   }
 
@@ -213,7 +231,8 @@ int main(int argc, char* argv[])
   thermal_equation::system_free(equations[0]);
   thermal_equation::system_free(equations[1]);
   thermal_equation::system_free(equations[2]);
-  emission::system_free(emitter);
+  emission::system_free(interior_radiance_emitter);
+  emission::system_free(exterior_radiance_emitter);
   ray_caster::system_free(caster);
   
 	return 0;
