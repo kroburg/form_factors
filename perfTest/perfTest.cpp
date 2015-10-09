@@ -29,7 +29,7 @@
 #include "../thermal_solution/system.h"
 #include "../thermal_equation/system.h"
 #include "../thermal_equation/radiance_cpu.h"
-#include "../subject/spherical_generator.h"
+#include "../subject/generator.h"
 #include "../import_export/obj_export.h"
 
 #include <helper_timer.h>
