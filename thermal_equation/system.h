@@ -74,6 +74,7 @@ namespace thermal_equation
   #define THERMAL_EQUATION_RADIANCE_CPU 2
   #define THERMAL_EQUATION_CONDUCTIVE_CPU 3
   #define THERMAL_EQUATION_HEAT_SOURCE_CPU 4
+  #define THERMAL_EQUATION_DISNTANT_SOURCE_CPU 5
 
   /**
    * @brief Factory method for equation creation.

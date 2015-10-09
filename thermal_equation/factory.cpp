@@ -23,6 +23,7 @@
 #include "form_factors.h"
 #include "radiance_cpu.h"
 #include "heat_source_cpu.h"
+#include "parallel_rays_cpu.h"
 
 namespace thermal_equation
 {
@@ -46,6 +47,10 @@ namespace thermal_equation
 
     case THERMAL_EQUATION_HEAT_SOURCE_CPU:
       system = heat_source_equation::system_create();
+      break;
+
+    case THERMAL_EQUATION_DISNTANT_SOURCE_CPU:
+      system = parallel_rays_cpu::system_create();
       break;
 
     default:
