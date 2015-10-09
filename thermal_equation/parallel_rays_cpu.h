@@ -35,7 +35,8 @@ namespace parallel_rays_cpu
   {
     int n_rays;
     emission::system_t* emitter;
-    source_t(*source)();
+    void* source_param;
+    source_t(*source)(void* param);
   };
 
   thermal_equation::system_t* system_create();
