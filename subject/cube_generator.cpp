@@ -19,48 +19,70 @@
 #include "../math/operations.h"
 #include <random>
 #include <stdlib.h>
+#include <assert.h>
 
-namespace spherical_generator
+namespace cube_generator
 {
   struct generator_t : subject::generator_t
   {
     /// @note Distribution taken from http://mathworld.wolfram.com/SpherePointPicking.html
     math::vec3 SurfacePoint()
     {
-      float theta = ThetaDistribution(ThetaGenerator);
-      float u = UDistribution(UGenerator);
-
-      float c = sqrtf(1 - u * u);
-
-      float x = c * cos(theta);
-      float y = c * sin(theta);
-      float z = u;
-
-      return math::make_vec3(x, y, z);
+      float a = XDistribution(XGenerator);
+      float b = YDistribution(YGenerator);
+      switch (SideDistribution(SideGenerator))
+      {
+      case 0:
+        return math::make_vec3(a, b, 0);
+        break;
+      case 1:
+        return math::make_vec3(a, b, 1);
+        break;
+        break;
+      case 2:
+        return math::make_vec3(0, a, b);
+        break;
+      case 3:
+        return math::make_vec3(1, a, b);
+        break;
+      case 4:
+        return math::make_vec3(a, 0, b);
+        break;
+      case 5:
+        return math::make_vec3(a, 1, b);
+        break;
+      default:
+        assert(!"Invalid generator value");
+        return math::make_vec3(0, 0, 0);
+        break;
+      }
     }
 
     math::vec3 VolumePoint()
     {
-      /// @todo Check if cubic root for radius gives uniform sphere volume distribution.
-      return SurfacePoint() * powf(RDistribution(RGenerator), 0.3333f);
+      return math::make_vec3(XDistribution(XGenerator), YDistribution(YGenerator), ZDistribution(ZGenerator));
     }
 
-    std::mt19937 ThetaGenerator;
-    std::mt19937 UGenerator;
-    std::mt19937 RGenerator;
-    std::uniform_real_distribution<float> ThetaDistribution;
-    std::uniform_real_distribution<float> UDistribution;
-    std::uniform_real_distribution<float> RDistribution;
+    std::mt19937 XGenerator;
+    std::mt19937 YGenerator;
+    std::mt19937 ZGenerator;
+    std::mt19937 SideGenerator;
+    std::uniform_real_distribution<float> XDistribution;
+    std::uniform_real_distribution<float> YDistribution;
+    std::uniform_real_distribution<float> ZDistribution;
+    std::uniform_int_distribution<int> SideDistribution;
   };
 
   int init(generator_t* generator)
   {
-    generator->ThetaGenerator = std::mt19937(0);
-    generator->UGenerator = std::mt19937(1);
-    generator->RGenerator = std::mt19937(2);
-    generator->ThetaDistribution = std::uniform_real_distribution<float>(0, float(M_PI * 2.));
-    generator->UDistribution = std::uniform_real_distribution<float>(-1, 1);
-    generator->RDistribution = std::uniform_real_distribution<float>(0, 1);
+    generator->XGenerator = std::mt19937(0);
+    generator->YGenerator = std::mt19937(1);
+    generator->ZGenerator = std::mt19937(2);
+    generator->SideGenerator = std::mt19937(3);
+    generator->XDistribution = std::uniform_real_distribution<float>(0, 1);
+    generator->YDistribution = std::uniform_real_distribution<float>(0, 1);
+    generator->ZDistribution = std::uniform_real_distribution<float>(0, 1);
+    generator->SideDistribution = std::uniform_int_distribution<int>(0, 5);
     return 0;
   }
 
@@ -100,31 +122,10 @@ namespace spherical_generator
 
 namespace subject
 {
-  generator_t* generator_create_spherical()
+  generator_t* generator_create_cube()
   {
-    generator_t* g = spherical_generator::generator_create();
+    generator_t* g = cube_generator::generator_create();
     g->methods->init(g);
     return g;
-  }
-
-  int generator_init(generator_t* g)
-  {
-    return g->methods->init(g);
-  }
-
-  void generator_free(generator_t* g)
-  {
-    g->methods->shutdown;
-    free(g);
-  }
-
-  int generator_surface_point(generator_t* g, int count, math::vec3* result)
-  {
-    return g->methods->surface_point(g, count, result);
-  }
-
-  int generator_volume_point(generator_t* g, int count, math::vec3* result)
-  {
-    return g->methods->volume_point(g, count, result);
   }
 }

@@ -15,7 +15,7 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* This module contains generator uniformly distributed points on sphere surface and in sphere volume.
+* This module contains generator uniformly distributed points generators.
 */
 
 #include "../math/types.h"
@@ -46,6 +46,7 @@ namespace subject
   };
 
   generator_t* generator_create_spherical();
+  generator_t* generator_create_cube();
 
   int generator_init(generator_t* generator);
   void generator_free(generator_t* generator);
