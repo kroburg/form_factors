@@ -56,7 +56,7 @@ namespace math
   struct sphere_t
   {
     vec3 center;
-    float raius;
+    float radius;
   };
 
   /// @brief Face type.
