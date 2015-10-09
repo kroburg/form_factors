@@ -120,7 +120,7 @@ namespace parallel_rays_cpu
         float side = dot(normale, source.direction);
         int mesh_idx = face2mesh(system, ray_caster_task->hit_face[r] - system->emission_scene.faces);
         const subject::material_t& material = mesh_material(system->scene, mesh_idx);
-        task->absorption[mesh_idx] += (side < 0 ? material.front.emissivity : material.rear.emissivity) * ray_power;
+        task->absorption[mesh_idx] += (side < 0 ? material.front.absorbance : material.rear.absorbance) * ray_power;
       }
     }
 
