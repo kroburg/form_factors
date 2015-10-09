@@ -19,6 +19,7 @@
 #include "../emission/parallel_rays_cpu.h"
 #include "../math/operations.h"
 #include "../math/triangle.h"
+#include "../math/mat.h"
 
 namespace parallel_rays_cpu
 {
@@ -95,7 +96,7 @@ namespace parallel_rays_cpu
 
     source_t source = system->params.source(system->params.source_param);
     float radius = system->bsphere.radius * 1.1f;
-    system->emission_task.origin = system->bsphere.center - source.direction * (1.1f + radius);
+    system->emission_task.distance = 1.1f + radius;
     system->emission_task.direction = source.direction;
     system->emission_task.height = radius * 2;
     system->emission_task.width = radius * 2;
@@ -109,14 +110,17 @@ namespace parallel_rays_cpu
     if (ray_caster_task == 0)
       return THERMAL_EQUATION_OK;
 
-    float ray_power = source.power / system->params.n_rays;
+     float ray_power = source.power * (4 * radius * radius) / system->params.n_rays;
 
     for (int r = 0; r != ray_caster_task->n_tasks; ++r)
     {
       if (ray_caster_task->hit_face[r])
       {
+        math::vec3 normale = math::triangle_normal(*ray_caster_task->hit_face[r]);
+        float side = dot(normale, source.direction);
         int mesh_idx = face2mesh(system, ray_caster_task->hit_face[r] - system->emission_scene.faces);
-        task->absorption[mesh_idx] += ray_power;
+        const subject::material_t& material = mesh_material(system->scene, mesh_idx);
+        task->absorption[mesh_idx] += (side < 0 ? material.front.emissivity : material.rear.emissivity) * ray_power;
       }
     }
 
