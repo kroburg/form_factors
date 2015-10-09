@@ -20,12 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="malley_cpu.cpp" />
-    <ClCompile Include="parallel_cpu.cpp" />
+    <ClCompile Include="parallel_rays_cpu.cpp" />
     <ClCompile Include="system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="malley_cpu.h" />
-    <ClInclude Include="parallel_cpu.h" />
+    <ClInclude Include="parallel_rays_cpu.h" />
     <ClInclude Include="system.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -20,6 +20,7 @@
  */
 
 #include "malley_cpu.h"
+#include "parallel_rays_cpu.h"
 #include "system.h"
 #include <algorithm>
 #include <stdlib.h>
@@ -33,6 +34,10 @@ namespace emission
     {
     case EMISSION_MALLEY_CPU:
       system = malley_cpu::system_create();
+      break;
+
+    case EMISSION_PARALLEL_RAYS_CPU:
+      system = parallel_rays_emission_cpu::system_create();
       break;
 
     default:

@@ -19,7 +19,7 @@
 * Calculator is capable of work with CPU or GPU ray caster implementation.
 */
 
-#include "parallel_cpu.h"
+#include "parallel_rays_cpu.h"
 #include "../ray_caster/system.h"
 #include "../math/operations.h"
 #include "../math/triangle.h"
@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <cstring>
 
-namespace parallel_emission_cpu
+namespace parallel_rays_emission_cpu
 {
   struct cpu_system_t : emission::system_t
   {

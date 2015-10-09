@@ -22,7 +22,7 @@
 
 #include "../emission/system.h"
 
-namespace parallel_emission_cpu
+namespace parallel_rays_emission_cpu
 {
   /// @todo Provide a way to change origin and direction in time.
   struct params_t
