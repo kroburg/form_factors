@@ -312,6 +312,7 @@ namespace math
     }
   }
 
+  // @todo Not tested.
   int decode_vertex_mapping_cyclic(int vertex_mapping, char*lp, char* rp)
   {
     int mask = 1;
@@ -320,13 +321,13 @@ namespace math
     {
       for (int r = 0; r != 3 && count != 3; ++r, mask << 1)
       {
-        if (vertex_mapping & mask == 0)
+        if ((vertex_mapping & mask) == 0)
           continue;
 
         *lp++ = l;
         *rp++ = r;
         ++count;
-        mask << (3 - r);
+        mask = mask << (3 - r);
         break;
       }
     }
@@ -338,5 +339,21 @@ namespace math
   {
     int m = triangle_find_adjacent_vertices(l, r);
     return triangle_has_adjacent_edge(m);
+  }
+
+  aabb_t triangles_aabb(triangle_t* triangles, int n_triangles)
+  {
+    aabb_t result = aabb_t();
+    for (int i = 0; i != n_triangles; ++i)
+      result += triangle_aabb(triangles[i]);
+    return result;
+  }
+
+  sphere_t triangles_bsphere(triangle_t* triangles, int n_triangles)
+  {
+    aabb_t box = triangles_aabb(triangles, n_triangles);
+    vec3 center = (box.min + box.max) / 2.f;
+    float radius = norm(box.max - box.min) / 2.f;
+    return{ center, radius };
   }
 }

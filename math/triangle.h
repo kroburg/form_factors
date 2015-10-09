@@ -114,4 +114,10 @@ namespace math
 
   /// @brief Check two triangles for adjacent edge existence.
   bool triangle_has_adjacent_edge(const triangle_t& l, const triangle_t& r);
+
+  /// @brief Calculate axes aligned bounding box for triangles.
+  aabb_t triangles_aabb(triangle_t* triangles, int n_triangles);
+
+  /// @brief Calculate bounding sphere for triangles.
+  sphere_t triangles_bsphere(triangle_t* triangles, int n_triangles);
 }
