@@ -44,7 +44,14 @@ namespace obj_import
 
   /**
     @brief Load thermal solution task values from file of obj-like format.
-    @note heat_source parameter values must have valid (initialized) values before call.
+    @param heat_source parameter values must have valid (initialized) values before call.
+    @distant_source  parameter values must have valid (initialized) values before call.
+    @detail obj-like format is:
+      newfrm <frame name> Start of new (results) frame or task.
+      step <time step> Integration step in seconds (s)
+      tmprt <mesh temeprature> List of mesh temperatures (K) from first to last.
+      [optional] dstsrc Distant (parallel rays) radiocity heat source (W/m^2). dstsrc <power> <x direction> <y direction> <z direction>. Direction of (-1, 0, 0) is like source is left to the scene.
+      [optional] htsrc Heat source or sink (W). htsrc <mesh zero-based index> <power>.
   */
   int task(FILE* in, int n_meshes, thermal_solution::task_t* t, heat_source_equation::params_t* heat_source, parallel_rays_cpu::params_t* distant_source);
 }
