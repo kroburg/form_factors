@@ -84,7 +84,7 @@ namespace parallel_rays_emission_cpu
     return EMISSION_OK;
   }
 
- /// @brief Creates task with n_rays random generated rays.
+ /// @brief Creates task with n_rays of random generated rays.
   ray_caster::task_t* make_caster_task(cpu_system_t* system, task_t* task)
   {
     math::mat33 rotation = math::rotate_towards(math::make_vec3(0, 0, 1), task->direction);
@@ -98,7 +98,6 @@ namespace parallel_rays_emission_cpu
       float y = radius * sinf(theta);
       math::vec3 origin = rotation * math::make_vec3(x, y, -task->distance) + task->center;
       math::vec3 direction = origin + task->direction * 0.1f;
-      math::vec3 step = origin + 30 * direction;
 
       ray_caster_task->ray[r] = { origin, direction };
     }

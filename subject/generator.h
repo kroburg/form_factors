@@ -15,7 +15,7 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* This module contains generator uniformly distributed points generators.
+* This module contains generators for uniformly distributed points.
 */
 
 #include "../math/types.h"
