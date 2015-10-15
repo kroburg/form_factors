@@ -129,7 +129,7 @@ int ModelRenderer::afterInit() {
     // Vertex shader uniforms
     mvMatrix = glm::mat4(1.0);
     cameraMatrix = glm::lookAt(cameraVec, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-    projectionMatrix = glm::perspective(glm::radians(45.0f), 1.0f * width / height, 0.01f, 100.0f);
+    projectionMatrix = glm::perspective(glm::radians(45.0f), 1.0f * width / height, 0.01f, 1000.0f);
     normalMatrix = glm::inverseTranspose(glm::mat3(mvMatrix));
     sprogram.setUniform("mvMatrix", mvMatrix);
     sprogram.setUniform("cameraMatrix", cameraMatrix);
