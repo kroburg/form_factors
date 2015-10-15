@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClInclude Include="system.h" />
     <ClInclude Include="objects.h" />
-    <ClInclude Include="cube_generator.h" />
     <ClInclude Include="generator.h" />
   </ItemGroup>
   <ItemGroup>

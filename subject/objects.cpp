@@ -68,8 +68,52 @@ namespace subject
         math::vec3 C = math::make_vec3(x + step_x, y + step_y, 0);
         math::vec3 D = math::make_vec3(x, y + step_y, 0);
 
-        faces[(i * cells_x + j) * 2] = make_face(A, B, D);
-        faces[(i * cells_x + j) * 2 + 1] = make_face(C, D, B);
+        faces[(i * cells_y + j) * 2] = make_face(A, B, D);
+        faces[(i * cells_y + j) * 2 + 1] = make_face(C, D, B);
+      }
+    }
+
+    return faces;
+  }
+
+  math::face_t* tplane_grid_faces(float width, float height, int cells_x, int cells_y)
+  {
+    const int face_count = cells_x * cells_y * 4;
+    face_t* faces = (face_t*)malloc(sizeof(face_t) * face_count);
+
+    float step_x = width / cells_x;
+    float step_y = height / cells_y;
+    for (int i = 0; i != cells_x; ++i)
+    {
+      for (int j = 0; j != cells_y; ++j)
+      {
+        float x = step_x * i - width / 2;
+        float y = step_y * j - height / 2;
+
+        math::vec3 A = math::make_vec3(x, y, 0);
+        math::vec3 B = math::make_vec3(x + step_x, y, 0);
+        math::vec3 C = math::make_vec3(x + step_x, y + step_y, 0);
+        math::vec3 D = math::make_vec3(x, y + step_y, 0);
+
+        faces[(i * cells_y + j) * 2] = make_face(A, B, D);
+        faces[(i * cells_y + j) * 2 + 1] = make_face(C, D, B);
+      }
+    }
+
+    for (int i = 0; i != cells_x; ++i)
+    {
+      for (int j = 0; j != cells_y; ++j)
+      {
+        float x = step_x * i;
+        float y = step_y * j - height / 2;
+
+        math::vec3 A = math::make_vec3(0, y, x);
+        math::vec3 B = math::make_vec3(0, y, x + step_x);
+        math::vec3 C = math::make_vec3(0, y + step_y, x + step_x);
+        math::vec3 D = math::make_vec3(0, y + step_y, x);
+
+        faces[((cells_x + i) * cells_y + j) * 2] = make_face(A, B, D);
+        faces[((cells_x + i) * cells_y + j) * 2 + 1] = make_face(C, D, B);
       }
     }
 
@@ -85,7 +129,24 @@ namespace subject
     {
       for (int j = 0; j != cells_y; ++j)
       {
-        int idx = i * cells_x + j;
+        int idx = i * cells_y + j;
+        meshes[idx] = make_mesh(idx * 2, 2, 0);
+      }
+    }
+
+    return meshes;
+  }
+
+  mesh_t* tplane_grid_meshes(int cells_x, int cells_y)
+  {
+    const int mesh_count = 2 * cells_x * cells_y;
+    mesh_t* meshes = (mesh_t*)malloc(sizeof(mesh_t) * mesh_count);
+
+    for (int i = 0; i != 2 * cells_x; ++i)
+    {
+      for (int j = 0; j != cells_y; ++j)
+      {
+        int idx = i * cells_y + j;
         meshes[idx] = make_mesh(idx * 2, 2, 0);
       }
     }

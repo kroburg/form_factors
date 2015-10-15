@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cube_generator.h" />
     <ClInclude Include="generator.h" />
     <ClInclude Include="objects.h" />
     <ClInclude Include="system.h" />
