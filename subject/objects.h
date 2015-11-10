@@ -25,6 +25,8 @@ namespace subject
   const math::face_t* box(); // 12 faces packed by two faces per box face.
   math::face_t* plane_grid_faces(float width, float height, int cells_x, int cells_y); // allocate and intialize plane grid
   mesh_t* plane_grid_meshes(int cells_x, int cells_y);
+  math::face_t* tplane_grid_faces(float width, float height, int cells_x, int cells_y);
+  mesh_t* tplane_grid_meshes(int cells_x, int cells_y);
   
   material_t material_Al(float thickness);
 }
