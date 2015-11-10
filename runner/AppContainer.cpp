@@ -60,7 +60,7 @@ int AppContainer::init(int width, int height, bool onlyOpenGL) {
     }
 
     if (!onlyOpenGL) {
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED/* | SDL_RENDERER_PRESENTVSYNC*/);
         if (renderer == nullptr) {
             logSDLError(std::cerr, "SDL_CreateRenderer");
             return 1;
