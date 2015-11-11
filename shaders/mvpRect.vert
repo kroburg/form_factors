@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
-#version 330
+#version 150
 
-layout (location = 0) in vec2 vertex;
+in vec2 vertex;
 
 uniform mat4 projMatrix;
 uniform mat4 mvMatrix;
