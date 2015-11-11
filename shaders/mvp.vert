@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
-#version 330
+#version 150
 
-layout (location = 0) in vec3 vertex;
-layout (location = 1) in vec3 normal;
-layout (location = 2) in float temp;
+in vec3 vertex;
+in vec3 normal;
+in float temp;
 
 // Outputs mv-applied vector
 out highp vec3 vert;
