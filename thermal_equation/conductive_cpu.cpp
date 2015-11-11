@@ -70,6 +70,16 @@ namespace conductive_equation
     thermal_equation::task_t* task;
   };
 
+  math::vec3 mesh_center(const subject::scene_t* scene, int mesh_idx)
+  {
+    const subject::mesh_t& mesh = scene->meshes[mesh_idx];
+    math::vec3 center = triangle_center(scene->faces[mesh.first_idx]);
+    for (int f = 1; f != mesh.n_faces; ++f)
+      center += triangle_center(scene->faces[mesh.first_idx + f]);
+    center /= (float)mesh.n_faces;
+    return center;
+  }
+
   int graph_walker(int l, int r, int vertex_mapping, bool have_more, graph_walker_param_t* param)
   {
     if (r == -1)
@@ -91,11 +101,11 @@ namespace conductive_equation
     const subject::face_t& l_face = scene->faces[l];
     float edge_length = norm(l_face.points[lp[0]] - l_face.points[lp[1]]);
     math::vec3 median = (l_face.points[lp[0]] + l_face.points[lp[1]]) / 2.f;
-    math::vec3 l_center = triangle_center(l_face);
+    math::vec3 l_center = mesh_center(scene, l_mesh_idx);
     float l_dist = norm(median - l_center);
 
     const subject::face_t& r_face = scene->faces[r];
-    math::vec3 r_center = triangle_center(r_face);
+    math::vec3 r_center = mesh_center(scene, r_mesh_idx);
     float r_dist = norm(median - r_center);
 
     const subject::material_t& l_matertial = mesh_material(scene, l_mesh_idx);
