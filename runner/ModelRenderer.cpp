@@ -59,10 +59,10 @@ int ModelRenderer::afterInit() {
         return 1;
     }
 
-    if (SDL_GL_SetSwapInterval(1) < 0) {
+    /*if (SDL_GL_SetSwapInterval(1) < 0) {
         logSDLError(std::cerr, "SDL_GL_SetSwapInterval");
         return 1;
-    }
+    }*/
 
     TRACE("Initializing shaders");
 
