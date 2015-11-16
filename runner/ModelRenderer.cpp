@@ -65,8 +65,9 @@ int ModelRenderer::afterInit() {
     }*/
 
     TRACE("Initializing shaders");
-
     sprogram.init();
+    TRACE("Initialized");
+
     if (sprogram.addShaderFromSourceFile(OpenGLShaderProgram::VertexType, "../shaders/mvp.vert") != 0 ||
         sprogram.addShaderFromSourceFile(OpenGLShaderProgram::FragmentType, "../shaders/simple.frag") != 0) {
         ERROR("Can not compile shaders");

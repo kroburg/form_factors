@@ -47,10 +47,14 @@ int OpenGLShaderProgram::addShaderFromSourceFile(ShaderType type, const char*pat
         ERROR("Unable to load " << name << " shader from \"" << path << "\"");
         return 1;
     }
+    TRACE("Shader source " << path << " loaded");
     GLuint& shaderHandle = type == OpenGLShaderProgram::VertexType ? vShaderHandle : fShaderHandle;
     shaderHandle = glCreateShader(type == OpenGLShaderProgram::VertexType ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
+    TRACE("Shader from " << path << " created");
     glShaderSource(shaderHandle, 1, (const GLchar**)&shaderSource, 0);
+    TRACE("Shader from " << path << " bound to handle");
     glCompileShader(shaderHandle);
+    TRACE("Shader from " << path << " compiling ... ");
     GLint compiled = 0;
     glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compiled);
     if (!compiled) {
@@ -65,9 +69,10 @@ int OpenGLShaderProgram::addShaderFromSourceFile(ShaderType type, const char*pat
         return 1;
     }
     glAttachShader(shaderProgramHandle, shaderHandle);
+    TRACE("Shader from " << path << " attached to program");
 
     delete[] shaderSource;
-    TRACE("Loaded " << name << " shader from \"" << path << "\"");
+    TRACE("Finally loaded " << name << " shader from \"" << path << "\"");
 
     return 0;
 }
@@ -86,6 +91,7 @@ int OpenGLShaderProgram::link() {
         delete[] message;
         return 1;
     }
+    TRACE("Program linking complete");
     return 0;
 }
 
