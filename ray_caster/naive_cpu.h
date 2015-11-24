@@ -22,7 +22,7 @@
 
 #include "../ray_caster/system.h"
 
-namespace cpu_ray_caster
+namespace raycaster_naive_cpu
 {
   /// @brief Creates base system for CPU ray caster.
   ray_caster::system_t* system_create();

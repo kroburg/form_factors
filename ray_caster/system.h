@@ -103,12 +103,12 @@ namespace ray_caster
     int(*cast)(system_t* system, task_t* task);
   };
 
-  #define RAY_CASTER_SYSTEM_CPU 1
+  #define RAY_CASTER_NAIVE_CPU 1
   #define RAY_CASTER_SYSTEM_CUDA 2
 
   /**
    * @brief Factory method for ray caster creation.
-   * @param type[in] @see RAY_CASTER_SYSTEM_CPU for CPU caster and @see RAY_CASTER_SYSTEM_CUDA for GPU.
+   * @param type[in] @see RAY_CASTER_NAIVE_CPU for CPU caster and @see RAY_CASTER_SYSTEM_CUDA for GPU.
    * @note init() system on creation.
    */
   system_t* system_create(int type);

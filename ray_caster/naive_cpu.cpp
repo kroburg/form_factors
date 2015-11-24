@@ -18,13 +18,13 @@
  * This module contains CPU single-threaded implementation of ray caster.
  */
 
-#include "cpu_system.h"
+#include "naive_cpu.h"
 #include "../math/operations.h"
 #include "../math/triangle.h"
 #include <limits>
 #include <stdlib.h>
 
-namespace cpu_ray_caster
+namespace raycaster_naive_cpu
 {
   /// @brief Extended base system_t (C-style polymorphism)
   struct cpu_system_t : ray_caster::system_t

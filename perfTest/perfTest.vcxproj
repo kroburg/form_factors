@@ -157,9 +157,6 @@
     <ProjectReference Include="..\cpuFactorsCalculator\cpuFactorsCalculator.vcxproj">
       <Project>{b45f4831-b73f-4f2d-b86a-00bd6835d5c8}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\cpuRayCaster\cpuRayCaster.vcxproj">
-      <Project>{6db47603-9ce5-4255-99e5-29ac7a1e655c}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\cudaRayCaster\cudaRayCaster.vcxproj">
       <Project>{2bc5721e-f870-4a8d-9160-4139cf0a516b}</Project>
     </ProjectReference>

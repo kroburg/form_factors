@@ -20,7 +20,7 @@
  */
 
 #include "system.h"
-#include "../cpuRayCaster/cpu_system.h"
+#include "naive_cpu.h"
 #include "../cudaRayCaster/cuda_system.h"
 #include <stdlib.h>
 
@@ -66,8 +66,8 @@ namespace ray_caster
     system_t* system = 0;
     switch (type)
     {
-    case RAY_CASTER_SYSTEM_CPU:
-      system = cpu_ray_caster::system_create();
+    case RAY_CASTER_NAIVE_CPU:
+      system = raycaster_naive_cpu::system_create();
       break;
 
     case RAY_CASTER_SYSTEM_CUDA:
@@ -82,7 +82,7 @@ namespace ray_caster
 
   system_t* system_create_default()
   {
-    return system_create(RAY_CASTER_SYSTEM_CPU);
+    return system_create(RAY_CASTER_NAIVE_CPU);
   }
 
   void system_free(system_t* system)

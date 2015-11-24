@@ -131,9 +131,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="naive_cpu.h" />
     <ClInclude Include="system.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="naive_cpu.cpp" />
     <ClCompile Include="system.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

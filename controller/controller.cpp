@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
   const char* result_name = "-";
   int n_rays = 1000 * 1000;
   int n_steps = 100;
-  int type = RAY_CASTER_SYSTEM_CPU;
+  int type = RAY_CASTER_NAIVE_CPU;
   bool binary_output = false;
 
   for (int i = 1; i < argc; ++i)
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
       if (strcmp("cuda", argv[i]) == 0)
         type = RAY_CASTER_SYSTEM_CUDA;
       else if (strcmp("cpu", argv[i]) == 0)
-        type = RAY_CASTER_SYSTEM_CPU;
+        type = RAY_CASTER_NAIVE_CPU;
       else
         return -RAY_CASTER_NOT_SUPPORTED;
 
