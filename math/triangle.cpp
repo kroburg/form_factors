@@ -373,4 +373,19 @@ namespace math
 
     return{ geom_center, r };
   }
+
+  bool triangle_2d_contains_point(const triangle_t& t, const vec3& p)
+  {
+    // @todo Not tested!
+    const vec3 p1 = t.points[0];
+    const vec3 p2 = t.points[1];
+    const vec3 p3 = t.points[2];
+
+    float c = ((p2.y - p3.y)*(p1.x - p3.x) + (p3.x - p2.x)*(p1.y - p3.y));
+    float alpha = ((p2.y - p3.y)*(p.x - p3.x) + (p3.x - p2.x)*(p.y - p3.y)) / c;
+    float beta = ((p3.y - p1.y)*(p.x - p3.x) + (p1.x - p3.x)*(p.y - p3.y)) / c;
+    float gamma = 1.0f - alpha - beta;
+
+    return alpha >= 0.f && beta >= 0.f && gamma >= 0.f;
+  }
 }

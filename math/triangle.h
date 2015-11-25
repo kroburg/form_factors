@@ -120,4 +120,7 @@ namespace math
 
   /// @brief Calculate bounding sphere for triangles.
   sphere_t triangles_bsphere(triangle_t* triangles, int n_triangles);
+
+  /// @brief Check if point inside triangle.
+  bool triangle_2d_contains_point(const triangle_t& t, const vec3& point);
 }
