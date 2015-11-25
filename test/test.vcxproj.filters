@@ -13,5 +13,6 @@
     <ClCompile Include="radiance_solution.cpp" />
     <ClCompile Include="conductive_solution.cpp" />
     <ClCompile Include="heat_source.cpp" />
+    <ClCompile Include="grid.cpp" />
   </ItemGroup>
 </Project>

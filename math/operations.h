@@ -105,6 +105,14 @@ namespace math
     return a * b;
   }
 
+  inline vec3 operator*(vec3 a, vec3 b)
+  {
+    a.x *= b.x;
+    a.y *= b.y;
+    a.z *= b.z;
+    return a;
+  }
+
   /// @brief 3d vector to scalar division.
   inline vec3 operator/(vec3 a, point_t b)
   {
@@ -123,6 +131,12 @@ namespace math
     a.x *= b;
     a.y *= b;
     a.z *= b;
+  }
+
+  inline void operator-=(ray_t& r, vec3 shift)
+  {
+    r.origin -= shift;
+    r.direction -= shift;
   }
 
   /// @brief 3d vector containing minimum coordinates of two 3d vectors.
@@ -145,6 +159,27 @@ namespace math
       a /= sqrtf(n);
     }
     return a;
+  }
+
+  inline vec3 modf(vec3 a, vec3& int_part)
+  {
+    a.x = modff(a.x, &int_part.x);
+    a.y = modff(a.y, &int_part.y);
+    a.z = modff(a.z, &int_part.z);
+    return a;
+  }
+
+  inline vec3 fraction(vec3 a)
+  {
+    vec3 int_part;
+    return modf(a, int_part);
+  }
+
+  inline vec3 integral(vec3 a)
+  {
+    vec3 int_part;
+    modf(a, int_part);
+    return int_part;
   }
 
   /// @brief Checks for vector equality.
