@@ -351,11 +351,11 @@ namespace math
 
   sphere_t triangles_bsphere(triangle_t* triangles, int n_triangles)
   {
-  math:vec3 geom_center = make_vec3(0, 0, 0);
+    vec3 geom_center = make_vec3(0, 0, 0);
 
     for (int i = 0; i != n_triangles; ++i)
       geom_center += triangle_center(triangles[i]);
-    geom_center /= n_triangles;
+    geom_center /= (float)n_triangles;
 
     float r = 0;
     for (int i = 1; i != n_triangles; ++i)

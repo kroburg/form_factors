@@ -119,6 +119,13 @@ namespace math
     return make_vec3(a.x / b, a.y / b, a.z / b);
   }
 
+  inline void operator/=(vec3& a, vec3 b)
+  {
+    a.x /= b.x;
+    a.y /= b.y;
+    a.z /= b.z;
+  }
+
   inline vec3 operator/(vec3 a, vec3 b)
   {
     return make_vec3(a.x / b.x, a.y / b.y, a.z / b.z);

@@ -55,5 +55,11 @@ namespace math
 
   typedef bool(*grid_traversal_callback)(grid_coord_t p, void* param); // return true to stop
 
+  /// @brief Travers ray (infinite ray) through grid.
   void grid_traverse(const grid_2d_t* grid, ray_t ray, grid_traversal_callback callback, void* param);
+
+  /// @brief Put segment (finite ray) on grid.
+  void grid_put(const grid_2d_t* grid, ray_t ray, grid_traversal_callback callback, void* param);
+
+  void grid_rasterize(const grid_2d_t* grid, const triangle_t& t, grid_traversal_callback callback, void* param);
 }
