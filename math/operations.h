@@ -168,25 +168,9 @@ namespace math
     return a;
   }
 
-  inline vec3 modf(vec3 a, vec3& int_part)
-  {
-    a.x = modff(a.x, &int_part.x);
-    a.y = modff(a.y, &int_part.y);
-    a.z = modff(a.z, &int_part.z);
-    return a;
-  }
-
   inline vec3 fraction(vec3 a)
   {
-    vec3 int_part;
-    return modf(a, int_part);
-  }
-
-  inline vec3 integral(vec3 a)
-  {
-    vec3 int_part;
-    modf(a, int_part);
-    return int_part;
+    return a - make_vec3((float)(int)a.x, (float)(int)a.y, (float)(int)a.z);
   }
 
   /// @brief Checks for vector equality.
@@ -215,7 +199,7 @@ namespace math
 
   inline vec3 abs(vec3 a)
   {
-    return make_vec3(fabsf(a.x), fabsf(a.y), fabsf(a.z));
+    return make_vec3(a.x < 0 ? -a.x : a.x, a.y < 0 ? -a.y : a.y, a.z < 0 ? -a.z : a.z);
   }
 
   bool operator < (const vec3& l, const vec3& r);
