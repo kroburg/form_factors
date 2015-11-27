@@ -341,7 +341,7 @@ namespace math
     return triangle_has_adjacent_edge(m);
   }
 
-  aabb_t triangles_aabb(triangle_t* triangles, int n_triangles)
+  aabb_t triangles_aabb(const triangle_t* triangles, int n_triangles)
   {
     aabb_t result = aabb_t();
     for (int i = 0; i != n_triangles; ++i)
@@ -349,7 +349,7 @@ namespace math
     return result;
   }
 
-  sphere_t triangles_bsphere(triangle_t* triangles, int n_triangles)
+  sphere_t triangles_bsphere(const triangle_t* triangles, int n_triangles)
   {
     vec3 geom_center = make_vec3(0, 0, 0);
 

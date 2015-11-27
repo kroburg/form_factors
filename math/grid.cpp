@@ -17,8 +17,9 @@
 #include "grid.h"
 #include "operations.h"
 #include "assert.h"
-
-#include <map>
+#include "triangle.h"
+#include <stdlib.h>
+#include <algorithm>
 
 namespace math
 {
@@ -79,27 +80,54 @@ namespace math
     grid_traverse(grid, ray, true, callback, param);
   }
 
-  struct x_boundary_t
+  struct boundary_t
   {
+    int pivot;
     int min;
     int max;
   };
 
-  typedef std::map<int, x_boundary_t> rasterizer_countour_t;
-
-  bool collect_countour(int x, int y, rasterizer_countour_t* countour)
+  struct boundary_less
   {
-    rasterizer_countour_t::iterator found = countour->find(y);
-    x_boundary_t& b = (*countour)[y];
-    if (found == countour->end())
+    bool operator()(const boundary_t& l, int r) const
+    {
+      return l.pivot < r;
+    }
+
+    bool operator()(int l, const boundary_t& r) const
+    {
+      return l < r.pivot;
+    }
+
+    bool operator()(const boundary_t& l, const boundary_t& r) const
+    {
+      return l.pivot < r.pivot;
+    }
+  };
+
+  struct rasterizer_countour_t
+  { 
+    int size;
+    boundary_t values[31];
+  };
+
+  bool collect_countour(grid_coord_t p, rasterizer_countour_t* c)
+  {
+    std::pair<boundary_t*, boundary_t*> range = std::equal_range(c->values, c->values + c->size, p.y, boundary_less());
+    boundary_t& b = *range.first;
+    if (range.first != range.second)
     { 
-      b.min = x;
-      b.max = x;
+      b.min = std::min(b.min, p.x);
+      b.max = std::max(b.max, p.x);
     }
     else
     {
-      b.min = std::min(b.min, x);
-      b.max = std::max(b.max, x);
+      if (c->size != sizeof(c->values) / sizeof(boundary_t))
+      {
+        memmove(range.first + 1, range.first, sizeof(boundary_t) * (c->size - (range.first - c->values)));
+        ++c->size;
+        b = { p.y, p.x, p.x };
+      }
     }
 
     return false;
@@ -114,11 +142,11 @@ namespace math
 
   void report_countour(const rasterizer_countour_t& c, grid_traversal_callback callback, void* param)
   {
-    for (rasterizer_countour_t::const_iterator iter = c.begin(); iter != c.end(); ++iter)
+    for (char i = 0; i != c.size; ++i)
     {
-      const x_boundary_t& b = iter->second;
+      const boundary_t& b = c.values[i];
       for (int x = b.min; x <= b.max; ++x)
-        if (callback({ x, iter->first }, param))
+        if (callback({ x, b.pivot }, param))
           return;
     }
   }
@@ -126,8 +154,77 @@ namespace math
   void grid_rasterize(const grid_2d_t* grid, const triangle_t& t, grid_traversal_callback callback, void* param)
   {
     // @todo Replace std::map<> with more efficient collection.
-    rasterizer_countour_t countour;
+    rasterizer_countour_t countour = { 0 };
     collector_countour(grid, countour, t);
     report_countour(countour, callback, param);
+  }
+
+  grid_2d_index_t* grid_make_index(const grid_2d_t* grid)
+  {
+    grid_2d_index_t* index = (grid_2d_index_t*)malloc(sizeof(grid_2d_index_t));
+    index->n_x = grid->n_x;
+    index->n_y = grid->n_y;
+    index->table = (grid_triangles_list_t*)malloc(grid->n_x * grid->n_y * sizeof(grid_triangles_list_t));
+    memset(index->table, 0, grid->n_x * grid->n_y * sizeof(grid_triangles_list_t));
+    return index;
+  }
+
+  void grid_free_index(grid_2d_index_t* index)
+  {
+    if (index)
+      free(index->table);
+    free(index);
+  }
+
+  struct index_param_t
+  {
+    grid_2d_index_t* index;
+    const triangle_t* triangle;
+  };
+
+  bool index_callback(grid_coord_t p, index_param_t* param)
+  {
+    grid_triangles_list_t& list = param->index->table[p.x + param->index->n_x * p.y];
+    if (list.alloc - list.size == 0)
+    {
+      list.alloc += 8;
+      list.triangles = (triangle_t const**)realloc(list.triangles, sizeof(triangle_t*) * list.alloc);
+    }
+    list.triangles[list.size++] = param->triangle;
+    return false;
+  }
+
+  void grid_index_triangles(const grid_2d_t* grid, grid_2d_index_t* index, const triangle_t* triangles, int n_triangles)
+  {
+    for (int t = 0; t != n_triangles; ++t)
+    {
+      index_param_t param = { index, &triangles[t] };
+      grid_rasterize(grid, triangles[t], (grid_traversal_callback)index_callback, &param);
+    }
+  }
+
+  int grid_get_index_usage(const grid_2d_index_t* index)
+  {
+    int s = 0;
+    for (int i = 0; i != index->n_x * index->n_y; ++i)
+      if (index->table[i].size)
+        ++s;
+    return s;
+  }
+
+  void grid_draw_hist(int n_depth, const triangle_t* triangles, int n_triangles)
+  {
+    aabb_t aabb = triangles_aabb(triangles, n_triangles);
+    aabb.max *= 1.0001f;
+    printf("         | usage | per_tr\n");
+    for (int i = 1; i <= n_depth; i *= 2)
+    {
+      grid_2d_t grid = { aabb.min, (aabb.max - aabb.min) / i, i, i };
+      grid_2d_index_t* index = grid_make_index(&grid);
+      grid_index_triangles(&grid, index, triangles, n_triangles);
+      int usage = grid_get_index_usage(index);
+      printf("%8d | %5.0f | %6.1f\n", i, 100 * (float)usage / i / i, (float)usage / n_triangles);
+      grid_free_index(index);
+    }
   }
 }

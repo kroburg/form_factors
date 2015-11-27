@@ -116,10 +116,10 @@ namespace math
   bool triangle_has_adjacent_edge(const triangle_t& l, const triangle_t& r);
 
   /// @brief Calculate axes aligned bounding box for triangles.
-  aabb_t triangles_aabb(triangle_t* triangles, int n_triangles);
+  aabb_t triangles_aabb(const triangle_t* triangles, int n_triangles);
 
   /// @brief Calculate bounding sphere for triangles.
-  sphere_t triangles_bsphere(triangle_t* triangles, int n_triangles);
+  sphere_t triangles_bsphere(const triangle_t* triangles, int n_triangles);
 
   /// @brief Check if point inside triangle.
   bool triangle_2d_contains_point(const triangle_t& t, const vec3& point);
