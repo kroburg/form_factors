@@ -32,3 +32,14 @@ namespace naive_cuda_ray_caster
  * */
   ray_caster::system_t* system_create();
 }
+
+namespace zgrid_cuda_ray_caster
+{
+  /**
+  * @brief Creates base system for GPU ray caster.
+  * @detail Use Axes Aligned Bounding Box optimization.
+  * @todo AABB calculated during set_scene() call but it should be done during prepare() call.
+  * @todo No CUDA related calls should be performed until prepare()/cast() calls.
+  * */
+  ray_caster::system_t* system_create();
+}
