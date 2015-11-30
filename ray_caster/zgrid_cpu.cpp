@@ -63,7 +63,6 @@ namespace ray_caster_zgrid_cpu
     system->grid = grid_deduce_optimal(stat);
     system->index = grid_make_index(&system->grid);
     grid_index_triangles(&system->grid, system->index, system->scene->faces, system->scene->n_faces);
-    grid_index_linearize(system->index);
     
     return RAY_CASTER_OK;
   }
@@ -83,11 +82,11 @@ namespace ray_caster_zgrid_cpu
     math::grid_2d_index_t* index = param->system->index;
     
 
-    const math::grid_triangles_list_t& list = index->table[p.x + index->n_x * p.y];
+    const math::grid_cell_t& cell = index->cells[p.x + index->n_x * p.y];
     // @todo Sort geometry in z-order?
-    for (int i = 0; i != list.size; ++i)
+    for (int i = 0; i != cell.count; ++i)
     {
-      const int f = list.triangles[i];
+      const int f = cell.triangles[i];
       math::triangle_t triangle = system->scene->faces[f];
       math::vec3 point;
       const math::ray_t& ray = param->ray;

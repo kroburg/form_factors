@@ -206,8 +206,10 @@ namespace math
     grid_2d_index_t* index = (grid_2d_index_t*)malloc(sizeof(grid_2d_index_t));
     index->n_x = grid->n_x;
     index->n_y = grid->n_y;
-    index->table = (grid_triangles_list_t*)malloc(grid->n_x * grid->n_y * sizeof(grid_triangles_list_t));
-    memset(index->table, 0, grid->n_x * grid->n_y * sizeof(grid_triangles_list_t));
+    index->cells = (grid_cell_t*)malloc(grid->n_x * grid->n_y * sizeof(grid_cell_t));
+    memset(index->cells, 0, grid->n_x * grid->n_y * sizeof(grid_cell_t));
+    index->triangles = 0;
+    index->n_triangles = 0;
     return index;
   }
 
@@ -215,49 +217,65 @@ namespace math
   {
     if (index)
     {
-      for (int i = 0; i != index->n_x * index->n_y; ++i)
-      {
-        grid_triangles_list_t& list = index->table[i];
-        if (list.alloc > 0)
-          free(list.triangles);
-      }
-      free(index->table);
+      if (index->cells)
+        free(index->cells);
+      if (index->triangles)
+        free(index->triangles);
     }
     free(index);
   }
 
-  void grid_index_linearize(grid_2d_index_t* index)
+  struct grid_2d_index_builder_t
+  {
+    struct node
+    {
+      int size;
+      int alloc;
+      int* triangles;
+    };
+
+    int n_x;
+    int n_y;
+    node* table;
+  };
+
+  void grid_index_linearize(grid_2d_index_builder_t* builder, grid_2d_index_t* index)
   {
     int count = 0;
     for (int i = 0; i != index->n_x * index->n_y; ++i)
     {
-      count += index->table[i].size;
+      count += builder->table[i].size;
     }
 
     int* linear = (int*)malloc(count * sizeof(int));
+    index->triangles = linear;
+    index->n_triangles = count;
+
     for (int i = 0, l = 0; i != index->n_x * index->n_y; ++i)
     {
-      grid_triangles_list_t& list = index->table[i];
-      if (!list.size)
+      grid_2d_index_builder_t::node& source = builder->table[i];
+      if (!source.size)
         continue;
       
-      memcpy(&linear[l], list.triangles, list.size * sizeof(int));
-      free(list.triangles);
-      list.alloc = l == 0 ? count : 0;
-      list.triangles = &linear[l];
-      l += list.size;
+      memcpy(&linear[l], source.triangles, source.size * sizeof(int));
+      free(source.triangles);
+
+      grid_cell_t& target = index->cells[i];
+      target.triangles = &linear[l];
+      target.count = source.size;
+      l += source.size;
     }
   }
 
   struct index_param_t
   {
-    grid_2d_index_t* index;
+    grid_2d_index_builder_t* index;
     int triangle;
   };
 
   bool index_callback(grid_coord_t p, index_param_t* param)
   {
-    grid_triangles_list_t& list = param->index->table[p.x + param->index->n_x * p.y];
+    grid_2d_index_builder_t::node& list = param->index->table[p.x + param->index->n_x * p.y];
     if (list.alloc - list.size == 0)
     {
       list.alloc += 8;
@@ -269,18 +287,26 @@ namespace math
 
   void grid_index_triangles(const grid_2d_t* grid, grid_2d_index_t* index, const triangle_t* triangles, int n_triangles)
   {
+    grid_2d_index_builder_t builder;
+    builder.n_x = index->n_x;
+    builder.n_y = index->n_y;
+    builder.table = (grid_2d_index_builder_t::node*)calloc(builder.n_x * builder.n_y, sizeof(grid_2d_index_builder_t::node));
+    
     for (int t = 0; t != n_triangles; ++t)
     {
-      index_param_t param = { index, t };
+      index_param_t param = { &builder, t };
       grid_rasterize(grid, triangles[t], (grid_traversal_callback)index_callback, &param);
     }
+
+    grid_index_linearize(&builder, index);
+    free(builder.table);
   }
 
   int grid_get_index_usage(const grid_2d_index_t* index)
   {
     int s = 0;
     for (int i = 0; i != index->n_x * index->n_y; ++i)
-      if (index->table[i].size)
+      if (index->cells[i].count)
         ++s;
     return s;
   }
@@ -295,7 +321,6 @@ namespace math
       grid_2d_t grid = make_grid(stat.aabb.min, stat.aabb.max - stat.aabb.min, i, i);
       grid_2d_index_t* index = grid_make_index(&grid);
       grid_index_triangles(&grid, index, triangles, n_triangles);
-      grid_index_linearize(index);
       int usage = grid_get_index_usage(index);
       printf("%8d | %5.0f | %6.1f\n", i, 100 * (float)usage / i / i, (float)usage / n_triangles);
       grid_free_index(index);

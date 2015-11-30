@@ -61,10 +61,9 @@ namespace math
     return{ base, size / make_vec3((float)n_x, (float)n_y, 0), size, n_x, n_y };
   }
 
-  struct grid_triangles_list_t
+  struct grid_cell_t
   {
-    int size;
-    int alloc;
+    int count;
     int* triangles;
   };
 
@@ -72,12 +71,13 @@ namespace math
   {
     int n_x;
     int n_y;
-    grid_triangles_list_t* table;
+    grid_cell_t* cells;
+    int* triangles;
+    int n_triangles;
   };
 
   grid_2d_index_t* grid_make_index(const grid_2d_t* grid);
   void grid_free_index(grid_2d_index_t* index);
-  void grid_index_linearize(grid_2d_index_t* index);
 
   typedef bool(*grid_traversal_callback)(grid_coord_t p, void* param); // return true to stop
 
