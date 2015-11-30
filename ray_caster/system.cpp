@@ -71,8 +71,8 @@ namespace ray_caster
       system = raycaster_naive_cpu::system_create();
       break;
 
-    case RAY_CASTER_SYSTEM_CUDA:
-      system = cuda_ray_caster::system_create();
+    case RAY_CASTER_NAIVE_CUDA:
+      system = naive_cuda_ray_caster::system_create();
       break;
 
     case RAY_CASTER_ZGRID_CPU:

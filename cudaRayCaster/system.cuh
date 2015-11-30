@@ -24,7 +24,7 @@
 #include "../ray_caster/system.h"
 #include <helper_math.h>
 
-namespace cuda_ray_caster
+namespace naive_cuda_ray_caster
 {
   /// @brief Redefinition for device type.
   typedef float3 vec3;

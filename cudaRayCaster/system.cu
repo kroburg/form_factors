@@ -33,7 +33,7 @@
 #include <assert.h>
 
 using ray_caster::system_t;
-namespace cuda_ray_caster
+namespace naive_cuda_ray_caster
 {
   /// @brief Extended base system_t (C-style polymorphism)
   struct cuda_system_t : system_t

@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
     
     subject::generator_t* generator = subject::generator_create_spherical();
     // Create systems for CPU and GPU.
-    system_t* cuda_system = system_create(RAY_CASTER_SYSTEM_CUDA);
+    system_t* cuda_system = system_create(RAY_CASTER_NAIVE_CUDA);
     system_t* naive_system = system_create(RAY_CASTER_NAIVE_CPU);
     system_t* zgrid_system = system_create(RAY_CASTER_ZGRID_CPU);
     emission::system_t* emitter = emission::system_create(EMISSION_MALLEY_CPU, cuda_system);

@@ -22,7 +22,7 @@
 
 #include "../ray_caster/system.h"
 
-namespace cuda_ray_caster
+namespace naive_cuda_ray_caster
 {
   /** 
  * @brief Creates base system for GPU ray caster.

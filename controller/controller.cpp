@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
     case 6:
       if (strcmp("cuda", argv[i]) == 0)
-        type = RAY_CASTER_SYSTEM_CUDA;
+        type = RAY_CASTER_NAIVE_CUDA;
       else if (strcmp("cpu", argv[i]) == 0)
         type = RAY_CASTER_NAIVE_CPU;
       else

@@ -107,7 +107,7 @@ scene_t* MakeStackScene()
   return MakeSceneFromFaces(n_faces, faces);
 }
 
-typedef ::testing::Types<EngineType<RAY_CASTER_NAIVE_CPU>, EngineType<RAY_CASTER_SYSTEM_CUDA>, EngineType<RAY_CASTER_ZGRID_CPU> > RayCasterTypes;
+typedef ::testing::Types<EngineType<RAY_CASTER_NAIVE_CPU>, EngineType<RAY_CASTER_NAIVE_CUDA>, EngineType<RAY_CASTER_ZGRID_CPU> > RayCasterTypes;
 TYPED_TEST_CASE(RayCaster, RayCasterTypes);
 
 TYPED_TEST(RayCaster, MemoryManagementIsCorrect)

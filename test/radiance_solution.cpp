@@ -79,7 +79,7 @@ class RadianceSolution
 public:
   RadianceSolution()
   {
-    RayCaster = ray_caster::system_create(RAY_CASTER_SYSTEM_CUDA);
+    RayCaster = ray_caster::system_create(RAY_CASTER_NAIVE_CUDA);
     Emitter = emission::system_create(EMISSION_MALLEY_CPU, RayCaster);
     Equation = this->CreateEquation(Emitter);
 
