@@ -36,6 +36,7 @@
     <ClCompile Include="import.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="math_matrix.cpp" />
+    <ClCompile Include="math_ray.cpp" />
     <ClCompile Include="mesh_graph.cpp" />
     <ClCompile Include="radiance_solution.cpp" />
     <ClCompile Include="ray_casting.cpp" />

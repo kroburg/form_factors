@@ -22,6 +22,7 @@
     <ClCompile Include="grid.cpp" />
     <ClCompile Include="mat.cpp" />
     <ClCompile Include="operations.cpp" />
+    <ClCompile Include="ray.cpp" />
     <ClCompile Include="three_way_compare.cpp" />
     <ClCompile Include="triangle.cpp" />
   </ItemGroup>
@@ -29,6 +30,7 @@
     <ClInclude Include="grid.h" />
     <ClInclude Include="mat.h" />
     <ClInclude Include="operations.h" />
+    <ClInclude Include="ray.h" />
     <ClInclude Include="three_way_compare.h" />
     <ClInclude Include="triangle.h" />
     <ClInclude Include="types.h" />

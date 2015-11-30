@@ -14,5 +14,6 @@
     <ClCompile Include="conductive_solution.cpp" />
     <ClCompile Include="heat_source.cpp" />
     <ClCompile Include="grid.cpp" />
+    <ClCompile Include="math_ray.cpp" />
   </ItemGroup>
 </Project>

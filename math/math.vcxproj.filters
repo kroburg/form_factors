@@ -6,6 +6,7 @@
     <ClCompile Include="operations.cpp" />
     <ClCompile Include="three_way_compare.cpp" />
     <ClCompile Include="grid.cpp" />
+    <ClCompile Include="ray.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="operations.h" />
@@ -14,5 +15,6 @@
     <ClInclude Include="mat.h" />
     <ClInclude Include="three_way_compare.h" />
     <ClInclude Include="grid.h" />
+    <ClInclude Include="ray.h" />
   </ItemGroup>
 </Project>

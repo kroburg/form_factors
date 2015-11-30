@@ -75,6 +75,11 @@ namespace math
     vec3 direction;
   };
 
+  inline ray_t make_ray(vec3 origin, vec3 direction)
+  {
+    return{ origin, direction };
+  }
+
   /// @brief 3x3 matrix type.
   struct mat33
   {
