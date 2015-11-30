@@ -20,10 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cuda_system.h" />
-    <ClInclude Include="naive_system.cuh" />
+    <ClInclude Include="system.cuh" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="naive_system.cu" />
+    <CudaCompile Include="system.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2BC5721E-F870-4A8D-9160-4139CF0A516B}</ProjectGuid>

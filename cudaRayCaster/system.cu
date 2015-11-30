@@ -19,7 +19,7 @@
  * Also module contains ray_caster::system_t Cuda implementation.
  */
 
-#include "naive_system.cuh"
+#include "system.cuh"
 #include "cuda_system.h"
 
 #include <helper_cuda.h>
@@ -273,7 +273,7 @@ namespace naive_cuda_ray_caster
       if (face_bbox_intersect(ray, &faces[face_idx]))
       {
         vec3 point;
-        int result_code = triangle_intersect(ray, faces[face_idx].points, &point);
+        int result_code = triangle_intersect(ray.origin, ray.direction, faces[face_idx].points, &point);
         if (result_code == TRIANGLE_INTERSECTION_UNIQUE)
         {
           // Final intersection check.
@@ -334,7 +334,7 @@ namespace naive_cuda_ray_caster
       int face_idx = distances[0].face_idx;
       if (face_idx != -1)
       {
-        int result_code = triangle_intersect(ray, faces[face_idx].points, &points[ray_idx]);
+        int result_code = triangle_intersect(ray.origin, ray.direction, faces[face_idx].points, &points[ray_idx]);
         indices[ray_idx] = result_code == TRIANGLE_INTERSECTION_UNIQUE ? distances[0].face_idx : -1;
       }
       else
@@ -371,7 +371,7 @@ namespace naive_cuda_ray_caster
     return (tmin <= tmax) && (tmax > 0.f);
   }
 
-  __device__ int triangle_intersect(bb_ray_t ray, const vec3* triangle, vec3* point)
+  __device__ int triangle_intersect(vec3 origin, vec3 direction, const vec3* triangle, vec3* point)
   {
     vec3 u, v, n; // triangle vec3s
     vec3 dir, w0, w; // ray vec3s
@@ -384,8 +384,8 @@ namespace naive_cuda_ray_caster
     if (dot(n, n) < EPSILON)      // triangle is degenerate
       return -TRIANGLE_INTERSECTION_DEGENERATE; // do not deal with this case
 
-    dir = ray.direction - ray.origin; // ray direction vec3
-    w0 = ray.origin - triangle[0];
+    dir = direction - origin; // ray direction vec3
+    w0 = origin - triangle[0];
     a = -dot(n, w0);
     b = dot(n, dir);
     if (fabs(b) < EPSILON) { // ray is  parallel to triangle plane
@@ -400,7 +400,7 @@ namespace naive_cuda_ray_caster
       return -TRIANGLE_INTERSECTION_DISJOINT; // => no intersect
     // for a segment, also test if (r > 1.0) => no intersect
 
-    *point = ray.origin + r * dir; // intersect point of ray and plane
+    *point = origin + r * dir; // intersect point of ray and plane
 
     // is point inside triangle?
     float    uu, uv, vv, wu, wv, D;

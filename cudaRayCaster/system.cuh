@@ -65,7 +65,7 @@ namespace naive_cuda_ray_caster
    * @param[in] triangle Face to intersect.
    * @param[out] Vector to ray and triangle intersection (0 if no intersection).
    */
-  __device__ int triangle_intersect(bb_ray_t ray, const vec3* triangle, vec3* point);
+  __device__ int triangle_intersect(vec3 origin, vec3 direction, const vec3* triangle, vec3* point);
 
   /**
    * @brief Cast rays on scene with n_faces.
