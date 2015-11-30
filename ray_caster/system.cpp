@@ -78,6 +78,10 @@ namespace ray_caster
     case RAY_CASTER_ZGRID_CPU:
       system = ray_caster_zgrid_cpu::system_create();
       break;
+
+    case RAY_CASTER_ZGRID_CUDA:
+      system = zgrid_cuda_ray_caster::system_create();
+      break;
     }    
 
     system_init(system);

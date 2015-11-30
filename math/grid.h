@@ -64,7 +64,7 @@ namespace math
   struct grid_cell_t
   {
     int count;
-    int* triangles;
+    int offset;
   };
 
   struct grid_2d_index_t

@@ -155,8 +155,8 @@ int main(int argc, char* argv[])
 {
   try
   {
-    int n_faces = 40000;
-    int n_rays = 10 * n_faces;
+    int n_faces = 20000;
+    int n_rays = 100 * n_faces;
     bool no_cpu = false;
     bool no_form_factors = true;
     bool no_radiance = false;
@@ -165,8 +165,8 @@ int main(int argc, char* argv[])
     
     subject::generator_t* generator = subject::generator_create_spherical();
     // Create systems for CPU and GPU.
-    system_t* cuda_system = system_create(RAY_CASTER_NAIVE_CUDA);
-    system_t* naive_system = system_create(RAY_CASTER_NAIVE_CPU);
+    system_t* cuda_system = system_create(RAY_CASTER_ZGRID_CUDA);
+    system_t* naive_system = system_create(RAY_CASTER_NAIVE_CUDA);
     system_t* zgrid_system = system_create(RAY_CASTER_ZGRID_CPU);
     emission::system_t* emitter = emission::system_create(EMISSION_MALLEY_CPU, cuda_system);
     printf("Generating confetti scene with %d elements...\n", n_faces);
@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
     sdkStartTimer(&hTimer);
 
     // Run GPU ray casting task.
-    printf("Casting scene on GPU...\n");
+    printf("Casting scene on GPU using zgrid algorithm...\n");
     system_set_scene(cuda_system, scene);
     system_prepare(cuda_system);
     system_cast(cuda_system, gpuTask);
@@ -207,8 +207,7 @@ int main(int argc, char* argv[])
 
     if (!no_cpu)
     {
-      // Run CPU ray casting task.
-      printf("Casting scene on CPU using naive algorithm...\n");
+      printf("Casting scene on GPU using naive algorithm...\n");
       sdkResetTimer(&hTimer);
       sdkStartTimer(&hTimer);
       system_set_scene(naive_system, scene);
@@ -221,7 +220,7 @@ int main(int argc, char* argv[])
       ErrorStats error = CalculateError(naiveTask, gpuTask);
       printf("Error is %f average, %f max, %f total.\n", error.AverageDistance, error.MaxDistance, error.TotalDistance);
       printf("Face hit mismatch count is %d.\n", error.Mismatch);
-      printf("GPU/CPU performance ratio is %.3f.\n", naiveTime / gpuTime);
+      printf("naive/zgrid GPU performance ratio is %.3f.\n", naiveTime / gpuTime);
 
       printf("Casting scene on CPU using zgrid algorithm...\n");
       sdkResetTimer(&hTimer);
@@ -236,8 +235,7 @@ int main(int argc, char* argv[])
       error = CalculateError(zgridTask, gpuTask);
       printf("Error is %f average, %f max, %f total.\n", error.AverageDistance, error.MaxDistance, error.TotalDistance);
       printf("Face hit mismatch count is %d.\n", error.Mismatch);
-      printf("GPU/CPU performance ratio is %.3f.\n", zgridTime / gpuTime);
-      printf("CPU naive/zgrid performance ratio is %.3f.\n", naiveTime / zgridTime);
+      printf("CPU/GPU performance ratio is %.3f.\n", zgridTime / gpuTime);
     }
 
     if (!no_form_factors)

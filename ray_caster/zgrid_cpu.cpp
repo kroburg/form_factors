@@ -80,13 +80,12 @@ namespace ray_caster_zgrid_cpu
   {
     cpu_system_t* system = param->system;
     math::grid_2d_index_t* index = param->system->index;
-    
 
     const math::grid_cell_t& cell = index->cells[p.x + index->n_x * p.y];
     // @todo Sort geometry in z-order?
     for (int i = 0; i != cell.count; ++i)
     {
-      const int f = cell.triangles[i];
+      const int f = index->triangles[cell.offset + i];
       math::triangle_t triangle = system->scene->faces[f];
       math::vec3 point;
       const math::ray_t& ray = param->ray;

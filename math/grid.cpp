@@ -177,6 +177,7 @@ namespace math
 
   void collector_countour(const grid_2d_t* grid, rasterizer_countour_t& c, const triangle_t& t)
   {
+    // @todo Collect countour by axis with minimal object dimension.
     grid_put(grid, { t.points[0], t.points[1] }, (grid_traversal_callback)&collect_countour, &c);
     grid_put(grid, { t.points[0], t.points[2] }, (grid_traversal_callback)&collect_countour, &c);
     grid_put(grid, { t.points[1], t.points[2] }, (grid_traversal_callback)&collect_countour, &c);
@@ -261,7 +262,7 @@ namespace math
       free(source.triangles);
 
       grid_cell_t& target = index->cells[i];
-      target.triangles = &linear[l];
+      target.offset = l;
       target.count = source.size;
       l += source.size;
     }

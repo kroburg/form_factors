@@ -34,7 +34,7 @@
 
 void PrintUsage()
 {
-  std::cout << "Usage: controller <input scene> <input task> <result output [-]> <rays_count [1000000]> <step count [100]> <ray_caster type:(cpu/cuda)[cpu]> <binary output [0]>" << std::endl;
+  std::cout << "Usage: controller <input scene> <input task> <result output [-]> <rays_count [1000000]> <step count [100]> <ray_caster type:(cpu/cuda/naive_cpu/naive_cuda)[cpu]> <binary output [0]>" << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -79,9 +79,13 @@ int main(int argc, char* argv[])
 
     case 6:
       if (strcmp("cuda", argv[i]) == 0)
-        type = RAY_CASTER_NAIVE_CUDA;
+        type = RAY_CASTER_ZGRID_CUDA;
       else if (strcmp("cpu", argv[i]) == 0)
+        type = RAY_CASTER_ZGRID_CPU;
+      else if (strcmp("naive_cpu", argv[i]) == 0)
         type = RAY_CASTER_NAIVE_CPU;
+      else if (strcmp("naive_cuda", argv[i]) == 0)
+        type = RAY_CASTER_NAIVE_CUDA;
       else
         return -RAY_CASTER_NOT_SUPPORTED;
 
