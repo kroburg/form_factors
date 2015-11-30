@@ -343,8 +343,8 @@ namespace math
 
   aabb_t triangles_aabb(const triangle_t* triangles, int n_triangles)
   {
-    aabb_t result = aabb_t();
-    for (int i = 0; i != n_triangles; ++i)
+    aabb_t result = n_triangles ? triangle_aabb(triangles[0]) : aabb_t();
+    for (int i = 1; i != n_triangles; ++i)
       result += triangle_aabb(triangles[i]);
     return result;
   }
@@ -387,5 +387,47 @@ namespace math
     float gamma = 1.0f - alpha - beta;
 
     return alpha >= 0.f && beta >= 0.f && gamma >= 0.f;
+  }
+
+  triangle_t triangle_order(triangle_t t)
+  {
+    if (t.points[1].y > t.points[0].y)
+      swap(t.points[1], t.points[0]);
+    if (t.points[2].y > t.points[0].y)
+      swap(t.points[2], t.points[0]);
+    if (t.points[2].y > t.points[1].y)
+      swap(t.points[2], t.points[1]);
+    return t;
+  }
+
+  triangles_analysis_t triangles_analyze(const triangle_t* triangles, int n_triangles)
+  {
+    aabb_t aabb = n_triangles ? triangle_aabb(triangles[0]) : aabb_t();
+    float max_area = n_triangles ? triangle_area(triangles[0]) : 0;
+    float min_area = max_area;
+    float average_area = max_area;
+    triangle_t average = n_triangles ? triangles[0] : triangle_t();
+    for (int i = 1; i != n_triangles; ++i)
+    {
+      aabb += triangle_aabb(triangles[i]);
+      float area = triangle_area(triangles[i]);
+      min_area = std::min(min_area, area);
+      max_area = std::max(max_area, area);
+      average_area += area;
+
+      average.points[0] += triangles[i].points[0];
+      average.points[1] += triangles[i].points[1];
+      average.points[2] += triangles[i].points[2];
+    }
+
+    aabb.max *= 1.0001f;
+
+    average_area /= (float)n_triangles;
+
+    average.points[0] /= (float)n_triangles;
+    average.points[1] /= (float)n_triangles;
+    average.points[2] /= (float)n_triangles;
+
+    return{ aabb, min_area, max_area, average_area, average };
   }
 }

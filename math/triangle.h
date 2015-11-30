@@ -121,6 +121,17 @@ namespace math
   /// @brief Calculate bounding sphere for triangles.
   sphere_t triangles_bsphere(const triangle_t* triangles, int n_triangles);
 
+  struct triangles_analysis_t
+  {
+    aabb_t aabb;
+    float min_area;
+    float max_area;
+    float average_area;
+    triangle_t average;
+  };
+
+  triangles_analysis_t triangles_analyze(const triangle_t* triangles, int n_triangles);
+
   /// @brief Check if point inside triangle.
   bool triangle_2d_contains_point(const triangle_t& t, const vec3& point);
 }

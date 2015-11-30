@@ -128,7 +128,16 @@ namespace math
 
   inline vec3 operator/(vec3 a, vec3 b)
   {
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(suppress : 4723) // potential divide by 0
+#endif
+
     return make_vec3(a.x / b.x, a.y / b.y, a.z / b.z);
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
   }
 
   /// @brief Division-and-assign operation of 3d vector and scalar.

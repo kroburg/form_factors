@@ -3,9 +3,11 @@
   <ItemGroup>
     <ClCompile Include="system.cpp" />
     <ClCompile Include="naive_cpu.cpp" />
+    <ClCompile Include="zgrid_cpu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system.h" />
     <ClInclude Include="naive_cpu.h" />
+    <ClInclude Include="zgrid_cpu.h" />
   </ItemGroup>
 </Project>

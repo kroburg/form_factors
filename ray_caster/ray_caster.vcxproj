@@ -133,10 +133,12 @@
   <ItemGroup>
     <ClInclude Include="naive_cpu.h" />
     <ClInclude Include="system.h" />
+    <ClInclude Include="zgrid_cpu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="naive_cpu.cpp" />
     <ClCompile Include="system.cpp" />
+    <ClCompile Include="zgrid_cpu.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

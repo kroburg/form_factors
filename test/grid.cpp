@@ -29,10 +29,7 @@ class GridTraversal
 public:
   GridTraversal()
   {
-    Grid.base = make_vec3(0, 0, 0);
-    Grid.side = make_vec3(0.5f, 0.5f, 0);
-    Grid.n_x = 3;
-    Grid.n_y = 3;
+    Grid = make_grid(make_vec3(0, 0, 0), make_vec3(1.5f, 1.5f, 0), 3, 3);
   }
 
   typedef std::set<math::grid_coord_t> coord_set;
@@ -120,6 +117,26 @@ TEST_F(GridTraversal, NegativeXDirectionCollectCells)
   ray_t r = { math::make_vec3(1.1f, 0, 0), math::make_vec3(1, .1f, 0) };
   coord_set expected = MakeExpected({ { 2, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 }, { 0, 2 } });
   ASSERT_EQ(expected, Traverse(r));
+}
+
+TEST_F(GridTraversal, OutOfBoundRayReachGrid)
+{
+  ray_t r = { math::make_vec3(-0.5f, 2, 0), math::make_vec3(.25f, 1.5f, 0) };
+  ASSERT_EQ(3, Traverse(r).size());
+  r = { math::make_vec3(-0.5f, 2, 0), math::make_vec3(0, 1.25f, 0) };
+  ASSERT_EQ(3, Traverse(r).size());
+  r = { math::make_vec3(-0.5f, -0.5f, 0), math::make_vec3(0, .25f, 0) };
+  ASSERT_EQ(3, Traverse(r).size());
+  r = { math::make_vec3(-0.5f, -0.5f, 0), math::make_vec3(.25f, 0, 0) };
+  ASSERT_EQ(3, Traverse(r).size());
+  r = { math::make_vec3(2, 2, 0), math::make_vec3(1.25f, 1.5f, 0) };
+  ASSERT_EQ(3, Traverse(r).size());
+  r = { math::make_vec3(2, 2, 0), math::make_vec3(1.5f, 1.25f, 0) };
+  ASSERT_EQ(3, Traverse(r).size());
+  r = { math::make_vec3(2, -0.5f, 0), math::make_vec3(1.5f, .25f, 0) };
+  ASSERT_EQ(3, Traverse(r).size());
+  r = { math::make_vec3(2, -0.5f, 0), math::make_vec3(1.25f, 0, 0) };
+  ASSERT_EQ(3, Traverse(r).size());
 }
 
 TEST_F(GridTraversal, PutNegativeXYSegment)

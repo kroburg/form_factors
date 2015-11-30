@@ -18,15 +18,58 @@
 #include "operations.h"
 #include "assert.h"
 #include "triangle.h"
+#include"ray.h"
 #include <stdlib.h>
 #include <algorithm>
 
 namespace math
 {
+  bool rebase_if_out_of_bound(const grid_2d_t* grid, ray_t& ray)
+  {
+    vec3 u = ray.origin - grid->base;
+    vec3 h = u - grid->size;
+    vec3 v = ray.direction - ray.origin;
+
+    bool out_of_bound = u.x < 0 || h.x > 0 || u.y < 0 || h.y > 0;
+    if (!out_of_bound)
+      return true;
+
+    ray_t plane_ray = make_ray(u, ray.direction - grid->base);
+
+    float s1;
+    float s2;
+    float s3;
+    float s4;
+    bool i1 = ray_intersect_segment(plane_ray, make_ray(make_vec3(0, 0, 0), make_vec3(grid->size.x, 0, 0)), s1);
+    bool i2 = ray_intersect_segment(plane_ray, make_ray(make_vec3(0, 0, 0), make_vec3(0, grid->size.y, 0)), s2);
+    bool i3 = ray_intersect_segment(plane_ray, make_ray(make_vec3(0, grid->size.y, 0), make_vec3(grid->size.x, grid->size.y, 0)), s3);
+    bool i4 = ray_intersect_segment(plane_ray, make_ray(make_vec3(grid->size.x, 0, 0), make_vec3(grid->size.x, grid->size.y, 0)), s4);
+
+    if (!i1 && !i2 && !i3 && !i4)
+      return false;
+
+    float s = FLT_MAX;
+    if (i1) s = std::min(s, s1);
+    if (i2) s = std::min(s, s2);
+    if (i3) s = std::min(s, s3);
+    if (i4) s = std::min(s, s4);
+
+    vec3 shift = v * (s + 0.00001f);
+    ray.origin += shift;
+    ray.direction += shift;
+    
+    return true;
+  }
+
   void grid_traverse(const grid_2d_t* grid, ray_t ray, bool is_segment, grid_traversal_callback callback, void* param)
-  { 
+  {
+    if (!rebase_if_out_of_bound(grid, ray))
+      return;
+
     vec3 u = ray.origin - grid->base;
     vec3 v = ray.direction - ray.origin;
+    grid_coord_t p = { (int)(u.x / grid->side.x), (int)(u.y / grid->side.y) };
+    
     // @todo Understand abs() logic - is it really required, or t can be negative.
     vec3 t_delta = abs(grid->side / v); // 1 / velocity -> cells per v step
     vec3 base_distance = make_vec3(v.x < 0 ? 0 : 1.f, v.y < 0 ? 0 : 1.f, 0);
@@ -36,7 +79,6 @@ namespace math
     int step_y = v.y < 0 ? -1 : 1;
 
     grid_coord_t stop = { v.x < 0 ? -1 : grid->n_x, v.y < 0 ? -1 : grid->n_y };
-    grid_coord_t p = { (int)(u.x / grid->side.x), (int)(u.y / grid->side.y) };
 
     assert(p.x >= 0 && p.x < grid->n_x);
     assert(p.y >= 0 && p.y < grid->n_y);
@@ -108,7 +150,7 @@ namespace math
   struct rasterizer_countour_t
   { 
     int size;
-    boundary_t values[31];
+    boundary_t values[grid_rasterizer_countour_buffer_size];
   };
 
   bool collect_countour(grid_coord_t p, rasterizer_countour_t* c)
@@ -172,14 +214,45 @@ namespace math
   void grid_free_index(grid_2d_index_t* index)
   {
     if (index)
+    {
+      for (int i = 0; i != index->n_x * index->n_y; ++i)
+      {
+        grid_triangles_list_t& list = index->table[i];
+        if (list.alloc > 0)
+          free(list.triangles);
+      }
       free(index->table);
+    }
     free(index);
+  }
+
+  void grid_index_linearize(grid_2d_index_t* index)
+  {
+    int count = 0;
+    for (int i = 0; i != index->n_x * index->n_y; ++i)
+    {
+      count += index->table[i].size;
+    }
+
+    int* linear = (int*)malloc(count * sizeof(int));
+    for (int i = 0, l = 0; i != index->n_x * index->n_y; ++i)
+    {
+      grid_triangles_list_t& list = index->table[i];
+      if (!list.size)
+        continue;
+      
+      memcpy(&linear[l], list.triangles, list.size * sizeof(int));
+      free(list.triangles);
+      list.alloc = l == 0 ? count : 0;
+      list.triangles = &linear[l];
+      l += list.size;
+    }
   }
 
   struct index_param_t
   {
     grid_2d_index_t* index;
-    const triangle_t* triangle;
+    int triangle;
   };
 
   bool index_callback(grid_coord_t p, index_param_t* param)
@@ -188,7 +261,7 @@ namespace math
     if (list.alloc - list.size == 0)
     {
       list.alloc += 8;
-      list.triangles = (triangle_t const**)realloc(list.triangles, sizeof(triangle_t*) * list.alloc);
+      list.triangles = (int*)realloc(list.triangles, sizeof(int) * list.alloc);
     }
     list.triangles[list.size++] = param->triangle;
     return false;
@@ -198,7 +271,7 @@ namespace math
   {
     for (int t = 0; t != n_triangles; ++t)
     {
-      index_param_t param = { index, &triangles[t] };
+      index_param_t param = { index, t };
       grid_rasterize(grid, triangles[t], (grid_traversal_callback)index_callback, &param);
     }
   }
@@ -214,17 +287,30 @@ namespace math
 
   void grid_draw_hist(int n_depth, const triangle_t* triangles, int n_triangles)
   {
-    aabb_t aabb = triangles_aabb(triangles, n_triangles);
-    aabb.max *= 1.0001f;
+    triangles_analysis_t stat = triangles_analyze(triangles, n_triangles);
+    grid_2d_t optimal = grid_deduce_optimal(stat);
     printf("         | usage | per_tr\n");
     for (int i = 1; i <= n_depth; i *= 2)
     {
-      grid_2d_t grid = { aabb.min, (aabb.max - aabb.min) / i, i, i };
+      grid_2d_t grid = make_grid(stat.aabb.min, stat.aabb.max - stat.aabb.min, i, i);
       grid_2d_index_t* index = grid_make_index(&grid);
       grid_index_triangles(&grid, index, triangles, n_triangles);
+      grid_index_linearize(index);
       int usage = grid_get_index_usage(index);
       printf("%8d | %5.0f | %6.1f\n", i, 100 * (float)usage / i / i, (float)usage / n_triangles);
       grid_free_index(index);
     }
+  }
+
+  grid_2d_t grid_deduce_optimal(triangles_analysis_t stat)
+  {
+    vec3 volume = stat.aabb.max - stat.aabb.min;
+    float total_area = volume.x * volume.y;
+    int n_avg_side = sqrtf(total_area / (stat.average_area * 1.5f));
+    int n_avg_max_side = sqrtf(grid_rasterizer_countour_buffer_size * total_area / (1.5f * stat.average_area));
+    int n_max_side = sqrtf(grid_rasterizer_countour_buffer_size * total_area / (1.5f * stat.max_area));
+
+    int side = std::min(n_max_side, n_avg_max_side);
+    return make_grid(stat.aabb.min, volume, side, side);
   }
 }

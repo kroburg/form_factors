@@ -105,6 +105,7 @@ namespace ray_caster
 
   #define RAY_CASTER_NAIVE_CPU 1
   #define RAY_CASTER_SYSTEM_CUDA 2
+  #define RAY_CASTER_ZGRID_CPU 3
 
   /**
    * @brief Factory method for ray caster creation.

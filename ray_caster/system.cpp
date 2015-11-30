@@ -21,6 +21,7 @@
 
 #include "system.h"
 #include "naive_cpu.h"
+#include "zgrid_cpu.h"
 #include "../cudaRayCaster/cuda_system.h"
 #include <stdlib.h>
 
@@ -72,6 +73,10 @@ namespace ray_caster
 
     case RAY_CASTER_SYSTEM_CUDA:
       system = cuda_ray_caster::system_create();
+      break;
+
+    case RAY_CASTER_ZGRID_CPU:
+      system = ray_caster_zgrid_cpu::system_create();
       break;
     }    
 
