@@ -19,7 +19,7 @@
  * Also module contains ray_caster::system_t Cuda implementation.
  */
 
-#include "system.cuh"
+#include "naive_system.cuh"
 #include "cuda_system.h"
 
 #include <helper_cuda.h>
