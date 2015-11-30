@@ -30,14 +30,14 @@ namespace cuda_ray_caster
   typedef float3 vec3;
 
   /// @brief Adding bounding box to face type.
-  struct face_t
+  struct bb_face_t
   {
     vec3 points[3];
     vec3 bbox[2];
   };
 
   // @todo looks useless right now
-  struct ray_t
+  struct bb_ray_t
   {
     vec3 origin;
     vec3 direction;
@@ -45,13 +45,13 @@ namespace cuda_ray_caster
   };
 
   /// @brief Loads scene to GPU and converts base face_t to cuda_ray_caster::face_t (with bounding box).
-  __global__ void load_scene_faces(const ray_caster::face_t* source, face_t* target, int n_faces);
+  __global__ void load_scene_faces(const ray_caster::face_t* source, bb_face_t* target, int n_faces);
 
   /// @brief Loads task with n_rays to GPU.
-  __global__ void load_rays(const math::ray_t* source, ray_t* target, int n_rays);
+  __global__ void load_rays(const math::ray_t* source, bb_ray_t* target, int n_rays);
 
   /// @brief Checks face's bounding box intersection with ray (optimization prior to true intersection).
-  __device__ bool face_bbox_intersect(ray_t ray, const face_t* face);
+  __device__ bool face_bbox_intersect(bb_ray_t ray, const bb_face_t* face);
 
   //@todo ugly copy-paste definitions. Should be dropped after algorithm optimizations.
   #define TRIANGLE_INTERSECTION_UNIQUE 0
@@ -65,7 +65,7 @@ namespace cuda_ray_caster
    * @param[in] triangle Face to intersect.
    * @param[out] Vector to ray and triangle intersection (0 if no intersection).
    */
-  __device__ int triangle_intersect(ray_t ray, const vec3* triangle, vec3* point);
+  __device__ int triangle_intersect(bb_ray_t ray, const vec3* triangle, vec3* point);
 
   /**
    * @brief Cast rays on scene with n_faces.
@@ -75,5 +75,5 @@ namespace cuda_ray_caster
    * @param[out] indices Array of intersection results with each face (-1 if no intersection or face index in faces array if intersected).
    * @param[out] points Array of intersection points for each face in faces array.
    */
-  __global__ void cast_scene_faces_with_reduction(const face_t* faces, int n_faces, const ray_t* rays, int* indices, vec3* points);
+  __global__ void cast_scene_faces_with_reduction(const bb_face_t* faces, int n_faces, const bb_ray_t* rays, int* indices, vec3* points);
 }
