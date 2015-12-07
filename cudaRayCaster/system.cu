@@ -399,8 +399,8 @@ namespace zgrid_cuda_ray_caster
     system->dev_id = findCudaDevice(1, (const char **)argv);
     cudaDeviceProp deviceProp;
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, system->dev_id));
-    system->n_tpb = deviceProp.maxThreadsPerBlock;
-    //system->n_tpb = 128;
+    //system->n_tpb = deviceProp.maxThreadsPerBlock;
+    system->n_tpb = 128;
 
     return RAY_CASTER_OK;
   }
@@ -501,7 +501,7 @@ namespace zgrid_cuda_ray_caster
     checkCudaErrors(cudaMalloc((void**)&rays, n_rays * sizeof(ray_t)));
     checkCudaErrors(cudaMemcpy(rays, task->ray, n_rays * sizeof(ray_t), cudaMemcpyHostToDevice));
 
-    const int max_concurrent_rays = 4096;
+    const int max_concurrent_rays = 1 << 16;
 
     thrust::device_vector<vec3> points(max_concurrent_rays);
     thrust::device_vector<int> indices(max_concurrent_rays);
