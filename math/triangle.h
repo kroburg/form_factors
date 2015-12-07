@@ -42,6 +42,7 @@ namespace math
 
   /// @brief Find triangle area.
   float triangle_area(triangle_t triangle);
+  float triangle_area_xy(triangle_t triangle);
 
   /// @brief Creates ray looking from origin point to triangle center with length equal to half of distance.
   ray_t ray_to_triangle(vec3 origin, triangle_t t);
@@ -127,6 +128,9 @@ namespace math
     float min_area;
     float max_area;
     float average_area;
+    float min_area_xy;
+    float max_area_xy;
+    float average_area_xy;
     triangle_t average;
   };
 

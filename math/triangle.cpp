@@ -90,6 +90,14 @@ namespace math
     return sqrtf(dot(n, n)) / 2;
   }
 
+  float triangle_area_xy(triangle_t triangle)
+  {
+    triangle.points[0].z = 0;
+    triangle.points[1].z = 0;
+    triangle.points[2].z = 0;
+    return triangle_area(triangle);
+  }
+
   ray_t ray_to_triangle(vec3 origin, triangle_t t)
   {
     vec3 center = triangle_center(t);
@@ -404,16 +412,24 @@ namespace math
   {
     aabb_t aabb = n_triangles ? triangle_aabb(triangles[0]) : aabb_t();
     float max_area = n_triangles ? triangle_area(triangles[0]) : 0;
+    float max_area_xy = n_triangles ? triangle_area_xy(triangles[0]) : 0;
     float min_area = max_area;
+    float min_area_xy = max_area_xy;
     float average_area = max_area;
+    float average_area_xy = max_area_xy;
     triangle_t average = n_triangles ? triangles[0] : triangle_t();
     for (int i = 1; i != n_triangles; ++i)
     {
       aabb += triangle_aabb(triangles[i]);
       float area = triangle_area(triangles[i]);
+      float area_xy = triangle_area_xy(triangles[i]);
       min_area = std::min(min_area, area);
       max_area = std::max(max_area, area);
       average_area += area;
+
+      min_area_xy = std::min(min_area_xy, area_xy);
+      max_area_xy = std::max(max_area, area_xy);
+      average_area_xy += area_xy;
 
       average.points[0] += triangles[i].points[0];
       average.points[1] += triangles[i].points[1];
@@ -423,11 +439,12 @@ namespace math
     aabb.max *= 1.0001f;
 
     average_area /= (float)n_triangles;
+    average_area_xy /= (float)n_triangles;
 
     average.points[0] /= (float)n_triangles;
     average.points[1] /= (float)n_triangles;
     average.points[2] /= (float)n_triangles;
 
-    return{ aabb, min_area, max_area, average_area, average };
+    return{ aabb, min_area, max_area, average_area, min_area_xy, max_area_xy, average_area_xy, average };
   }
 }
