@@ -333,8 +333,8 @@ namespace math
     vec3 volume = stat.aabb.max - stat.aabb.min;
     float total_area = volume.x * volume.y;
     int n_avg_side = sqrtf(total_area / (stat.average_area * 1.5f));
-    int n_avg_max_side = sqrtf(grid_rasterizer_countour_buffer_size * total_area / (1.5f * stat.average_area));
-    int n_max_side = sqrtf(grid_rasterizer_countour_buffer_size * total_area / (1.5f * stat.max_area));
+    int n_avg_max_side = sqrtf(grid_rasterizer_countour_buffer_size * total_area / (2.5f * stat.average_area_xy));
+    int n_max_side = sqrtf(grid_rasterizer_countour_buffer_size * total_area / (2.5f * stat.max_area_xy));
 
     int side = std::min(n_max_side, n_avg_max_side);
     return make_grid(stat.aabb.min, volume, side, side);
