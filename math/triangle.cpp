@@ -21,6 +21,7 @@
 #include "triangle.h"
 #include "operations.h"
 #include <cmath>
+#include <float.h>
 
 namespace math
 {

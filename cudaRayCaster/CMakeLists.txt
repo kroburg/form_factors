@@ -11,7 +11,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ../lib)
 find_package(CUDA QUIET REQUIRED)
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-O3 -gencode arch=compute_30,code=sm_30)
 
-include_directories("../../../NVIDIA_CUDA-7.0_Samples/common/inc")
+include_directories("/usr/local/cuda/samples/common/inc")
 
 set(SOURCE_FILES
     cuda_system.h

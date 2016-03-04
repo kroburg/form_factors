@@ -13,7 +13,7 @@ find_package(CUDA REQUIRED)
 include_directories("..")
 link_directories("../lib")
 
-include_directories("../../../NVIDIA_CUDA-7.0_Samples/common/inc")
+include_directories("/usr/local/cuda/samples/common/inc")
 
 set(SOURCE_FILES
     controller.cpp
@@ -21,5 +21,5 @@ set(SOURCE_FILES
 
 add_executable(controller ${SOURCE_FILES})
 
-target_link_libraries(controller ray_caster cpu_ray_caster cuda_ray_caster form_factors cpu_form_factors math import_export)
+target_link_libraries(controller ray_caster cuda_ray_caster import_export thermal_equation thermal_solution form_factors cpu_form_factors subject emission math)
 target_link_libraries(controller ${CUDA_LIBRARIES})

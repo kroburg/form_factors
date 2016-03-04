@@ -304,6 +304,7 @@ namespace obj_import
   }
   /// @note Mindflow mode off
 
+#ifdef _WIN32
   /// @detail Copy-paste from here https://code.google.com/p/ea-utils/source/browse/trunk/clipper/getline.c
   /* Read up to (and including) a TERMINATOR from STREAM into *LINEPTR
   + OFFSET (and null-terminate it). *LINEPTR is a pointer returned from
@@ -381,7 +382,7 @@ namespace obj_import
   {
     return getstr(lineptr, n, stream, '\n', 0);
   }
-
+#endif
 
   parallel_rays_cpu::source_t static_distant_source(void* param)
   {

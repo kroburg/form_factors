@@ -15,7 +15,6 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
-#include <tchar.h>
 #include "gtest/gtest.h"
 
 int main(int argc, char* argv[])

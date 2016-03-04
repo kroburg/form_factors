@@ -15,6 +15,7 @@
 // along with form_factors.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "operations.h"
+#include <float.h>
 
 namespace math
 {

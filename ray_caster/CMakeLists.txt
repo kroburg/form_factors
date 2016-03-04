@@ -9,8 +9,12 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ../lib)
 
 set(SOURCE_FILES
-    system.h
-    system.cpp
+naive_cpu.cpp
+naive_cpu.h
+system.cpp
+system.h
+zgrid_cpu.cpp
+zgrid_cpu.h
     )
 
 
