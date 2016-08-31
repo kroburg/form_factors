@@ -19,6 +19,8 @@
 #include <math/operations.h>
 #include <math/triangle.h>
 
+#include <float.h>
+
 using namespace testing;
 using namespace math;
 

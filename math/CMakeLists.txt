@@ -11,12 +11,18 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ../lib)
 
 set(SOURCE_FILES
-    types.h
-    mat.h
-    operations.h    
-    triangle.h
-    mat.cpp
-    triangle.cpp
-    )
+  grid.cpp
+  grid.h
+  mat.cpp
+  mat.h
+  operations.cpp
+  operations.h
+  ray.cpp
+  ray.h
+  three_way_compare.cpp
+  three_way_compare.h
+  triangle.cpp
+  triangle.h
+)
 
 add_library(math STATIC ${SOURCE_FILES})

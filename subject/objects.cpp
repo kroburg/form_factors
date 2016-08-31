@@ -183,7 +183,8 @@ namespace subject
 
   material_t black_body()
   {
-    return{ default_shell_properties(), black_material(), black_material(), "black_body" };
+    material_t material = { default_shell_properties(), black_material(), black_material(), "black_body" };
+    return material;
   }
 
   material_t material_Al(float thickness)

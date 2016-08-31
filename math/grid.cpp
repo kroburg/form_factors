@@ -21,6 +21,8 @@
 #include"ray.h"
 #include <stdlib.h>
 #include <algorithm>
+#include <float.h>
+#include <string.h>
 
 namespace math
 {

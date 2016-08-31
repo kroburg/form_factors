@@ -19,14 +19,24 @@ link_directories("../lib")
 #link_directories($CUDA_LIBRARIES{})
 
 set(SOURCE_FILES
-    form_factors.cpp
-    export.cpp
-    import.cpp
-    ray_casting.cpp
+  adams_solution.cpp
+  conductive_solution.cpp
+  export.cpp
+  form_factors.cpp
+  grid.cpp
+  heat_source.cpp
+  import.cpp
+  main.cpp
+  math_matrix.cpp
+  math_ray.cpp
+  mesh_graph.cpp
+  radiance_solution.cpp
+  ray_casting.cpp
+  triangle_math.cpp
     )
 
 add_executable(tests ${SOURCE_FILES})
 
 target_link_libraries(tests ${GTEST_BOTH_LIBRARIES})
-target_link_libraries(tests ray_caster cpu_ray_caster cuda_ray_caster form_factors cpu_form_factors math import_export)
+target_link_libraries(tests ray_caster cuda_ray_caster form_factors cpu_form_factors import_export subject math thermal_solution thermal_equation emission)
 target_link_libraries(tests ${CUDA_LIBRARIES})
