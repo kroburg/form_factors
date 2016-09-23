@@ -59,7 +59,7 @@ namespace math
     vec3 shift = v * (s + 0.00001f);
     ray.origin += shift;
     ray.direction += shift;
-    
+
     return true;
   }
 
@@ -71,7 +71,7 @@ namespace math
     vec3 u = ray.origin - grid->base;
     vec3 v = ray.direction - ray.origin;
     grid_coord_t p = { (int)(u.x / grid->side.x), (int)(u.y / grid->side.y) };
-    
+
     // @todo Understand abs() logic - is it really required, or t can be negative.
     vec3 t_delta = abs(grid->side / v); // 1 / velocity -> cells per v step
     vec3 base_distance = make_vec3(v.x < 0 ? 0 : 1.f, v.y < 0 ? 0 : 1.f, 0);
@@ -150,7 +150,7 @@ namespace math
   };
 
   struct rasterizer_countour_t
-  { 
+  {
     int size;
     boundary_t values[grid_rasterizer_countour_buffer_size];
   };
@@ -160,7 +160,7 @@ namespace math
     std::pair<boundary_t*, boundary_t*> range = std::equal_range(c->values, c->values + c->size, p.y, boundary_less());
     boundary_t& b = *range.first;
     if (range.first != range.second)
-    { 
+    {
       b.min = std::min(b.min, p.x);
       b.max = std::max(b.max, p.x);
     }
@@ -259,7 +259,7 @@ namespace math
       grid_2d_index_builder_t::node& source = builder->table[i];
       if (!source.size)
         continue;
-      
+
       memcpy(&linear[l], source.triangles, source.size * sizeof(int));
       free(source.triangles);
 
@@ -294,7 +294,7 @@ namespace math
     builder.n_x = index->n_x;
     builder.n_y = index->n_y;
     builder.table = (grid_2d_index_builder_t::node*)calloc(builder.n_x * builder.n_y, sizeof(grid_2d_index_builder_t::node));
-    
+
     for (int t = 0; t != n_triangles; ++t)
     {
       index_param_t param = { &builder, t };
@@ -318,16 +318,59 @@ namespace math
   {
     triangles_analysis_t stat = triangles_analyze(triangles, n_triangles);
     grid_2d_t optimal = grid_deduce_optimal(stat);
-    printf("         | usage | per_tr\n");
+    printf("Deduced optimal subdivision %dx%d\n", optimal.n_x, optimal.n_y);
+
+    printf("Analyzing percent of grid cells usage...\n");
+    printf("subdiv \t| usage\t| cell per triangle\n");
+    {
+      grid_2d_index_t* index = grid_make_index(&optimal);
+      grid_index_triangles(&optimal, index, triangles, n_triangles);
+      int usage = grid_get_index_usage(index);
+      printf("%d \t| %.0f \t| %.1f\n", optimal.n_x, 100 * (float)usage / optimal.n_x / optimal.n_y, (float)usage / n_triangles);
+      grid_free_index(index);
+    }
+
     for (int i = 1; i <= n_depth; i *= 2)
     {
       grid_2d_t grid = make_grid(stat.aabb.min, stat.aabb.max - stat.aabb.min, i, i);
       grid_2d_index_t* index = grid_make_index(&grid);
       grid_index_triangles(&grid, index, triangles, n_triangles);
       int usage = grid_get_index_usage(index);
-      printf("%8d | %5.0f | %6.1f\n", i, 100 * (float)usage / i / i, (float)usage / n_triangles);
+      printf("%d \t| %.0f \t| %.1f\n", i, 100 * (float)usage / i / i, (float)usage / n_triangles);
       grid_free_index(index);
     }
+
+    printf("Analyzing grid hit counts...\n");
+    printf("Subdivision %dx%d\n", optimal.n_x, optimal.n_y);
+    grid_2d_index_t* index = grid_make_index(&optimal);
+    grid_index_triangles(&optimal, index, triangles, n_triangles);
+    int usage = grid_get_index_usage(index);
+    grid_draw_usage_hist(index);
+    grid_free_index(index);
+  }
+
+  void grid_draw_usage_hist(const grid_2d_index_t* index)
+  {
+    size_t size = 4;
+    size_t* counts = (size_t*)calloc(size, sizeof(size_t));
+    for (int i = 0; i != index->n_x * index->n_y; ++i)
+    {
+      size_t power = index->cells[i].count;
+      if (power > 3)
+        power = 4 + (size_t)log2(index->cells[i].count) - 2;
+      if (power > size - 1)
+      {
+        counts = (size_t*)realloc(counts, (power + 1) * sizeof(size_t));
+        memset(counts + size, 0, (power + 1 - size) * sizeof(size_t));
+        size = power + 1;
+      }
+      counts[power] += 1;
+    }
+
+    printf(" hits \t| cells\n");
+    for (size_t j = 0; j != size; ++j)
+      printf("%d \t| %d\n", j > 3 ? (int)pow(2, j - 2) : j, counts[j]);
+    free(counts);
   }
 
   grid_2d_t grid_deduce_optimal(triangles_analysis_t stat)
