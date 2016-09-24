@@ -22,7 +22,7 @@
 #include "system.h"
 #include "naive_cpu.h"
 #include "zgrid_cpu.h"
-#include "../cudaRayCaster/cuda_system.h"
+#include "../cuda_ray_caster/cuda_system.h"
 #include <stdlib.h>
 
 namespace ray_caster
