@@ -1,0 +1,16 @@
+newmtl aluminuim
+Kd 1 0 0
+shell.density 8960.000000
+shell.heat_capacity 386.000000
+shell.thermal_conductivity 401.000000
+shell.thickness 0.010000
+front.specular_reflectance 0.000000
+front.diffuse_reflectance 0.000000
+front.absorbance 1.000000
+front.transmittance 0.000000
+front.emissivity 0.090000
+rear.specular_reflectance 0.000000
+rear.diffuse_reflectance 0.000000
+rear.absorbance 1.000000
+rear.transmittance 0.000000
+rear.emissivity 0.090000

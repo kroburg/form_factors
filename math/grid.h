@@ -93,5 +93,8 @@ namespace math
   void grid_index_triangles(const grid_2d_t* grid, grid_2d_index_t* index, const triangle_t* triangles, int n_triangles);
   void grid_draw_hist(int n_depth, const triangle_t* triangles, int n_triangles);
 
+  /// @brief Print grid cell hit count/cells count histogram.
+  void grid_draw_usage_hist(const grid_2d_index_t* index);
+
   grid_2d_t grid_deduce_optimal(triangles_analysis_t stat);
 }
