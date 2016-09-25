@@ -399,8 +399,8 @@ namespace zgrid_cuda_ray_caster
     system->dev_id = findCudaDevice(1, (const char **)argv);
     cudaDeviceProp deviceProp;
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, system->dev_id));
-    //system->n_tpb = deviceProp.maxThreadsPerBlock;
-    system->n_tpb = 128;
+    system->n_tpb = deviceProp.maxThreadsPerBlock;
+    system->n_tpb = 32;
 
     return RAY_CASTER_OK;
   }
@@ -501,7 +501,7 @@ namespace zgrid_cuda_ray_caster
     checkCudaErrors(cudaMalloc((void**)&rays, n_rays * sizeof(ray_t)));
     checkCudaErrors(cudaMemcpy(rays, task->ray, n_rays * sizeof(ray_t), cudaMemcpyHostToDevice));
 
-    const int max_concurrent_rays = 1 << 16;
+    const int max_concurrent_rays = 1 << 10;
 
     thrust::device_vector<vec3> points(max_concurrent_rays);
     thrust::device_vector<int> indices(max_concurrent_rays);
@@ -515,7 +515,7 @@ namespace zgrid_cuda_ray_caster
 
       dim3 threads(system->n_tpb);
       dim3 grid(n_blocks);
-      cast_scene << <grid, threads >> >(system->faces, system->n_faces, system->grid, rays + t, n_rays, thrust::raw_pointer_cast(indices.data()), thrust::raw_pointer_cast(points.data()));
+      cast_scene << <grid, threads>> >(system->faces, system->grid, rays + t, n_rays, thrust::raw_pointer_cast(indices.data()), thrust::raw_pointer_cast(points.data()));
       checkCudaErrors(cudaPeekAtLastError());
       checkCudaErrors(cudaDeviceSynchronize());
 
@@ -682,15 +682,13 @@ namespace zgrid_cuda_ray_caster
   {
       extern __shared__ naive_cuda_ray_caster::distance_reduce_step_t distances[];
 
-      int thread_idx = threadIdx.x;
-
       const grid_t* index = param.grid;
       const grid_cell_t& cell = index->cells[p.x + index->n_x * p.y];
 
       cast_scene_intersection_step(p, cell, param.ray, param.grid, param.faces);
       cast_scene_reduction_step();
       // Finalization step
-      if (thread_idx == 0)
+      if (threadIdx.x == 0)
       {
           const ray_t& ray = param.ray;
           int face_idx = distances[0].face_idx;
@@ -708,8 +706,18 @@ namespace zgrid_cuda_ray_caster
   
   __device__ bool traversal_handler(grid_coord_t p, callback_param_t* param)
   {
-    int shared_size = 32 * sizeof(naive_cuda_ray_caster::distance_reduce_step_t);
-    cast_cell << <1, 32, shared_size >> >(p, *param);
+    const grid_t* index = param->grid;
+    const grid_cell_t& cell = index->cells[p.x + index->n_x * p.y];
+
+    if (!cell.count)
+      return false;
+    
+    int concurrency = cell.count;
+    if (concurrency > blockDim.x)
+      concurrency = blockDim.x;
+    int shared_size = concurrency * sizeof(naive_cuda_ray_caster::distance_reduce_step_t);
+
+    cast_cell << <1, concurrency, shared_size >> >(p, *param);
 
     cudaDeviceSynchronize();
 
@@ -765,13 +773,14 @@ namespace zgrid_cuda_ray_caster
     }
   }
 
-  __global__ void cast_scene(const face_t* faces, int n_faces, const grid_t* grid, const ray_t* rays, int n_rays, int* indices, vec3* points)
+  __global__ void cast_scene(const face_t* faces, const grid_t* grid, const ray_t* rays, int n_rays, int* indices, vec3* points)
   {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     if (i < n_rays)
     {
       ray_t ray = rays[i];
 
+      indices[i] = -1;
       callback_param_t param = { faces, grid, ray, &indices[i], &points[i] };
       grid_traverse(grid, ray, &param);
     }
