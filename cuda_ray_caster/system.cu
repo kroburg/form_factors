@@ -603,9 +603,8 @@ namespace zgrid_cuda_ray_caster
     const face_t* faces;
     const grid_t* grid;
     ray_t ray;
-    float min_distance;
-    int hit_face;
-    vec3 hit_point;
+    int* hit_face;
+    vec3* hit_point;
   };
 
   struct grid_coord_t
@@ -614,39 +613,108 @@ namespace zgrid_cuda_ray_caster
     int y;
   };
 
+  /// @brief Finds intersection of given ray (blockIdx.x) with n_faces faces (y block dimension).
+  __device__ void cast_scene_intersection_step(grid_coord_t p, const grid_cell_t& cell, const ray_t& ray, const grid_t* grid, const face_t* faces)
+  {
+      extern __shared__ naive_cuda_ray_caster::distance_reduce_step_t distances[];
+
+      // Current intersection distance for given ray and block's faces.
+      naive_cuda_ray_caster::distance_reduce_step_t& step = distances[threadIdx.x];
+      step.distance = FLT_MAX;
+      step.face_idx = -1;
+
+      int face_idx = threadIdx.x;
+
+      // Intersection step.
+      for (; face_idx < cell.count; face_idx += blockDim.x)
+      {
+          const int f = grid->triangles[cell.offset + face_idx];
+          const face_t& triangle = faces[f];
+          vec3 point;
+          int check_result = cuda_math::triangle_intersect(ray.origin, ray.direction, triangle.points, &point);
+          if (check_result == TRIANGLE_INTERSECTION_UNIQUE)
+          {
+              // Check if we hit geometry in the current cell.
+              vec3 locator = (point - grid->base) / grid->side;
+              if (p.x != (int)locator.x || p.y != (int)locator.y)
+                  continue;
+
+              vec3 space_distance = point - ray.origin;
+              math::point_t new_distance = dot(space_distance, space_distance);
+              if (new_distance < step.distance)
+              {
+                  step.distance = new_distance;
+                  step.face_idx = f;
+              }
+          }
+      }
+
+      // Reduction cycle.
+      __syncthreads();
+  }
+
+  /// @brief Reduces all distances for ray (blockIdx.x) and all faces.
+  __device__ void cast_scene_reduction_step()
+  {
+      extern __shared__ naive_cuda_ray_caster::distance_reduce_step_t distances[];
+
+      int thread_idx = threadIdx.x;
+      int m = blockDim.x;
+
+      while (m > 1)
+      {
+          int half_m = m >> 1;
+          if (thread_idx < half_m)
+          {
+              if (distances[thread_idx].distance > distances[m - thread_idx - 1].distance)
+              {
+                  distances[thread_idx].distance = distances[m - thread_idx - 1].distance;
+                  distances[thread_idx].face_idx = distances[m - thread_idx - 1].face_idx;
+              }
+          }
+          __syncthreads();
+
+          m -= half_m;
+      }
+  }
+
+  __global__ void cast_cell(grid_coord_t p, callback_param_t param)
+  {
+      extern __shared__ naive_cuda_ray_caster::distance_reduce_step_t distances[];
+
+      int thread_idx = threadIdx.x;
+
+      const grid_t* index = param.grid;
+      const grid_cell_t& cell = index->cells[p.x + index->n_x * p.y];
+
+      cast_scene_intersection_step(p, cell, param.ray, param.grid, param.faces);
+      cast_scene_reduction_step();
+      // Finalization step
+      if (thread_idx == 0)
+      {
+          const ray_t& ray = param.ray;
+          int face_idx = distances[0].face_idx;
+          if (face_idx != -1)
+          {
+              int result_code = cuda_math::triangle_intersect(ray.origin, ray.direction, param.faces[face_idx].points, param.hit_point);
+              *param.hit_face = result_code == TRIANGLE_INTERSECTION_UNIQUE ? distances[0].face_idx : -1;
+          }
+          else
+          {
+              *param.hit_face = -1;
+          }
+      }
+  }
+  
   __device__ bool traversal_handler(grid_coord_t p, callback_param_t* param)
   {
-    const grid_t* index = param->grid;
+    int shared_size = 32 * sizeof(naive_cuda_ray_caster::distance_reduce_step_t);
+    cast_cell << <1, 32, shared_size >> >(p, *param);
 
-    const grid_cell_t& cell = index->cells[p.x + index->n_x * p.y];
-    // @todo Sort geometry in z-order?
-    for (int i = 0; i != cell.count; ++i)
-    {
-      const int f = index->triangles[cell.offset + i];
-      const face_t& triangle = param->faces[f];
-      vec3 point;
-      const ray_t& ray = param->ray;
-      int check_result = cuda_math::triangle_intersect(ray.origin, ray.direction, triangle.points, &point);
-      if (check_result == TRIANGLE_INTERSECTION_UNIQUE)
-      {
-        // Check if we hit geometry in the current cell.
-        vec3 locator = (point - index->base) / index->side;
-        if (p.x != (int)locator.x || p.y != (int)locator.y)
-          continue;
-
-        vec3 space_distance = point - ray.origin;
-        math::point_t new_distance = dot(space_distance, space_distance);
-        if (new_distance < param->min_distance)
-        {
-          param->min_distance = new_distance;
-          param->hit_face = f;
-          param->hit_point = point;
-        }
-      }
-    }
+    cudaDeviceSynchronize();
 
     // Don't continue traversal if we hit something.
-    return param->hit_face != -1;
+    return *param->hit_face != -1;
   }
 
   __device__ void grid_traverse(const grid_t* grid, ray_t ray, callback_param_t* param)
@@ -704,13 +772,8 @@ namespace zgrid_cuda_ray_caster
     {
       ray_t ray = rays[i];
 
-      callback_param_t param = { faces, grid, ray, FLT_MAX, -1 };
+      callback_param_t param = { faces, grid, ray, &indices[i], &points[i] };
       grid_traverse(grid, ray, &param);
-      if (param.hit_face != -1)
-      {
-        indices[i] = param.hit_face;
-        points[i] = param.hit_point;
-      }
     }
   }
 
