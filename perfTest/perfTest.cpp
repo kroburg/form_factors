@@ -155,11 +155,11 @@ int main(int argc, char* argv[])
 {
   try
   {
-    int n_faces = 80000;
+    int n_faces = 20000;
     int n_rays = 100 * n_faces;
     bool no_cpu = false;
     bool no_form_factors = true;
-    bool no_radiance = true;
+    bool no_radiance = false;
 
     float radius = 20;
     

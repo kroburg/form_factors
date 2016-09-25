@@ -104,7 +104,7 @@ namespace zgrid_cuda_ray_caster
   * @param[out] indices Array of intersection results with each face (-1 if no intersection or face index in faces array if intersected).
   * @param[out] points Array of intersection points for each face in faces array.
   */
-  __global__ void cast_scene(const face_t* faces, const grid_t* grid, const ray_t* rays, int n_rays, int* indices, vec3* points);
+  __global__ void cast_scene(const face_t* faces, int n_faces, const grid_t* grid, const ray_t* rays, int n_rays, int* indices, vec3* points);
 }
 
 namespace cuda_math
