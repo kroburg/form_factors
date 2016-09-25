@@ -32,6 +32,7 @@
 #include "../thermal_equation/radiance_cpu.h"
 #include "../subject/generator.h"
 #include "../import_export/obj_export.h"
+#include "../import_export/obj_import.h"
 
 #include <helper_timer.h>
 
@@ -155,7 +156,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    int n_faces = 20000;
+    int n_faces = 38000;
     int n_rays = 100 * n_faces;
     bool no_cpu = false;
     bool no_form_factors = true;
@@ -169,10 +170,25 @@ int main(int argc, char* argv[])
     system_t* naive_system = system_create(RAY_CASTER_NAIVE_CUDA);
     system_t* zgrid_system = system_create(RAY_CASTER_ZGRID_CPU);
     emission::system_t* emitter = emission::system_create(EMISSION_MALLEY_CPU, cuda_system);
-    printf("Generating confetti scene with %d elements...\n", n_faces);
+    
 
     // Create random scene for ray caster.
-    scene_t* scene = MakeConfettiScene(n_faces, radius, generator);
+    
+    scene_t* scene = 0;
+    ray_caster::scene_t* rs = 0;
+    subject::scene_t* ss = 0;
+    if (argc == 1) {
+      printf("Generating confetti scene with %d elements...\n", n_faces);
+      rs = MakeConfettiScene(n_faces, radius, generator);
+      scene = rs;
+    }
+    else {
+      printf("Loading scene from '%s'...\n", argv[1]);
+      if (int r = obj_import::scene(argv[1], &ss))
+        return r;
+      n_rays = 100 * ss->n_faces;
+      scene = (scene_t*)ss;
+    }
     math::grid_draw_hist(1024, scene->faces, scene->n_faces);
     printf("Generating %d collapsing rays...\n", n_rays);
 
@@ -360,7 +376,8 @@ int main(int argc, char* argv[])
     system_free(naive_system);
     system_free(zgrid_system);
 
-    scene_free(scene);
+    scene_free(rs);
+    scene_free(ss);
     free(gpuTask->ray);
     free(gpuTask->hit_face);
     free(gpuTask->hit_point);

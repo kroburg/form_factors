@@ -1,0 +1,15 @@
+newmtl aluminium
+shell.density 2698.899902
+shell.heat_capacity 903.000000
+shell.thermal_conductivity 237.000000
+shell.thickness 0.010000
+front.specular_reflectance 0.000000
+front.diffuse_reflectance 0.000000
+front.absorbance 1.000000
+front.transmittance 0.000000
+front.emissivity 0
+rear.specular_reflectance 0.000000
+rear.diffuse_reflectance 0.000000
+rear.absorbance 1.000000
+rear.transmittance 0.000000
+rear.emissivity 0

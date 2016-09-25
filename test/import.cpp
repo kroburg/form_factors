@@ -20,14 +20,6 @@
 
 using namespace testing;
 
-//class ObjImport: public Test
-//{
-//public:
-//  ObjImport()
-//  {
-//  }
-//};
-
 TEST(ObjImport, ParseFaces)
 {
   subject::scene_t* scene = 0;

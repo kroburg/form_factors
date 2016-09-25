@@ -41,109 +41,28 @@ namespace obj_import
     int indices[3];
   };
 
-  /// @note Mindflow mode on
-  int scene(const char* filename, subject::scene_t** scene)
+  int material_lib(const char* filename, std::vector<subject::material_t>& materials, std::map<std::string, int>& library)
   {
     std::ifstream file(filename);
     if (!file.is_open())
     {
+      fprintf(stderr, "Material library file '%s' not found.\n", filename);
       return -OBJ_IMPORT_FILE_ERROR;
     }
 
-    std::vector<math::vec3> vertices;
-    std::vector<idx_face_t> faces;
-    int mesh_start_idx = -1;
-    std::vector<subject::mesh_t> meshes;
-    std::vector<subject::material_t> materials;
-    typedef std::map<std::string, std::size_t> MaterialMap;
-    MaterialMap material2IndexMap;
     std::string str;
     unsigned line = 0;
 
     while (getline(file, str))
-    {  
+    {
       ++line;
       if (str == "" || str[0] == '#')
       {
         continue;
       }
 
-      reparse_line:
-      bool retry_current_line = false;
-
       switch (str[0])
       {
-      case 'v':
-      {
-        math::vec3 vertex;
-        int count = sscanf(str.c_str() + 1, "%f %f %f", &(vertex.x), &(vertex.y), &(vertex.z));
-        if (count == 3)
-        {
-          vertices.push_back(vertex);
-        }
-        else
-        {
-          return -OBJ_IMPORT_FORMAT_ERROR;
-        }
-      }
-      break;
-
-      case 'f':
-      {
-        int i0, i1, i2;
-        i0 = i1 = i2 = 0;
-        int count = sscanf(str.c_str() + 1, "%d %d %d", &i0, &i1, &i2);
-        if (count == 3)
-        {
-          idx_face_t face = { i0 - 1, i1 - 1, i2 - 1 };
-          faces.push_back(face);
-        }
-        else
-        {
-          return -OBJ_IMPORT_FORMAT_ERROR;
-        }
-      }
-      break;
-
-      case 'g':
-      {
-        subject::mesh_t mesh;
-        mesh.first_idx = faces.size();
-        mesh.material_idx = 0;
-        if (!meshes.empty())
-          meshes.back().n_faces = faces.size() - meshes.back().first_idx;
-        meshes.push_back(mesh);
-      }
-      break;
-
-      case 'u':
-      {
-        std::string::size_type pos = str.find_first_of(" \t");
-        if (pos == std::string::npos)
-        {
-          fprintf(stderr, "Failed to parse line %d '%s'\n", line, str.c_str());
-          return -OBJ_IMPORT_FORMAT_ERROR;
-        }
-
-        std::string token = str.substr(0, pos);
-        if (token != "usemtl")
-        {
-          fprintf(stderr, "Invalid material token at line %d '%s'\n", line, str.c_str());
-          return -OBJ_IMPORT_FORMAT_ERROR;
-        }
-
-        std::string name = str.substr(pos + 1);
-        MaterialMap::const_iterator found = material2IndexMap.find(name);
-        if (found == material2IndexMap.end())
-        {
-          fprintf(stderr, "Failed to find material reference '%s' at line %d\n", name.c_str(), line);
-          return -OBJ_IMPORT_MATERIAL_NOT_DEFINED;
-        }
-
-        meshes.back().material_idx = found->second;
-      }
-      break;
-
       case 'n':
       {
         if (strncmp("newmtl", str.c_str(), 6) != 0)
@@ -187,7 +106,10 @@ namespace obj_import
         while (getline(file, str) && parsedParameters.size() != materialProperties.size())
         {
           ++line;
-          if (str == "" || str[0] == '#')
+          if (str == "")
+            break;
+
+          if (str[0] == '#')
             continue;
 
           std::string::size_type pos = str.find_first_of(" \t");
@@ -198,21 +120,13 @@ namespace obj_import
           }
 
           std::string propertyName = str.substr(0, pos);
-          if (propertyName == "v" ||
-            propertyName == "f" ||
-            propertyName == "g")
-          {
-            retry_current_line = true;
-            goto finish_material_parsing;
-          }
-
           std::string propertyValue = str.substr(pos + 1);
 
           MaterialPropertiesMap::const_iterator found = materialProperties.find(propertyName);
           if (found == materialProperties.end())
           {
-            fprintf(stderr, "Unknown material property '%s' at line %d\n", propertyName.c_str(), line);
-            return -OBJ_IMPORT_FORMAT_ERROR;
+            fprintf(stderr, "Skip unknown material property '%s' at line %d\n", propertyName.c_str(), line);
+            continue;
           }
 
           if (sscanf(propertyValue.c_str(), "%f", found->second) != 1)
@@ -224,13 +138,11 @@ namespace obj_import
           parsedParameters.insert(propertyName);
         }
 
-      finish_material_parsing:;
-
         if (parsedParameters.size() != materialProperties.size())
         {
           std::string missingProperties;
           for (MaterialPropertiesMap::const_iterator checkName = materialProperties.begin(); checkName != materialProperties.end(); ++checkName)
-          { 
+          {
             if (parsedParameters.find(checkName->first) == parsedParameters.end())
             {
               missingProperties += missingProperties.empty() ? "" : ", ";
@@ -238,19 +150,174 @@ namespace obj_import
             }
           }
 
-          fprintf(stderr, "Not enough (%d) material parameters for material '%s' at line %d, missing properties are %s\n", materialProperties.size() - parsedParameters.size(), name.c_str(), line, missingProperties.c_str());
+          fprintf(stderr, "Not enough (%zu) material parameters for material '%s' at line %d, missing properties are %s\n", materialProperties.size() - parsedParameters.size(), name.c_str(), line, missingProperties.c_str());
           return -OBJ_IMPORT_MATERIAL_NOT_ENOUGH_PARAMETERS;
         }
-        
-        materials.push_back(m);
-        material2IndexMap[name] = materials.size() - 1;
 
-        if (retry_current_line)
-          goto reparse_line;
+        materials.push_back(m);
+        library[name] = (int)(materials.size() - 1);
+      }
+      break;
+      }
+    }
+
+    return OBJ_IMPORT_OK;
+  }
+
+  /// @note Mindflow mode on
+  int scene(const char* filename, subject::scene_t** scene)
+  {
+    std::ifstream file(filename);
+    if (!file.is_open())
+    {
+      fprintf(stderr, "Scene file '%s' not found.\n", filename);
+      return -OBJ_IMPORT_FILE_ERROR;
+    }
+
+    std::vector<math::vec3> vertices;
+    std::vector<idx_face_t> faces;
+    int mesh_start_idx = -1;
+    std::vector<subject::mesh_t> meshes;
+    std::vector<subject::material_t> materials;
+    typedef std::map<std::string, int> MaterialMap;
+    MaterialMap material2IndexMap;
+    std::string str;
+    unsigned line = 0;
+
+    while (getline(file, str))
+    {  
+      ++line;
+      if (str == "" || str[0] == '#')
+      {
+        continue;
+      }
+
+      if (str.length() < 3)
+        continue;
+
+      switch (str[0])
+      {
+      case 'v':
+      {        
+        if (str[1] == 'n' || str[1] == 't')
+          continue;
+        math::vec3 vertex;
+        int count = sscanf(str.c_str() + 1, "%f %f %f", &(vertex.x), &(vertex.y), &(vertex.z));
+        if (count == 3)
+        {
+          vertices.push_back(vertex);
+        }
+        else
+        {
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
       }
       break;
 
+      case 'f':
+      {
+        int d;
+        int i0, i1, i2;
+        i0 = i1 = i2 = 0;
+        int count = sscanf(str.c_str() + 1, "%d %d %d", &i0, &i1, &i2);
+        if (count != 3)
+        {
+          count = sscanf(str.c_str() + 1, "%d//%d %d//%d %d//%d", &i0, &d, &i1, &d, &i2, &d);
+          if (count != 6)
+          {
+            count = sscanf(str.c_str() + 1, "%d/%d/%d %d/%d/%d %d/%d/%d", &i0, &d, &d, &i1, &d, &d, &i2, &d, &d);
+            if (count != 9)
+            {
+              fprintf(stderr, "Bad face description '%s' at line %d\n", str.c_str(), line);
+              return -OBJ_IMPORT_FORMAT_ERROR;
+            }
+          }
+        }
+
+        idx_face_t face = { i0 - 1, i1 - 1, i2 - 1 };
+        faces.push_back(face);
+      }
+      break;
+
+      // Ignore shading smoothing group
+      case 's':
+        continue;
+
+      case 'o':
+      case 'g':
+      {
+        subject::mesh_t mesh;
+        mesh.first_idx = (int)faces.size();
+        mesh.material_idx = 0;
+        if (!meshes.empty())
+          meshes.back().n_faces = (int)(faces.size() - meshes.back().first_idx);
+        meshes.push_back(mesh);
+      }
+      break;
+
+      case 'u':
+      {
+        std::string::size_type pos = str.find_first_of(" \t");
+        if (pos == std::string::npos)
+        {
+          fprintf(stderr, "Failed to parse line %d '%s'\n", line, str.c_str());
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
+
+        std::string token = str.substr(0, pos);
+        if (token != "usemtl")
+        {
+          fprintf(stderr, "Invalid material token at line %d '%s'\n", line, str.c_str());
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
+
+        std::string name = str.substr(pos + 1);
+        MaterialMap::const_iterator found = material2IndexMap.find(name);
+        if (found == material2IndexMap.end())
+        {
+          fprintf(stderr, "Failed to find material reference '%s' at line %d\n", name.c_str(), line);
+          return -OBJ_IMPORT_MATERIAL_NOT_DEFINED;
+        }
+
+        meshes.back().material_idx = found->second;
+      }
+      break;
+
+      case 'm':
+      {
+        if (strncmp("mtllib", str.c_str(), 6) != 0)
+        {
+          fprintf(stderr, "Failed to parse mtllib at line %d\n", line);
+          return -OBJ_IMPORT_FORMAT_ERROR;
+        }
+
+        std::string library_name = str.substr(7);
+        std::string library_path = library_name;
+        
+        if (library_name.find("/\\") > library_name.length())
+        {
+          std::string base_name(filename);
+          size_t dir_pos = base_name.find_last_of("/\\");
+          if (dir_pos < base_name.length())
+            base_name = base_name.substr(0, dir_pos + 1);
+          else
+            base_name = "";
+          std::string library_name = str.substr(7);
+          library_path = base_name + library_name;
+        }
+
+        fprintf(stderr, "Loading material lib '%s'\n", library_path.c_str());
+
+        if (int r = material_lib(library_path.c_str(), materials, material2IndexMap))
+        {
+          return r;
+        }
+      }
+      break;     
+
       default:
+        fprintf(stderr, "Unknown directive '%s' at line %d\n", str.c_str(), line);
+        continue;
         break;
       }
     
@@ -263,7 +330,7 @@ namespace obj_import
     *scene = result;
 
     // Triangulation to vertices from face indices.
-    result->n_faces = faces.size();
+    result->n_faces = (int)faces.size();
     result->faces = (subject::face_t *)malloc(result->n_faces * sizeof(subject::face_t));
     for (int i = 0; i < result->n_faces; ++i)
     {
@@ -281,11 +348,11 @@ namespace obj_import
     {
       result->meshes[0].first_idx = 0;
       result->meshes[0].material_idx = 0;
-      result->n_faces = result->meshes[0].n_faces = faces.size();
+      result->n_faces = result->meshes[0].n_faces = (int)faces.size();
     }
     else
     {
-      meshes.back().n_faces = faces.size() - meshes.back().first_idx;
+      meshes.back().n_faces = (int)(faces.size() - meshes.back().first_idx);
       memcpy(result->meshes, meshes.data(), sizeof(subject::mesh_t) * result->n_meshes);
     }
 
@@ -329,7 +396,7 @@ namespace obj_import
         return -1;
     }
 
-    nchars_avail = *n - offset;
+    nchars_avail = (int)(*n - offset);
     read_pos = *lineptr + offset;
 
     for (;;)
@@ -347,7 +414,7 @@ namespace obj_import
         else
           *n += 64;
 
-        nchars_avail = *n + *lineptr - read_pos;
+        nchars_avail = (int)(*n + *lineptr - read_pos);
         *lineptr = (char *)realloc(*lineptr, *n);
         if (!*lineptr)
           return -1;
@@ -374,7 +441,7 @@ namespace obj_import
     /* Done - NUL terminate and return the number of chars read.  */
     *read_pos = '\0';
 
-    ret = read_pos - (*lineptr + offset);
+    ret = (int)(read_pos - (*lineptr + offset));
     return ret;
   }
 
@@ -480,6 +547,6 @@ namespace obj_import
       }
     }
 
-    return n;
+    return (int)n;
   }
 }
